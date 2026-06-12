@@ -15,7 +15,8 @@
       "PowerShell(if \\(Test-Path node_modules\\\\bare-runtime-win32-x64\\) { Get-ChildItem node_modules\\\\bare-runtime-win32-x64 -Recurse | Select-Object FullName, @{N='MB';E={[math]::Round\\($_.Length/1MB,1\\)}} } else { 'bare-runtime-win32-x64 NOT INSTALLED' })",
       "PowerShell(& \".\\\\node_modules\\\\bare-runtime-win32-x64\\\\bin\\\\bare.exe\" -e \"console.log\\('bare runtime OK, version:', Bare.version || 'unknown'\\)\")",
       "PowerShell(node src/gpu-test.js)",
-      "PowerShell(git *)"
+      "PowerShell(git *)",
+      "PowerShell(node src/medgemma-test.js)"
     ]
   }
 }

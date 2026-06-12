@@ -4,12 +4,13 @@ Today: June 11. Hard deadline: June 21 23:59 UTC. Early bird: June 14 (per Offic
 
 ## Milestones
 
-### M1 — Core inference works (June 11)
+### M1 — Core inference works (June 11) ✅
 - [x] Repo scaffold: license, README, remote-apis.yaml, .gitignore
-- [ ] `npm install @qvac/sdk` succeeds on Windows
-- [ ] Smoke test: load small LLM, run completion, measure TTFT/TPS
-- [ ] Audit logger module (JSON lines: model load/unload, prompt, tokens, TTFT, tok/s)
-- [ ] Find MedPsy model id in QVAC model registry; verify it loads on GTX 1660S
+- [x] `npm install @qvac/sdk` succeeds on Windows (v0.12.2; retry needed on flaky network)
+- [x] Smoke test: Llama 3.2 1B — CPU 31.6 tok/s, TTFT 1548 ms
+- [x] GPU offload (`gpu_layers: 99, "main-gpu": "dedicated"`) — 127.6 tok/s, TTFT 116 ms
+- [x] Audit logger module (JSON lines: model load/unload, prompt, tokens, TTFT, tok/s)
+- [x] Medical model = MEDGEMMA_4B_IT_Q4_1 (SDK constant; registry blob unsloth/medgemma-4b-it-GGUF)
 
 ### M2 — RAG over health documents (June 12)
 - [ ] Embeddings model + ragSaveEmbeddings/ragSearch

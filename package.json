@@ -5,6 +5,9 @@
   "type": "module",
   "scripts": {
     "smoke": "node src/smoke-test.js",
+    "test:gpu": "node src/gpu-test.js",
+    "test:medgemma": "node src/medgemma-test.js",
+    "demo:rag": "node src/demo-rag.js",
     "start": "node src/server.js"
   },
   "keywords": [
