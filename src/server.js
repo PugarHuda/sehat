@@ -1,14 +1,16 @@
-// Sehat desktop server: hosts the mobile web UI on the LAN and (optionally)
-// doubles as a QVAC P2P provider. The Redmi phone opens http://<desktop-ip>:8787.
+// Sehat desktop server: mobile web UI on the LAN + voice + Indonesian mode,
+// optionally doubling as a QVAC P2P provider.
 //
-//   node src/server.js            -> UI server only
-//   SEHAT_P2P=1 node src/server.js -> UI server + P2P provider
-import { createServer } from "node:http";
-import { readFileSync, readdirSync } from "node:fs";
+//   node src/server.js             -> HTTPS (if certs/sehat.pfx exists) else HTTP
+//   SEHAT_P2P=1 node src/server.js -> also start the P2P provider
+import { createServer as createHttpServer } from "node:http";
+import { createServer as createHttpsServer } from "node:https";
+import { readFileSync, readdirSync, existsSync, writeFileSync, unlinkSync, mkdirSync } from "node:fs";
 import { join, basename } from "node:path";
-import { networkInterfaces } from "node:os";
-import { startQVACProvider } from "@qvac/sdk";
+import { tmpdir, networkInterfaces } from "node:os";
+import { startQVACProvider, loadModel, transcribe, PARAKEET_CTC_0_6B_Q8_0 } from "@qvac/sdk";
 import { SehatEngine } from "./engine.js";
+import { Translator } from "./translator.js";
 
 const PORT = Number(process.env.PORT ?? 8787);
 const engine = new SehatEngine();
@@ -28,12 +30,32 @@ if (!probe || probe.hits.length === 0) {
   }
 }
 
+// Lazy singletons for optional capabilities.
+let translator = null;
+async function getTranslator() {
+  if (!translator) {
+    console.log("Loading Bergamot ID<->EN translator...");
+    translator = new Translator();
+    await translator.start();
+  }
+  return translator;
+}
+
+let sttId = null;
+async function getStt() {
+  if (!sttId) {
+    console.log("Loading Parakeet STT...");
+    sttId = await loadModel({ modelSrc: PARAKEET_CTC_0_6B_Q8_0, modelType: "parakeet" });
+  }
+  return sttId;
+}
+
 // One inference at a time; later requests queue up.
 let queue = Promise.resolve();
 
 const html = readFileSync("public/index.html");
 
-const server = createServer(async (req, res) => {
+async function handler(req, res) {
   const url = new URL(req.url, `http://${req.headers.host}`);
 
   if (req.method === "GET" && url.pathname === "/") {
@@ -43,6 +65,7 @@ const server = createServer(async (req, res) => {
 
   if (req.method === "GET" && url.pathname === "/api/ask") {
     const question = (url.searchParams.get("q") ?? "").slice(0, 2000).trim();
+    const lang = url.searchParams.get("lang") === "id" ? "id" : "en";
     if (!question) {
       res.writeHead(400);
       return res.end("missing q");
@@ -57,20 +80,56 @@ const server = createServer(async (req, res) => {
 
     queue = queue
       .then(async () => {
-        const { hits, stats } = await engine.ask(question, {
-          onToken: (tok) => send("token", tok),
+        let asked = question;
+        if (lang === "id") {
+          const tr = await getTranslator();
+          asked = (await tr.toEnglish(question)).trim();
+          send("token", `🔁 ${asked}\n\n`);
+        }
+        const { answer, hits, stats } = await engine.ask(asked, {
+          onToken: lang === "en" ? (tok) => send("token", tok) : undefined,
         });
+        if (lang === "id") {
+          const tr = await getTranslator();
+          const indo = await tr.toIndonesian(answer.replace(/\[doc:[^\]]*\]/g, "").trim());
+          send("token", indo.trim());
+        }
         const sources = [
           ...new Set(
-            hits
-              .map((h) => /\[source: ([^\]]+)\]/.exec(h.content)?.[1])
-              .filter(Boolean)
+            hits.map((h) => /\[source: ([^\]]+)\]/.exec(h.content)?.[1]).filter(Boolean)
           ),
         ];
         send("done", { stats, sources });
       })
       .catch((err) => send("error", String(err?.message ?? err)))
       .finally(() => res.end());
+    return;
+  }
+
+  if (req.method === "POST" && url.pathname === "/api/voice") {
+    const chunks = [];
+    req.on("data", (c) => chunks.push(c));
+    req.on("end", async () => {
+      const wav = Buffer.concat(chunks);
+      if (wav.length < 1000) {
+        res.writeHead(400, { "content-type": "application/json" });
+        return res.end(JSON.stringify({ error: "audio too short" }));
+      }
+      const tmp = join(tmpdir(), `sehat-voice-${Date.now()}.wav`);
+      writeFileSync(tmp, wav);
+      try {
+        const modelId = await getStt();
+        const heard = await transcribe({ modelId, audioChunk: tmp });
+        const text = (typeof heard === "string" ? heard : heard.text ?? "").trim();
+        res.writeHead(200, { "content-type": "application/json" });
+        res.end(JSON.stringify({ text }));
+      } catch (err) {
+        res.writeHead(500, { "content-type": "application/json" });
+        res.end(JSON.stringify({ error: String(err?.message ?? err) }));
+      } finally {
+        try { unlinkSync(tmp); } catch {}
+      }
+    });
     return;
   }
 
@@ -94,7 +153,14 @@ const server = createServer(async (req, res) => {
 
   res.writeHead(404);
   res.end("not found");
-});
+}
+
+const PFX = "certs/sehat.pfx";
+const useTls = existsSync(PFX);
+const server = useTls
+  ? createHttpsServer({ pfx: readFileSync(PFX), passphrase: "sehat-lan" }, handler)
+  : createHttpServer(handler);
+const proto = useTls ? "https" : "http";
 
 server.listen(PORT, "0.0.0.0", async () => {
   const ips = Object.values(networkInterfaces())
@@ -102,8 +168,10 @@ server.listen(PORT, "0.0.0.0", async () => {
     .filter((i) => i && i.family === "IPv4" && !i.internal)
     .map((i) => i.address);
   console.log("\n=== Sehat is up ===");
-  for (const ip of ips) console.log(`Open on your phone:  http://${ip}:${PORT}`);
-  console.log(`Local:               http://localhost:${PORT}`);
+  for (const ip of ips) console.log(`Open on your phone:  ${proto}://${ip}:${PORT}`);
+  console.log(`Local:               ${proto}://localhost:${PORT}`);
+  if (useTls)
+    console.log("(self-signed cert: the phone shows a warning once — Advanced > Proceed)");
 
   if (process.env.SEHAT_P2P === "1") {
     const p = await startQVACProvider({});

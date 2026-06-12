@@ -60,8 +60,34 @@ log.inference({
 });
 
 console.log(
-  `\n\n--- P2P delegation test ---\nTTFT: ${ttftMs} ms | tokens: ${tokenCount} | ` +
+  `\n\n--- P2P delegation test (streaming) ---\nTTFT: ${ttftMs} ms | tokens: ${tokenCount} | ` +
     `tok/s: ${(tokenCount / (durationMs / 1000)).toFixed(2)} (includes network hop)`
+);
+
+// Same prompt, non-streaming: one P2P round trip for the whole answer,
+// to isolate per-token streaming overhead from raw delegated throughput.
+const tBatch = performance.now();
+const batch = completion({
+  modelId,
+  history: [{ role: "user", content: prompt }],
+  stream: false,
+});
+const batchText = await batch.text;
+const batchMs = Math.round(performance.now() - tBatch);
+const batchTokens = Math.round(batchText.length / 4); // rough token estimate
+
+log.inference({
+  modelId,
+  task: "completion-delegated-p2p-batch",
+  prompt,
+  completionTokens: batchTokens,
+  ttftMs: null,
+  durationMs: batchMs,
+});
+
+console.log(
+  `--- P2P delegation test (non-streaming) ---\ntotal: ${batchMs} ms | ~${batchTokens} tokens | ` +
+    `~${(batchTokens / (batchMs / 1000)).toFixed(2)} tok/s`
 );
 
 await unloadModel({ modelId });

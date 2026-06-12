@@ -10,6 +10,9 @@
     "demo:rag": "node src/demo-rag.js",
     "demo:voice": "node src/demo-voice.js",
     "demo:ocr": "node src/ocr-ingest.js",
+    "demo:agent": "node src/demo-agent.js",
+    "demo:translate": "node src/demo-translate.js",
+    "test:injection": "node src/test-injection.js",
     "provider": "node src/provider.js",
     "delegate": "node src/delegate-test.js",
     "start": "node src/server.js"

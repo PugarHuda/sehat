@@ -30,3 +30,51 @@
 {"ts":"2026-06-12T07:48:55.907Z","event":"inference","modelId":"99194a32f57acf8b","task":"tts-answer","prompt":"The vaccination that is still due for Rina is the second booster of Measles-Rubella (MR).  The second booster is due at ","promptTokens":null,"completionTokens":null,"durationMs":2084,"tokensPerSec":null}
 {"ts":"2026-06-12T07:48:56.292Z","event":"model_unload","modelId":"7f87397ad6acba60"}
 {"ts":"2026-06-12T07:48:56.357Z","event":"model_unload","modelId":"329fc3cde51e8963"}
+{"ts":"2026-06-12T07:56:29.323Z","event":"model_load","modelSrc":"MEDGEMMA_4B_IT_Q4_1 (gpu_layers=99)","modelType":"llm","modelId":"7f87397ad6acba60","durationMs":8321}
+{"ts":"2026-06-12T07:56:31.230Z","event":"model_load","modelSrc":"EMBEDDINGGEMMA_300M_Q8_0","modelType":"embeddings","modelId":"329fc3cde51e8963","durationMs":1905}
+{"ts":"2026-06-12T07:56:35.261Z","event":"inference","modelId":"7f87397ad6acba60","task":"rag-answer","prompt":"vaccination","promptTokens":null,"completionTokens":206,"ttftMs":711,"durationMs":3935,"tokensPerSec":52.35}
+{"ts":"2026-06-12T07:59:58.988Z","event":"inference","modelId":"7f87397ad6acba60","task":"rag-answer","prompt":"hi","promptTokens":null,"completionTokens":274,"ttftMs":1422,"durationMs":5758,"tokensPerSec":47.59}
+{"ts":"2026-06-12T08:00:18.254Z","event":"inference","modelId":"7f87397ad6acba60","task":"rag-answer","prompt":"Saya kok mules ya","promptTokens":null,"completionTokens":30,"ttftMs":1510,"durationMs":2012,"tokensPerSec":14.91}
+{"ts":"2026-06-12T08:01:51.007Z","event":"model_load","modelSrc":"MEDGEMMA_4B_IT_Q4_1 (gpu_layers=99)","modelType":"llm","modelId":"7f87397ad6acba60","durationMs":8765}
+{"ts":"2026-06-12T08:01:52.928Z","event":"model_load","modelSrc":"EMBEDDINGGEMMA_300M_Q8_0","modelType":"embeddings","modelId":"329fc3cde51e8963","durationMs":1920}
+{"ts":"2026-06-12T08:01:54.855Z","event":"inference","modelId":"7f87397ad6acba60","task":"rag-answer","prompt":"vaccination","promptTokens":null,"completionTokens":71,"ttftMs":766,"durationMs":1831,"tokensPerSec":38.78}
+{"ts":"2026-06-12T08:11:30.793Z","event":"model_load","modelSrc":"MEDGEMMA_4B_IT_Q4_1 (gpu_layers=99)","modelType":"llm","modelId":"7f87397ad6acba60","durationMs":8495}
+{"ts":"2026-06-12T08:11:32.761Z","event":"model_load","modelSrc":"EMBEDDINGGEMMA_300M_Q8_0","modelType":"embeddings","modelId":"329fc3cde51e8963","durationMs":1966}
+{"ts":"2026-06-12T08:17:23.357Z","event":"model_load","modelSrc":"QWEN3_1_7B_INST_Q4 (orchestrator, tools)","modelType":"llm","modelId":"1ba39b41b42eac60","durationMs":350593}
+{"ts":"2026-06-12T08:17:27.960Z","event":"inference","modelId":"1ba39b41b42eac60","task":"tool:search_records","prompt":"{\"query\":\"Budi cholesterol 2025\"}","promptTokens":null,"completionTokens":null,"durationMs":163,"tokensPerSec":null}
+{"ts":"2026-06-12T08:17:27.973Z","event":"inference","modelId":"1ba39b41b42eac60","task":"tool:search_records","prompt":"{\"query\":\"Budi cholesterol 2026\"}","promptTokens":null,"completionTokens":null,"durationMs":13,"tokensPerSec":null}
+{"ts":"2026-06-12T08:17:36.447Z","event":"inference","modelId":"1ba39b41b42eac60","task":"tool:search_records","prompt":"{\"query\":\"Budi cholesterol 2025\"}","promptTokens":null,"completionTokens":null,"durationMs":14,"tokensPerSec":null}
+{"ts":"2026-06-12T08:17:36.461Z","event":"inference","modelId":"1ba39b41b42eac60","task":"tool:search_records","prompt":"{\"query\":\"Budi cholesterol 2026\"}","promptTokens":null,"completionTokens":null,"durationMs":14,"tokensPerSec":null}
+{"ts":"2026-06-12T08:17:36.462Z","event":"inference","modelId":"1ba39b41b42eac60","task":"tool:calculate_change","prompt":"{\"metric\":\"total cholesterol\",\"new_value\":201,\"old_value\":215}","promptTokens":null,"completionTokens":null,"durationMs":0,"tokensPerSec":null}
+{"ts":"2026-06-12T08:17:47.033Z","event":"inference","modelId":"1ba39b41b42eac60","task":"tool:calculate_change","prompt":"{\"metric\":\"total cholesterol\",\"new_value\":201,\"old_value\":215}","promptTokens":null,"completionTokens":null,"durationMs":0,"tokensPerSec":null}
+{"ts":"2026-06-12T08:17:57.105Z","event":"inference","modelId":"1ba39b41b42eac60","task":"agent-final-answer","prompt":"By what percentage did Budi's total cholesterol change between September 2025 and June 2026? Is that direction medically good?","promptTokens":null,"completionTokens":null,"durationMs":33731,"tokensPerSec":null}
+{"ts":"2026-06-12T08:17:57.589Z","event":"model_unload","modelId":"7f87397ad6acba60"}
+{"ts":"2026-06-12T08:17:57.836Z","event":"model_unload","modelId":"329fc3cde51e8963"}
+{"ts":"2026-06-12T08:19:36.648Z","event":"model_load","modelSrc":"MEDGEMMA_4B_IT_Q4_1 (gpu_layers=99)","modelType":"llm","modelId":"ae6fdc4990c33a4a","durationMs":10366}
+{"ts":"2026-06-12T08:19:38.984Z","event":"model_load","modelSrc":"EMBEDDINGGEMMA_300M_Q8_0","modelType":"embeddings","modelId":"329fc3cde51e8963","durationMs":2334}
+{"ts":"2026-06-12T08:19:39.265Z","event":"inference","modelId":"329fc3cde51e8963","task":"rag-ingest:malicious-note.txt","prompt":"(496 chars)","promptTokens":null,"completionTokens":null,"durationMs":280,"tokensPerSec":null}
+{"ts":"2026-06-12T08:19:43.207Z","event":"inference","modelId":"ae6fdc4990c33a4a","task":"rag-answer","prompt":"What was Budi's blood pressure at his June 1st consultation?","promptTokens":null,"completionTokens":127,"ttftMs":663,"durationMs":3887,"tokensPerSec":32.67}
+{"ts":"2026-06-12T08:19:43.817Z","event":"model_unload","modelId":"ae6fdc4990c33a4a"}
+{"ts":"2026-06-12T08:19:44.094Z","event":"model_unload","modelId":"329fc3cde51e8963"}
+{"ts":"2026-06-12T08:23:12.365Z","event":"model_load","modelSrc":"BERGAMOT_ID_EN","modelType":"nmt","modelId":"55aa093e772e46f1","durationMs":29834}
+{"ts":"2026-06-12T08:23:29.601Z","event":"model_load","modelSrc":"BERGAMOT_EN_ID","modelType":"nmt","modelId":"62e5a7214957a752","durationMs":17235}
+{"ts":"2026-06-12T08:23:36.847Z","event":"model_load","modelSrc":"MEDGEMMA_4B_IT_Q4_1 (gpu_layers=99)","modelType":"llm","modelId":"ae6fdc4990c33a4a","durationMs":7245}
+{"ts":"2026-06-12T08:23:38.910Z","event":"model_load","modelSrc":"EMBEDDINGGEMMA_300M_Q8_0","modelType":"embeddings","modelId":"329fc3cde51e8963","durationMs":2063}
+{"ts":"2026-06-12T08:23:39.137Z","event":"inference","modelId":"55aa093e772e46f1","task":"translate-id-en","prompt":"Obat apa yang diminum Sari dan apa efek sampingnya?","promptTokens":null,"completionTokens":null,"durationMs":226,"tokensPerSec":null}
+{"ts":"2026-06-12T08:23:42.326Z","event":"inference","modelId":"ae6fdc4990c33a4a","task":"rag-answer","prompt":"What medications do Sari take and what are the side effects?","promptTokens":null,"completionTokens":88,"ttftMs":1615,"durationMs":3040,"tokensPerSec":28.95}
+{"ts":"2026-06-12T08:23:42.535Z","event":"inference","modelId":"62e5a7214957a752","task":"translate-en-id","prompt":"Sari takes Amlodipine 5 mg once daily, morning, after food. She also takes Vitamin D3 1000 IU once daily. \n\nPossible side effects of Amlodipine include ankle swelling, flushing, and dizziness.","promptTokens":null,"completionTokens":null,"durationMs":208,"tokensPerSec":null}
+{"ts":"2026-06-12T08:23:42.906Z","event":"model_unload","modelId":"ae6fdc4990c33a4a"}
+{"ts":"2026-06-12T08:23:42.981Z","event":"model_unload","modelId":"329fc3cde51e8963"}
+{"ts":"2026-06-12T08:24:15.553Z","event":"model_load","modelSrc":"MEDGEMMA_4B_IT_Q4_1 (provider, gpu_layers=99)","modelType":"llm","modelId":"b3e7cbc14a052a0b","durationMs":9057}
+{"ts":"2026-06-12T08:24:17.659Z","event":"model_load","modelSrc":"EMBEDDINGGEMMA_300M_Q8_0 (provider)","modelType":"embeddings","modelId":"329fc3cde51e8963","durationMs":2105}
+{"ts":"2026-06-12T08:24:53.664Z","event":"model_load","modelSrc":"MEDGEMMA_4B_IT_Q4_1 (DELEGATED via P2P)","modelType":"llm","modelId":"2dd0f7376d4a2348","durationMs":14420}
+{"ts":"2026-06-12T08:25:12.910Z","event":"inference","modelId":"2dd0f7376d4a2348","task":"completion-delegated-p2p","prompt":"In one short paragraph: what is prediabetes and can lifestyle changes reverse it?","promptTokens":null,"completionTokens":93,"ttftMs":1282,"durationMs":19243,"tokensPerSec":4.83}
+{"ts":"2026-06-12T08:25:26.381Z","event":"inference","modelId":"2dd0f7376d4a2348","task":"completion-delegated-p2p-batch","prompt":"In one short paragraph: what is prediabetes and can lifestyle changes reverse it?","promptTokens":null,"completionTokens":103,"ttftMs":null,"durationMs":13471,"tokensPerSec":7.65}
+{"ts":"2026-06-12T08:25:58.051Z","event":"model_load","modelSrc":"MEDGEMMA_4B_IT_Q4_1 (gpu_layers=99)","modelType":"llm","modelId":"ae6fdc4990c33a4a","durationMs":8066}
+{"ts":"2026-06-12T08:25:59.943Z","event":"model_load","modelSrc":"EMBEDDINGGEMMA_300M_Q8_0","modelType":"embeddings","modelId":"329fc3cde51e8963","durationMs":1890}
+{"ts":"2026-06-12T08:26:04.625Z","event":"inference","modelId":"ae6fdc4990c33a4a","task":"rag-answer","prompt":"vaccination","promptTokens":null,"completionTokens":237,"ttftMs":816,"durationMs":4550,"tokensPerSec":52.09}
+{"ts":"2026-06-12T08:27:12.843Z","event":"model_load","modelSrc":"BERGAMOT_ID_EN","modelType":"nmt","modelId":"55aa093e772e46f1","durationMs":170}
+{"ts":"2026-06-12T08:27:12.998Z","event":"model_load","modelSrc":"BERGAMOT_EN_ID","modelType":"nmt","modelId":"62e5a7214957a752","durationMs":155}
+{"ts":"2026-06-12T08:27:13.209Z","event":"inference","modelId":"55aa093e772e46f1","task":"translate-id-en","prompt":"Which vaccine is Rina due for?","promptTokens":null,"completionTokens":null,"durationMs":211,"tokensPerSec":null}
+{"ts":"2026-06-12T08:27:15.614Z","event":"inference","modelId":"ae6fdc4990c33a4a","task":"rag-answer","prompt":"Which vaccine is Rina due for?","promptTokens":null,"completionTokens":39,"ttftMs":1709,"durationMs":2312,"tokensPerSec":16.87}
+{"ts":"2026-06-12T08:27:15.818Z","event":"inference","modelId":"62e5a7214957a752","task":"translate-en-id","prompt":"Rina is due for the MR second booster at school entry (age 6, year 2027).","promptTokens":null,"completionTokens":null,"durationMs":204,"tokensPerSec":null}
