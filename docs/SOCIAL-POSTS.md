@@ -1,5 +1,26 @@
 # #teamSehat — Build in Public post bank
 
+## ✨ DAILY UPDATE — ready to post today (attach: phone screenshot / terminal QA output)
+
+> Day 2 of #teamSehat at the @QVAC hackathon — QA day.
+>
+> ✅ 12/12 server test cases (hallucination, injection, voice, typos)
+> ✅ OCR reads docs even ROTATED 90° + 11pt print
+> ✅ Asked in 6 languages — facts correct in all of them
+> ✅ ragReindex: search on 200+ docs went 125ms → 11ms
+>
+> Found 1 real date-attribution bug, fixed, re-tested. All local, zero cloud.
+
+## ✨ DAILY UPDATE — for tomorrow (attach: screen recording of agent trace on phone)
+
+> Our budget phone now runs AGENT MODE 🤖 — #teamSehat day 3 @QVAC hackathon.
+>
+> Toggle it on and a Qwen3 orchestrator plans the work: searches our records,
+> hands math to a calculator tool, consults MedGemma for medical meaning.
+> You watch every tool call stream onto the phone, live, from the family PC.
+>
+> Also: Sehat is now an installable PWA. Looks like a real app because it is one.
+
 Rules recap: tag @QVAC, use #teamSehat, post often (more posts + more engagement
 = more points). Attach photos/screenshots/video whenever possible. Archive any
 livestream.
