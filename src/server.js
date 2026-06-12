@@ -10,6 +10,7 @@ import { join, basename } from "node:path";
 import { tmpdir, networkInterfaces } from "node:os";
 import { startQVACProvider, loadModel, transcribe, PARAKEET_CTC_0_6B_Q8_0 } from "@qvac/sdk";
 import { SehatEngine } from "./engine.js";
+import { SehatAgent } from "./agent.js";
 import { Translator } from "./translator.js";
 
 const PORT = Number(process.env.PORT ?? 8787);
@@ -50,10 +51,26 @@ async function getStt() {
   return sttId;
 }
 
+let agent = null;
+async function getAgent() {
+  if (!agent) {
+    console.log("Loading Qwen3 orchestrator for agent mode...");
+    agent = new SehatAgent({ engine }); // shares the already-loaded MedGemma
+    await agent.start();
+  }
+  return agent;
+}
+
 // One inference at a time; later requests queue up.
 let queue = Promise.resolve();
 
 const html = readFileSync("public/index.html");
+const STATIC = {
+  "/manifest.json": ["application/manifest+json", readFileSync("public/manifest.json")],
+  "/sw.js": ["text/javascript", readFileSync("public/sw.js")],
+  "/icon-192.png": ["image/png", readFileSync("public/icon-192.png")],
+  "/icon-512.png": ["image/png", readFileSync("public/icon-512.png")],
+};
 
 async function handler(req, res) {
   const url = new URL(req.url, `http://${req.headers.host}`);
@@ -61,6 +78,12 @@ async function handler(req, res) {
   if (req.method === "GET" && url.pathname === "/") {
     res.writeHead(200, { "content-type": "text/html; charset=utf-8" });
     return res.end(html);
+  }
+
+  if (req.method === "GET" && STATIC[url.pathname]) {
+    const [type, body] = STATIC[url.pathname];
+    res.writeHead(200, { "content-type": type });
+    return res.end(body);
   }
 
   if (req.method === "GET" && url.pathname === "/api/ask") {
@@ -78,8 +101,22 @@ async function handler(req, res) {
     const send = (event, data) =>
       res.write(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`);
 
+    const mode = url.searchParams.get("mode") === "agent" ? "agent" : "chat";
+
     queue = queue
       .then(async () => {
+        if (mode === "agent") {
+          const ag = await getAgent();
+          const t0 = performance.now();
+          const { answer, toolTrace } = await ag.run(question, {
+            onToken: (tok) => send("token", tok),
+          });
+          send("done", {
+            stats: { ttftMs: null, durationMs: Math.round(performance.now() - t0), tokenCount: answer.length >> 2 },
+            sources: toolTrace.map((t) => `🔧 ${t.tool}`),
+          });
+          return;
+        }
         let asked = question;
         if (lang === "id") {
           const tr = await getTranslator();

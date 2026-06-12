@@ -3,6 +3,10 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#16201b" />
+<link rel="manifest" href="/manifest.json" />
+<link rel="icon" href="/icon-192.png" />
+<link rel="apple-touch-icon" href="/icon-192.png" />
 <title>Sehat — Family Health, On-Device</title>
 <style>
   :root {
@@ -49,19 +53,39 @@
   button:disabled { opacity: 0.5; }
   .hint { color: var(--dim); font-size: 13px; text-align: center; padding: 18px 24px; }
   .hint b { color: var(--text); }
-  .lang { margin-left: auto; font-size: 12px; color: var(--dim); display: flex; align-items: center; gap: 4px; }
+  .lang { margin-left: auto; font-size: 13px; color: var(--dim); display: flex; align-items: center; gap: 3px; }
+  .lang + .lang, .lang + .iconbtn, .iconbtn + .iconbtn { margin-left: 4px; }
   .lang input { accent-color: var(--accent); }
-  header .badge { margin-left: 8px; }
+  header .badge { margin-left: 6px; }
+  .iconbtn { background: var(--panel2); color: var(--text); padding: 4px 8px; font-size: 13px; border-radius: 8px; }
   #mic.rec { background: #ef4444; color: #fff; }
+  #docs { padding: 10px 14px; background: var(--panel2); display: flex; flex-direction: column; gap: 8px; }
+  #docs input, #docs textarea {
+    width: 100%; padding: 8px 10px; border-radius: 8px; border: 1px solid #2c3f33;
+    background: var(--bg); color: var(--text); font-size: 14px;
+  }
+  #docs button { padding: 8px; border-radius: 8px; }
+  #docMsg { font-size: 12px; color: var(--accent); }
+  .tool { align-self: flex-start; font-size: 12px; color: var(--accent2); padding: 0 6px; font-family: monospace; }
 </style>
 </head>
 <body>
 <header>
   <span class="logo">🏠🩺</span>
   <h1>Sehat</h1>
-  <label class="lang"><input type="checkbox" id="langId" /> 🇮🇩 ID</label>
-  <span class="badge">100% on-device · no cloud</span>
+  <label class="lang"><input type="checkbox" id="langId" /> 🇮🇩</label>
+  <label class="lang" title="Agent mode: multi-step tool calling"><input type="checkbox" id="agentMode" /> 🤖</label>
+  <button id="docsBtn" class="iconbtn" title="Add a document">📄+</button>
+  <button id="clearBtn" class="iconbtn" title="Clear chat">🗑</button>
+  <span class="badge">on-device</span>
 </header>
+
+<div id="docs" hidden>
+  <input id="docName" placeholder="Document name, e.g. lab-budi-2026-09.txt" />
+  <textarea id="docText" rows="5" placeholder="Paste the document text here…"></textarea>
+  <button id="docSave">Save to family records</button>
+  <div id="docMsg"></div>
+</div>
 
 <div id="chat">
   <div class="hint">
@@ -84,21 +108,65 @@
   const input = document.getElementById("q");
   const send = document.getElementById("send");
 
-  function add(cls, text) {
+  // --- persistent chat history (stays on THIS device only) -----------------
+  const history = JSON.parse(localStorage.getItem("sehat-history") || "[]");
+  function persist(cls, text) {
+    history.push({ cls, text });
+    while (history.length > 200) history.shift();
+    localStorage.setItem("sehat-history", JSON.stringify(history));
+  }
+
+  function add(cls, text, { save = true } = {}) {
     const d = document.createElement("div");
     d.className = "msg " + cls;
     d.textContent = text;
     chat.appendChild(d);
     chat.scrollTop = chat.scrollHeight;
+    if (save) persist(cls, text);
     return d;
   }
-  function addMeta(html) {
+  function addMeta(html, { save = true } = {}) {
     const d = document.createElement("div");
     d.className = "meta";
     d.innerHTML = html;
     chat.appendChild(d);
     chat.scrollTop = chat.scrollHeight;
+    if (save) persist("__meta", html);
   }
+
+  // restore previous session
+  for (const m of history) {
+    if (m.cls === "__meta") addMeta(m.text, { save: false });
+    else add(m.cls, m.text, { save: false });
+  }
+
+  document.getElementById("clearBtn").onclick = () => {
+    localStorage.removeItem("sehat-history");
+    location.reload();
+  };
+
+  // --- document ingest panel ------------------------------------------------
+  const docs = document.getElementById("docs");
+  document.getElementById("docsBtn").onclick = () => (docs.hidden = !docs.hidden);
+  document.getElementById("docSave").onclick = async () => {
+    const source = document.getElementById("docName").value.trim();
+    const text = document.getElementById("docText").value.trim();
+    const msg = document.getElementById("docMsg");
+    if (!source || !text) { msg.textContent = "Name and text are required."; return; }
+    msg.textContent = "Indexing on the family PC…";
+    try {
+      const r = await fetch("/api/ingest", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ source, text }),
+      });
+      const j = await r.json();
+      msg.textContent = j.ok ? "✅ Saved — you can ask about it now." : "⚠️ " + j.error;
+      if (j.ok) { document.getElementById("docText").value = ""; }
+    } catch (e) { msg.textContent = "⚠️ " + e.message; }
+  };
+
+  if ("serviceWorker" in navigator) navigator.serviceWorker.register("/sw.js").catch(() => {});
 
   form.addEventListener("submit", (e) => {
     e.preventDefault();
@@ -107,12 +175,13 @@
     input.value = "";
     send.disabled = true;
     add("user", question);
-    const bot = add("bot", "…");
+    const bot = add("bot", "…", { save: false });
     let text = "";
     const t0 = performance.now();
 
     const lang = document.getElementById("langId").checked ? "&lang=id" : "";
-    const es = new EventSource("/api/ask?q=" + encodeURIComponent(question) + lang);
+    const mode = document.getElementById("agentMode").checked ? "&mode=agent" : "";
+    const es = new EventSource("/api/ask?q=" + encodeURIComponent(question) + lang + mode);
     es.addEventListener("token", (ev) => {
       text += JSON.parse(ev.data);
       bot.textContent = text;
@@ -120,10 +189,13 @@
     });
     es.addEventListener("done", (ev) => {
       const { stats, sources } = JSON.parse(ev.data);
+      persist("bot", text);
       const secs = ((performance.now() - t0) / 1000).toFixed(1);
-      const tps = stats.durationMs ? (stats.tokenCount / (stats.durationMs / 1000)).toFixed(1) : "?";
+      const tps = stats.durationMs && stats.ttftMs !== null
+        ? (stats.tokenCount / (stats.durationMs / 1000)).toFixed(1) : null;
       addMeta(
-        `⚡ TTFT ${stats.ttftMs} ms · ${tps} tok/s · ${secs}s total` +
+        (stats.ttftMs !== null ? `⚡ TTFT ${stats.ttftMs} ms · ${tps} tok/s · ` : `🤖 agent · `) +
+        `${secs}s total` +
         (sources.length ? ` · 📄 <span class="src">${sources.join(", ")}</span>` : "")
       );
       es.close();

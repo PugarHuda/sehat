@@ -49,14 +49,17 @@ const TOOLS = [
 ];
 
 export class SehatAgent {
-  constructor({ auditLogPath = "artifacts/audit-log.jsonl" } = {}) {
+  // Pass an already-started `engine` to share the server's loaded models
+  // (saves ~3 GB VRAM vs loading a second MedGemma instance).
+  constructor({ auditLogPath = "artifacts/audit-log.jsonl", engine = null } = {}) {
     this.log = new AuditLogger(auditLogPath);
-    this.engine = new SehatEngine({ auditLogPath });
+    this.ownsEngine = !engine;
+    this.engine = engine ?? new SehatEngine({ auditLogPath });
     this.orchestratorId = null;
   }
 
   async start() {
-    await this.engine.start(); // MedGemma specialist + embeddings
+    if (this.ownsEngine) await this.engine.start(); // MedGemma specialist + embeddings
     const t = performance.now();
     this.orchestratorId = await loadModel({
       modelSrc: QWEN3_1_7B_INST_Q4,
@@ -165,6 +168,6 @@ export class SehatAgent {
 
   async stop() {
     if (this.orchestratorId) await unloadModel({ modelId: this.orchestratorId });
-    await this.engine.stop();
+    if (this.ownsEngine) await this.engine.stop();
   }
 }
