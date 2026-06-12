@@ -1,0 +1,4 @@
+{"ts":"2026-06-11T16:53:29.826Z","event":"model_load","modelSrc":"LLAMA_3_2_1B_INST_Q4_0","modelType":"llm","modelId":"31b329c97909457e","durationMs":230772}
+{"ts":"2026-06-11T16:53:32.230Z","event":"inference","modelId":"31b329c97909457e","task":"completion","prompt":"In two sentences, why does on-device AI matter for family health data privacy?","promptTokens":null,"completionTokens":76,"ttftMs":1548,"durationMs":2402,"tokensPerSec":31.64}
+{"ts":"2026-06-12T00:22:42.575Z","event":"model_load","modelSrc":"LLAMA_3_2_1B_INST_Q4_0 (gpu_layers=99)","modelType":"llm","modelId":"d190ba919d7cbc14","durationMs":20700}
+{"ts":"2026-06-12T00:22:43.101Z","event":"inference","modelId":"d190ba919d7cbc14","task":"completion-gpu","prompt":"In two sentences, why does on-device AI matter for family health data privacy?","promptTokens":null,"completionTokens":67,"ttftMs":116,"durationMs":525,"tokensPerSec":127.62}

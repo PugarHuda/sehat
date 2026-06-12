@@ -1,0 +1,14 @@
+# Dependencies & build
+node_modules/
+dist/
+
+# Downloaded model weights (large binaries; fetched at runtime by QVAC SDK)
+models/
+
+# Dev/scratch logs (the OFFICIAL demo-run audit logs live in artifacts/ and ARE committed)
+logs/
+*.tmp.log
+
+# Local env & OS noise
+.env
+.DS_Store

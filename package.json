@@ -1,0 +1,26 @@
+{
+  "name": "mednest",
+  "version": "0.1.0",
+  "description": "MedNest — offline-first family health assistant. RAG over family health documents, voice Q&A with MedPsy, and P2P delegated inference to budget phones. 100% on-device via QVAC SDK.",
+  "type": "module",
+  "scripts": {
+    "smoke": "node src/smoke-test.js",
+    "start": "node src/server.js"
+  },
+  "keywords": [
+    "qvac",
+    "edge-ai",
+    "local-ai",
+    "medpsy",
+    "rag",
+    "p2p",
+    "health"
+  ],
+  "license": "Apache-2.0",
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "@qvac/sdk": "^0.12.2"
+  }
+}

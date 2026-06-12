@@ -1,0 +1,27 @@
+# ============================================================
+# Remote API disclosure — QVAC Hackathon I requirement
+# ------------------------------------------------------------
+# This file lists EVERY remote API call MedNest makes, per the
+# hackathon's transparency rules. All AI inference (completion,
+# embeddings, RAG, OCR, STT, TTS) runs 100% locally on-device
+# via @qvac/sdk. No cloud AI APIs are used.
+# ============================================================
+
+ai_inference_apis: []   # none — all inference is local via @qvac/sdk
+
+remote_calls:
+  - name: model-download
+    purpose: One-time download of model weights before first run
+    endpoint: QVAC distributed model registry (P2P) and/or HuggingFace (HTTPS)
+    data_sent: model identifier only — no user data
+    when: first launch / model install only; app is fully offline afterwards
+    ai_service: false
+
+  - name: p2p-delegation
+    purpose: LAN/P2P transport between the phone client and the desktop node
+    endpoint: Holepunch/Pears P2P stack (peer-to-peer, no central server)
+    data_sent: user prompts/results between the user's OWN devices only
+    when: when the phone client is used
+    ai_service: false
+
+user_data_leaving_devices: none
