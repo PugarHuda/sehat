@@ -18,7 +18,17 @@
       "PowerShell(git *)",
       "PowerShell(node src/medgemma-test.js)",
       "PowerShell(node src/provider.js)",
-      "PowerShell(node src/delegate-test.js accfa0a7b8f7d54230553920acb8c083a309ce87be9d6e75561d1c31e604d3a9)"
+      "PowerShell(node src/delegate-test.js accfa0a7b8f7d54230553920acb8c083a309ce87be9d6e75561d1c31e604d3a9)",
+      "PowerShell(node -e \"import\\('@qvac/sdk'\\).then\\(m => { console.log\\('SUPERTONIC:', JSON.stringify\\(m.TTS_EN_SUPERTONIC_Q8_0\\).slice\\(0,300\\)\\); console.log\\('PARAKEET:', JSON.stringify\\(m.PARAKEET_CTC_0_6B_Q8_0\\).slice\\(0,300\\)\\); }\\)\")",
+      "PowerShell(node src/demo-voice.js)",
+      "PowerShell(Select-String -Path \"C:\\\\Users\\\\pc\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\C--Hackathons-Hackathon-QVAC-I---Unleash-edge-AI\\\\93f1f100-e8ff-4c16-9967-fdbbb9c60bbd\\\\tasks\\\\bfaxrsdtr.output\" -Pattern \"STT heard|Question spoken|Answer spoken|TTFT|Voice loop|Error|error\" | ForEach-Object Line)",
+      "PowerShell($out = Get-Content \"C:\\\\Users\\\\pc\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\C--Hackathons-Hackathon-QVAC-I---Unleash-edge-AI\\\\93f1f100-e8ff-4c16-9967-fdbbb9c60bbd\\\\tasks\\\\bfaxrsdtr.output\" -Raw; $i = $out.IndexOf\\('STT heard'\\); $out.Substring\\($i, [Math]::Min\\(900, $out.Length - $i\\)\\))",
+      "PowerShell($out = Get-Content \"C:\\\\Users\\\\pc\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\C--Hackathons-Hackathon-QVAC-I---Unleash-edge-AI\\\\93f1f100-e8ff-4c16-9967-fdbbb9c60bbd\\\\tasks\\\\bfaxrsdtr.output\" -Raw; $i = $out.IndexOf\\('Workspace'\\); if \\($i -lt 0\\) { $i = $out.IndexOf\\('kind=completion'\\) }; $j = $out.IndexOf\\('[TTFT'\\); if \\($j -gt $i\\) { $out.Substring\\($i, $j - $i\\) } else { $out.Substring\\($out.Length - 1500\\) })",
+      "PowerShell(node src/ocr-ingest.js)",
+      "PowerShell($out = Get-Content \"C:\\\\Users\\\\pc\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\C--Hackathons-Hackathon-QVAC-I---Unleash-edge-AI\\\\93f1f100-e8ff-4c16-9967-fdbbb9c60bbd\\\\tasks\\\\bfnzjb25k.output\" -Raw; $i = $out.IndexOf\\('OCR done'\\); $j = $out.IndexOf\\('Ingesting OCR'\\); $out.Substring\\($i, $j - $i\\); $k = $out.IndexOf\\('kind=completion modelId'\\); $end = $out.IndexOf\\('[search', $k\\); if \\($end -lt 0\\) { $end = $out.Length }; $out.Substring\\($k, [Math]::Min\\(1400, $end - $k\\)\\))",
+      "PowerShell($r = Invoke-WebRequest -Uri \"http://localhost:8787/\" -UseBasicParsing; \"HTML status: $\\($r.StatusCode\\), length: $\\($r.Content.Length\\)\"; curl.exe -s -N --max-time 60 \"http://localhost:8787/api/ask?q=Which+vaccination+is+Rina+still+due+for%3F\" | Select-Object -Last 6)",
+      "PowerShell(New-Item *)",
+      "PowerShell(Get-ChildItem artifacts\\\\hardware | Select-Object Name, @{N='KB';E={[math]::Round\\($_.Length/1KB,1\\)}}; Get-ChildItem artifacts\\\\voice -ErrorAction SilentlyContinue | Select-Object Name, @{N='KB';E={[math]::Round\\($_.Length/1KB,1\\)}})"
     ]
   }
 }

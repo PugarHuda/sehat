@@ -23,8 +23,11 @@ Today: June 11. Hard deadline: June 21 23:59 UTC. Early bird: June 14 (per Offic
 - [x] startQVACProvider on desktop → public key via DHT (Holepunch)
 - [x] Delegated inference verified: client with NO local model, TTFT 934ms over P2P
       (streaming throughput 5.6 tok/s — per-token P2P overhead; investigate or document)
-- [ ] STT (ask by voice) + TTS (spoken answer)
-- [ ] Phone UX: simplest thing that works (web page served on LAN or minimal client)
+- [x] Voice loop: Supertonic TTS → Parakeet STT (564 ms) → RAG+MedGemma → TTS answer.wav
+- [x] OCR: photo of June lab report → 54 blocks @ 0.94 conf → ingested → cross-month
+      comparison answer verified (102 vs 118 glucose etc.)
+- [x] Phone UX: zero-dep HTTP server + mobile chat UI, SSE token streaming,
+      tested OK on localhost (phone test on LAN pending — user action)
 
 ### M4 — Submission artifacts (June 13–14)
 - [ ] Standard demo run → artifacts/audit-log.json

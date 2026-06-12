@@ -8,6 +8,10 @@
     "test:gpu": "node src/gpu-test.js",
     "test:medgemma": "node src/medgemma-test.js",
     "demo:rag": "node src/demo-rag.js",
+    "demo:voice": "node src/demo-voice.js",
+    "demo:ocr": "node src/ocr-ingest.js",
+    "provider": "node src/provider.js",
+    "delegate": "node src/delegate-test.js",
     "start": "node src/server.js"
   },
   "keywords": [
