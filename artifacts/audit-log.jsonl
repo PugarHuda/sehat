@@ -16,3 +16,7 @@
 {"ts":"2026-06-12T00:48:29.364Z","event":"inference","modelId":"c161934e555a1ba0","task":"rag-answer","prompt":"Which vaccination is Rina still due for?","promptTokens":null,"completionTokens":44,"ttftMs":1305,"durationMs":2035,"tokensPerSec":21.62}
 {"ts":"2026-06-12T00:48:29.710Z","event":"model_unload","modelId":"c161934e555a1ba0"}
 {"ts":"2026-06-12T00:48:29.913Z","event":"model_unload","modelId":"329fc3cde51e8963"}
+{"ts":"2026-06-12T00:51:59.468Z","event":"model_load","modelSrc":"MEDGEMMA_4B_IT_Q4_1 (provider, gpu_layers=99)","modelType":"llm","modelId":"b3e7cbc14a052a0b","durationMs":8223}
+{"ts":"2026-06-12T00:52:01.641Z","event":"model_load","modelSrc":"EMBEDDINGGEMMA_300M_Q8_0 (provider)","modelType":"embeddings","modelId":"329fc3cde51e8963","durationMs":2172}
+{"ts":"2026-06-12T00:52:29.839Z","event":"model_load","modelSrc":"MEDGEMMA_4B_IT_Q4_1 (DELEGATED via P2P)","modelType":"llm","modelId":"2dd0f7376d4a2348","durationMs":11219}
+{"ts":"2026-06-12T00:52:46.511Z","event":"inference","modelId":"2dd0f7376d4a2348","task":"completion-delegated-p2p","prompt":"In one short paragraph: what is prediabetes and can lifestyle changes reverse it?","promptTokens":null,"completionTokens":93,"ttftMs":934,"durationMs":16671,"tokensPerSec":5.58}

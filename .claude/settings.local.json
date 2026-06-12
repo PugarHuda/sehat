@@ -16,7 +16,9 @@
       "PowerShell(& \".\\\\node_modules\\\\bare-runtime-win32-x64\\\\bin\\\\bare.exe\" -e \"console.log\\('bare runtime OK, version:', Bare.version || 'unknown'\\)\")",
       "PowerShell(node src/gpu-test.js)",
       "PowerShell(git *)",
-      "PowerShell(node src/medgemma-test.js)"
+      "PowerShell(node src/medgemma-test.js)",
+      "PowerShell(node src/provider.js)",
+      "PowerShell(node src/delegate-test.js accfa0a7b8f7d54230553920acb8c083a309ce87be9d6e75561d1c31e604d3a9)"
     ]
   }
 }
