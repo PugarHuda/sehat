@@ -10,7 +10,7 @@ import {
   TTS_EN_SUPERTONIC_Q8_0,
   PARAKEET_CTC_0_6B_Q8_0,
 } from "@qvac/sdk";
-import { MedNestEngine } from "./engine.js";
+import { SehatEngine } from "./engine.js";
 import { writeWav, resample } from "./audio-utils.js";
 import { AuditLogger } from "./audit-logger.js";
 
@@ -72,8 +72,8 @@ log.inference({ modelId: sttId, task: "stt-question", prompt: `${OUT}/question-1
 console.log(`STT heard (${sttMs} ms): "${heardText.trim()}"`);
 
 // --- 3. RAG + MedGemma answer -------------------------------------------
-console.log("Starting MedNest engine...");
-const engine = new MedNestEngine();
+console.log("Starting Sehat engine...");
+const engine = new SehatEngine();
 await engine.start();
 
 // Workspace persists on disk from demo-rag; re-ingest only if empty.

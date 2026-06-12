@@ -4,7 +4,7 @@
 //   node src/ocr-ingest.js [imagePath]
 import { loadModel, unloadModel, ocr, OCR_LATIN_RECOGNIZER_1 } from "@qvac/sdk";
 import { basename } from "node:path";
-import { MedNestEngine } from "./engine.js";
+import { SehatEngine } from "./engine.js";
 import { AuditLogger } from "./audit-logger.js";
 
 const imagePath = process.argv[2] ?? "data/images/lab-results-budi-2026-06-photo.png";
@@ -47,7 +47,7 @@ console.log("--------------------------------");
 await unloadModel({ modelId: ocrId });
 
 console.log("\nIngesting OCR text into family workspace...");
-const engine = new MedNestEngine();
+const engine = new SehatEngine();
 await engine.start();
 await engine.ingestDocument({
   source: `photo:${basename(imagePath)}`,

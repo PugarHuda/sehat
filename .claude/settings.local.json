@@ -28,7 +28,10 @@
       "PowerShell($out = Get-Content \"C:\\\\Users\\\\pc\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\C--Hackathons-Hackathon-QVAC-I---Unleash-edge-AI\\\\93f1f100-e8ff-4c16-9967-fdbbb9c60bbd\\\\tasks\\\\bfnzjb25k.output\" -Raw; $i = $out.IndexOf\\('OCR done'\\); $j = $out.IndexOf\\('Ingesting OCR'\\); $out.Substring\\($i, $j - $i\\); $k = $out.IndexOf\\('kind=completion modelId'\\); $end = $out.IndexOf\\('[search', $k\\); if \\($end -lt 0\\) { $end = $out.Length }; $out.Substring\\($k, [Math]::Min\\(1400, $end - $k\\)\\))",
       "PowerShell($r = Invoke-WebRequest -Uri \"http://localhost:8787/\" -UseBasicParsing; \"HTML status: $\\($r.StatusCode\\), length: $\\($r.Content.Length\\)\"; curl.exe -s -N --max-time 60 \"http://localhost:8787/api/ask?q=Which+vaccination+is+Rina+still+due+for%3F\" | Select-Object -Last 6)",
       "PowerShell(New-Item *)",
-      "PowerShell(Get-ChildItem artifacts\\\\hardware | Select-Object Name, @{N='KB';E={[math]::Round\\($_.Length/1KB,1\\)}}; Get-ChildItem artifacts\\\\voice -ErrorAction SilentlyContinue | Select-Object Name, @{N='KB';E={[math]::Round\\($_.Length/1KB,1\\)}})"
+      "PowerShell(Get-ChildItem artifacts\\\\hardware | Select-Object Name, @{N='KB';E={[math]::Round\\($_.Length/1KB,1\\)}}; Get-ChildItem artifacts\\\\voice -ErrorAction SilentlyContinue | Select-Object Name, @{N='KB';E={[math]::Round\\($_.Length/1KB,1\\)}})",
+      "PowerShell(gh auth *)",
+      "PowerShell(Remove-Item *)",
+      "PowerShell(Select-String -Path \"C:\\\\Users\\\\pc\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\C--Hackathons-Hackathon-QVAC-I---Unleash-edge-AI\\\\93f1f100-e8ff-4c16-9967-fdbbb9c60bbd\\\\tasks\\\\bpmsmr3a3.output\" -Pattern \"GPU test|smoke test OK|tok/s|TTFT|STT heard|OCR done|Voice loop|QA_CHAIN_EXIT|Error|error:\" | ForEach-Object Line | Select-Object -First 40)"
     ]
   }
 }

@@ -1,11 +1,11 @@
-# MedNest — Demo Video Script (target ≤ 5:00)
+# Sehat — Demo Video Script (target ≤ 5:00)
 
 Record at 1080p. OBS scene: screen capture + phone camera (or scrcpy mirror) side by side
 where relevant. Speak English (judges are international). Keep terminal font large.
 
 ## 0:00–0:30 — Hook & claim
 - On camera/voiceover over title slide:
-  "This is MedNest — a family health assistant that runs 100% on this PC.
+  "This is Sehat — a family health assistant that runs 100% on this PC.
   No cloud, no API keys, no data leaving the house. Built on the QVAC SDK
   with MedGemma. Let me prove it."
 - Show: `msinfo32` summary + Task Manager GPU tab (GTX 1660 Super, 16 GB RAM).
@@ -57,7 +57,7 @@ where relevant. Speak English (judges are international). Keep terminal font lar
 
 ## 4:45–5:00 — Close
 - "Everything is Apache 2.0 on GitHub, reproducible with npm install + one
-  command per demo. MedNest, team #teamMedNest — local AI is ready today."
+  command per demo. Sehat, team #teamSehat — local AI is ready today."
 
 ## Recording checklist
 - [ ] Models pre-downloaded (run every demo once before recording)

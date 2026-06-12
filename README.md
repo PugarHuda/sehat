@@ -1,13 +1,13 @@
-# MedNest 🏠🩺
+# Sehat 🏠🩺
 
 **Offline-first family health assistant — 100% on-device AI via the [QVAC SDK](https://qvac.tether.io).**
 
 Built for **QVAC Hackathon I – Unleash Edge AI** (June 2026).
-Tracks: **General Purpose** + **Psy Models** · Build in Public: `#teamMedNest`
+Tracks: **General Purpose** + **Psy Models** · Build in Public: `#teamSehat`
 
 ## What it does
 
-MedNest turns a regular family desktop into a private health hub:
+Sehat turns a regular family desktop into a private health hub:
 
 1. **Ingest** — lab results, prescriptions, and doctor notes go into a private, on-disk
    vector index. Paper documents enter by photo: local OCR reads them (0.94 avg
@@ -21,7 +21,7 @@ MedNest turns a regular family desktop into a private health hub:
      completions on the desktop via Holepunch DHT, addressed by public key — no server,
      no port-forwarding, works across NATs.
 
-> ⚠️ MedNest is an educational/personal-organization tool. It is **not** a medical device
+> ⚠️ Sehat is an educational/personal-organization tool. It is **not** a medical device
 > and does not provide diagnosis or treatment. Always consult a healthcare professional.
 
 ## Measured performance (GTX 1660 Super, all local)
@@ -83,7 +83,7 @@ Evidence: [`artifacts/hardware/msinfo32-report.txt`](artifacts/hardware/) + scre
 Requirements: Node.js ≥ 22, ~6 GB free disk for models, NVIDIA GPU optional but recommended.
 
 ```bash
-git clone <this-repo> && cd mednest
+git clone <this-repo> && cd sehat
 npm install                # flaky network? add --fetch-retries 5
 
 npm run smoke              # 1. load 1B model, one completion + audit log

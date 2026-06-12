@@ -18,11 +18,11 @@
 - [ ] Phone: screenshot Settings > About Phone (Redmi Note 10 Pro) -> artifacts/hardware/
 - [ ] Phone: open http://<desktop-ip>:8787 on Wi-Fi, screenshot the chat
 - [ ] Record video per docs/DEMO-VIDEO-SCRIPT.md (≤ 5 min, YouTube unlisted)
-- [ ] X posts with #teamMedNest tagging @QVAC (Build in Public — post early, post often)
+- [ ] X posts with #teamSehat tagging @QVAC (Build in Public — post early, post often)
 
 ## DoraHacks form fields
-- Product name: MedNest
-- Hashtag: #teamMedNest
+- Product name: Sehat
+- Hashtag: #teamSehat
 - Tracks: General Purpose + Psy Models (Our Psy models)
 - Team: list every member on the project page
 - Location: (fill in)

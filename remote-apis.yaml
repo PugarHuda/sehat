@@ -1,7 +1,7 @@
 # ============================================================
 # Remote API disclosure — QVAC Hackathon I requirement
 # ------------------------------------------------------------
-# This file lists EVERY remote API call MedNest makes, per the
+# This file lists EVERY remote API call Sehat makes, per the
 # hackathon's transparency rules. All AI inference (completion,
 # embeddings, RAG, OCR, STT, TTS) runs 100% locally on-device
 # via @qvac/sdk. No cloud AI APIs are used.

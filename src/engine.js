@@ -1,4 +1,4 @@
-// MedNest core engine: MedGemma (reasoning) + EmbeddingGemma (RAG index),
+// Sehat core engine: MedGemma (reasoning) + EmbeddingGemma (RAG index),
 // both fully local via @qvac/sdk. All calls flow through the audit logger.
 import {
   completion,
@@ -12,9 +12,9 @@ import {
 } from "@qvac/sdk";
 import { AuditLogger } from "./audit-logger.js";
 
-const WORKSPACE = "mednest-family";
+const WORKSPACE = "sehat-family";
 
-const SYSTEM_PROMPT = `You are MedNest, a private family health assistant running fully on-device.
+const SYSTEM_PROMPT = `You are Sehat, a private family health assistant running fully on-device.
 You help family members understand their own health documents (lab results, prescriptions, doctor notes).
 Rules:
 - Base answers on the provided document excerpts. Cite them as [doc: <source>].
@@ -23,7 +23,7 @@ Rules:
   professional attention, say so explicitly and suggest consulting a doctor.
 - If the documents don't contain the answer, say what is missing instead of guessing.`;
 
-export class MedNestEngine {
+export class SehatEngine {
   constructor({ auditLogPath = "artifacts/audit-log.jsonl" } = {}) {
     this.log = new AuditLogger(auditLogPath);
     this.llmId = null;

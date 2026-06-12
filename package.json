@@ -1,7 +1,7 @@
 {
-  "name": "mednest",
+  "name": "sehat",
   "version": "0.1.0",
-  "description": "MedNest — offline-first family health assistant. RAG over family health documents, voice Q&A with MedPsy, and P2P delegated inference to budget phones. 100% on-device via QVAC SDK.",
+  "description": "Sehat — offline-first family health assistant. RAG over family health documents, voice Q&A with MedGemma, OCR ingestion, and P2P delegated inference to budget phones. 100% on-device via QVAC SDK.",
   "type": "module",
   "scripts": {
     "smoke": "node src/smoke-test.js",

@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<title>MedNest — Family Health, On-Device</title>
+<title>Sehat — Family Health, On-Device</title>
 <style>
   :root {
     --bg: #0e1512; --panel: #16201b; --panel2: #1d2a23;
@@ -54,7 +54,7 @@
 <body>
 <header>
   <span class="logo">🏠🩺</span>
-  <h1>MedNest</h1>
+  <h1>Sehat</h1>
   <span class="badge">100% on-device · no cloud</span>
 </header>
 
@@ -124,7 +124,7 @@
       input.focus();
     });
     es.addEventListener("error", () => {
-      if (text === "") bot.textContent = "⚠️ Connection error — is the MedNest server running?";
+      if (text === "") bot.textContent = "⚠️ Connection error — is the Sehat server running?";
       es.close();
       send.disabled = false;
     });

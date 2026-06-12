@@ -1,4 +1,4 @@
-# MedNest — Build Plan (target: submit June 13–14 for Early Bird)
+# Sehat — Build Plan (target: submit June 13–14 for Early Bird)
 
 Today: June 11. Hard deadline: June 21 23:59 UTC. Early bird: June 14 (per Official Rules; Prizes page says June 17 — assume the stricter one).
 
@@ -13,7 +13,7 @@ Today: June 11. Hard deadline: June 21 23:59 UTC. Early bird: June 14 (per Offic
 - [x] Medical model = MEDGEMMA_4B_IT_Q4_1 (SDK constant; registry blob unsloth/medgemma-4b-it-GGUF)
 
 ### M2 — RAG over health documents (June 12) ✅ (OCR pending)
-- [x] EmbeddingGemma 300M + ragIngest/ragSearch (workspace "mednest-family")
+- [x] EmbeddingGemma 300M + ragIngest/ragSearch (workspace "sehat-family")
 - [x] 5 synthetic family health documents (Santoso family)
 - [x] Q&A loop: RAG retrieve (13-140ms) → MedGemma answer with [doc: ...] citations
 - [x] Cross-document trend reasoning verified (glucose Sept'25 vs Mar'26 + doctor plan)
@@ -34,10 +34,10 @@ Today: June 11. Hard deadline: June 21 23:59 UTC. Early bird: June 14 (per Offic
 - [ ] Hardware screenshots (msinfo32 desktop + phone About screen)
 - [ ] Demo video ≤ 5 min, YouTube unlisted
 - [ ] README reproducibility tested from clean clone
-- [ ] DoraHacks submission form (tracks: General Purpose + Psy Models, hashtag #teamMedNest)
+- [ ] DoraHacks submission form (tracks: General Purpose + Psy Models, hashtag #teamSehat)
 
 ### Ongoing — Build in Public
-- [ ] Day 1 post on X: tag @QVAC + #teamMedNest (setup photo + what we're building)
+- [ ] Day 1 post on X: tag @QVAC + #teamSehat (setup photo + what we're building)
 - [ ] Progress posts every 1–2 days (working TTFT numbers, P2P demo clip, bugs/aha moments)
 - [ ] Archive any livestreams
 

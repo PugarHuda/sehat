@@ -2,10 +2,10 @@
 // questions over them with MedGemma — fully local, with audit logging.
 import { readFileSync, readdirSync } from "node:fs";
 import { join, basename } from "node:path";
-import { MedNestEngine } from "./engine.js";
+import { SehatEngine } from "./engine.js";
 
-const engine = new MedNestEngine();
-console.log("Starting MedNest engine (MedGemma 4B + EmbeddingGemma 300M)...");
+const engine = new SehatEngine();
+console.log("Starting Sehat engine (MedGemma 4B + EmbeddingGemma 300M)...");
 await engine.start();
 
 const sampleDir = "data/sample";

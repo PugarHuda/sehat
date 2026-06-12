@@ -43,7 +43,7 @@ if (!res.success) {
   process.exit(1);
 }
 
-console.log("\n=== MedNest P2P provider is live ===");
+console.log("\n=== Sehat P2P provider is live ===");
 console.log(`Provider public key:\n${res.publicKey}`);
 console.log(`\nModels served: MedGemma 4B (id ${llmId}), EmbeddingGemma (id ${embedId})`);
 console.log("Give this public key to the client device. Ctrl+C to stop.");

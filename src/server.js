@@ -1,19 +1,19 @@
-// MedNest desktop server: hosts the mobile web UI on the LAN and (optionally)
+// Sehat desktop server: hosts the mobile web UI on the LAN and (optionally)
 // doubles as a QVAC P2P provider. The Redmi phone opens http://<desktop-ip>:8787.
 //
 //   node src/server.js            -> UI server only
-//   MEDNEST_P2P=1 node src/server.js -> UI server + P2P provider
+//   SEHAT_P2P=1 node src/server.js -> UI server + P2P provider
 import { createServer } from "node:http";
 import { readFileSync, readdirSync } from "node:fs";
 import { join, basename } from "node:path";
 import { networkInterfaces } from "node:os";
 import { startQVACProvider } from "@qvac/sdk";
-import { MedNestEngine } from "./engine.js";
+import { SehatEngine } from "./engine.js";
 
 const PORT = Number(process.env.PORT ?? 8787);
-const engine = new MedNestEngine();
+const engine = new SehatEngine();
 
-console.log("Starting MedNest engine (MedGemma 4B GPU + EmbeddingGemma)...");
+console.log("Starting Sehat engine (MedGemma 4B GPU + EmbeddingGemma)...");
 await engine.start();
 
 // Seed the workspace from the sample docs if it's empty (first run).
@@ -101,11 +101,11 @@ server.listen(PORT, "0.0.0.0", async () => {
     .flat()
     .filter((i) => i && i.family === "IPv4" && !i.internal)
     .map((i) => i.address);
-  console.log("\n=== MedNest is up ===");
+  console.log("\n=== Sehat is up ===");
   for (const ip of ips) console.log(`Open on your phone:  http://${ip}:${PORT}`);
   console.log(`Local:               http://localhost:${PORT}`);
 
-  if (process.env.MEDNEST_P2P === "1") {
+  if (process.env.SEHAT_P2P === "1") {
     const p = await startQVACProvider({});
     if (p.success) console.log(`\nP2P provider public key:\n${p.publicKey}`);
   }
