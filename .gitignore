@@ -12,3 +12,6 @@ logs/
 # Local env & OS noise
 .env
 .DS_Store
+
+# Local tool config
+.claude/
