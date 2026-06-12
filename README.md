@@ -44,6 +44,8 @@ Sehat turns a regular family desktop into a private health hub:
 | OCR of a photographed lab report | 54 blocks · 0.94 avg confidence · 11.3 s |
 | STT (Parakeet CTC 0.6B) on spoken question | 451–564 ms |
 | Multi-agent run (6 tool calls incl. MedGemma consult) | 33.7 s end-to-end |
+| Vision: photo of lab report → full structured analysis (no OCR) | every value read correctly; 43.7 tok/s generation (SDK stats), 33.6 s wall-clock TTFT — 5.4 GB model partially CPU-offloaded on 6 GB VRAM |
+| **LoRA fine-tune (QVAC Fabric)**: Qwen3 600M → "Sehat style" | **238 s for 2 epochs on the GTX 1660 Super**; train loss 3.00 → 1.77; visible style shift (verbose jargon → plain-language lifestyle framing) |
 | ID↔EN translation (Bergamot, CPU) | sub-second per message |
 | P2P delegated completion (no local model) | TTFT 0.9–1.3 s; throughput 4.8 tok/s streamed / ~7.7 tok/s batched — transport-bound in SDK v0.12.2, documented honestly |
 
@@ -61,6 +63,8 @@ every model load and inference call is logged with prompt, token counts, TTFT, a
 | Text-to-speech | `TTS_EN_SUPERTONIC_Q8_0` |
 | OCR | `OCR_LATIN_RECOGNIZER_1` |
 | Translation ID↔EN | `BERGAMOT_ID_EN` + `BERGAMOT_EN_ID` |
+| Vision (photo understanding) | `GEMMA4_4B_MULTIMODAL_Q4_K_M` + `MMPROJ_GEMMA4_4B_MULTIMODAL_F16` |
+| Fine-tune base (QVAC Fabric LoRA) | `QWEN3_600M_INST_Q4` + `data/finetune/*.jsonl` (16 bilingual examples) |
 
 ## Architecture
 
@@ -108,10 +112,13 @@ npm run demo:voice         # 5. TTS question -> STT -> RAG answer -> TTS wav
 npm run demo:agent         # 6. multi-agent: Qwen orchestrator + tools + MedGemma
 npm run demo:translate     # 7. Bahasa Indonesia round-trip via Bergamot
 npm run test:injection     # 8. prompt-injection resistance test (expects PASS)
-npm start                  # 9. phone UI at https://<your-ip>:8787 (mic + ID mode)
+npm run demo:vision        # 9. photo -> local VLM analysis (5.4 GB download)
+npm run demo:finetune      # 10. QVAC Fabric LoRA fine-tune + before/after compare
+npm run profile            # 11. evidence run with the SDK's own profiler
+npm start                  # 12. phone UI at https://<your-ip>:8787 (mic + ID mode)
 
-npm run provider           # 10a. P2P provider (prints public key)
-npm run delegate <pubkey>  # 10b. in a 2nd terminal: delegated inference
+npm run provider           # 13a. P2P provider (prints public key)
+npm run delegate <pubkey>  # 13b. in a 2nd terminal: delegated inference
 ```
 
 HTTPS note: `npm start` serves TLS if `certs/sehat.pfx` exists (required for the phone
@@ -122,6 +129,15 @@ mic — browsers only allow getUserMedia in secure contexts). Generate one with 
 First run of each demo downloads its models from the QVAC registry (one-time);
 afterwards everything works fully offline. All demo documents are **synthetic**
 (no real medical data anywhere in this repo).
+
+### Blind relays (NAT traversal)
+
+QVAC supports blind relays — Hyperswarm relay nodes that bridge P2P connections
+across NATs/firewalls — via a `QVAC_CONFIG_PATH` config file listing `swarmRelays`
+public keys. Sehat's P2P delegation works with this unchanged (the DHT connection
+is established by the SDK). We did **not** stand up our own relay infrastructure
+for this hackathon, so we document the capability rather than fake a demo; on a
+home LAN or with direct DHT connectivity (our demo setup), relays are not needed.
 
 ## Artifacts (hackathon evidence bundle)
 

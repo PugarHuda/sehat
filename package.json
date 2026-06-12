@@ -13,6 +13,9 @@
     "demo:agent": "node src/demo-agent.js",
     "demo:translate": "node src/demo-translate.js",
     "test:injection": "node src/test-injection.js",
+    "demo:vision": "node src/demo-vision.js",
+    "demo:finetune": "node src/demo-finetune.js",
+    "profile": "node src/profile-run.js",
     "provider": "node src/provider.js",
     "delegate": "node src/delegate-test.js",
     "start": "node src/server.js"

@@ -78,3 +78,17 @@
 {"ts":"2026-06-12T08:27:13.209Z","event":"inference","modelId":"55aa093e772e46f1","task":"translate-id-en","prompt":"Which vaccine is Rina due for?","promptTokens":null,"completionTokens":null,"durationMs":211,"tokensPerSec":null}
 {"ts":"2026-06-12T08:27:15.614Z","event":"inference","modelId":"ae6fdc4990c33a4a","task":"rag-answer","prompt":"Which vaccine is Rina due for?","promptTokens":null,"completionTokens":39,"ttftMs":1709,"durationMs":2312,"tokensPerSec":16.87}
 {"ts":"2026-06-12T08:27:15.818Z","event":"inference","modelId":"62e5a7214957a752","task":"translate-en-id","prompt":"Rina is due for the MR second booster at school entry (age 6, year 2027).","promptTokens":null,"completionTokens":null,"durationMs":204,"tokensPerSec":null}
+{"ts":"2026-06-12T08:28:40.796Z","event":"model_load","modelSrc":"MEDGEMMA_4B_IT_Q4_1 (gpu_layers=99)","modelType":"llm","modelId":"ae6fdc4990c33a4a","durationMs":9053}
+{"ts":"2026-06-12T08:28:42.877Z","event":"model_load","modelSrc":"EMBEDDINGGEMMA_300M_Q8_0","modelType":"embeddings","modelId":"329fc3cde51e8963","durationMs":2080}
+{"ts":"2026-06-12T08:28:50.647Z","event":"inference","modelId":"ae6fdc4990c33a4a","task":"rag-answer","prompt":"vaccination","promptTokens":null,"completionTokens":415,"ttftMs":884,"durationMs":7671,"tokensPerSec":54.1}
+{"ts":"2026-06-12T14:55:06.683Z","event":"model_load","modelSrc":"GEMMA4_4B_MULTIMODAL_Q4_K_M + MMPROJ (gpu_layers=99)","modelType":"llm","modelId":"02047c8607cd6bef","durationMs":1933838}
+{"ts":"2026-06-12T14:55:55.879Z","event":"inference","modelId":"02047c8607cd6bef","task":"vision-lab-photo","prompt":"data/images/lab-results-budi-2026-06-photo.png | You are looking at a photo of a family member's lab report. Describe what kind o...","promptTokens":null,"completionTokens":691,"ttftMs":33602,"durationMs":49167,"tokensPerSec":14.05}
+{"ts":"2026-06-12T14:59:28.936Z","event":"model_load","modelSrc":"QWEN3_600M_INST_Q4 (finetune base)","modelType":"llm","modelId":"a8883d411300deba","durationMs":141646}
+{"ts":"2026-06-12T15:01:02.302Z","event":"model_load","modelSrc":"QWEN3_600M_INST_Q4 (finetune base)","modelType":"llm","modelId":"d43bec9b0b9ba7c7","durationMs":3889}
+{"ts":"2026-06-12T15:05:01.400Z","event":"inference","modelId":"d43bec9b0b9ba7c7","task":"finetune-lora","prompt":"data/finetune/train.jsonl (13 ex, 2 epochs)","promptTokens":null,"completionTokens":null,"durationMs":238166,"tokensPerSec":null}
+{"ts":"2026-06-12T15:05:08.023Z","event":"model_load","modelSrc":"QWEN3_600M_INST_Q4 + LoRA(trained-lora-adapter.gguf)","modelType":"llm","modelId":"58d9c8ec6e0b5078","durationMs":0}
+{"ts":"2026-06-12T15:07:17.499Z","event":"model_load","modelSrc":"MEDGEMMA_4B_IT_Q4_1 (gpu_layers=99)","modelType":"llm","modelId":"ae6fdc4990c33a4a","durationMs":17028}
+{"ts":"2026-06-12T15:07:20.587Z","event":"model_load","modelSrc":"EMBEDDINGGEMMA_300M_Q8_0","modelType":"embeddings","modelId":"329fc3cde51e8963","durationMs":3086}
+{"ts":"2026-06-12T15:07:25.526Z","event":"inference","modelId":"ae6fdc4990c33a4a","task":"rag-answer","prompt":"How has Budi's blood sugar changed over his last tests?","promptTokens":null,"completionTokens":153,"ttftMs":1756,"durationMs":4638,"tokensPerSec":32.99}
+{"ts":"2026-06-12T15:07:25.919Z","event":"model_unload","modelId":"ae6fdc4990c33a4a"}
+{"ts":"2026-06-12T15:07:26.175Z","event":"model_unload","modelId":"329fc3cde51e8963"}

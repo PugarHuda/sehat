@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Sehat — Family Health, On-Device</title>
+<style>
+  :root {
+    --bg: #0e1512; --panel: #16201b; --panel2: #1d2a23;
+    --text: #e8f3ec; --dim: #8aa496; --accent: #34d399; --accent2: #0ea5e9;
+  }
+  * { box-sizing: border-box; margin: 0; }
+  body {
+    background: var(--bg); color: var(--text);
+    font: 16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    display: flex; flex-direction: column; height: 100dvh;
+  }
+  header {
+    padding: 12px 16px; background: var(--panel);
+    display: flex; align-items: center; gap: 10px;
+    border-bottom: 1px solid #243329;
+  }
+  header .logo { font-size: 22px; }
+  header h1 { font-size: 17px; font-weight: 700; }
+  header .badge {
+    margin-left: auto; font-size: 11px; font-weight: 600;
+    color: #052e1c; background: var(--accent);
+    padding: 3px 8px; border-radius: 999px; white-space: nowrap;
+  }
+  #chat { flex: 1; overflow-y: auto; padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+  .msg { max-width: 88%; padding: 10px 13px; border-radius: 14px; white-space: pre-wrap; word-wrap: break-word; }
+  .user { align-self: flex-end; background: var(--accent2); color: #04222e; border-bottom-right-radius: 4px; }
+  .bot  { align-self: flex-start; background: var(--panel2); border-bottom-left-radius: 4px; }
+  .meta { align-self: flex-start; font-size: 11px; color: var(--dim); padding: 0 6px; }
+  .src  { color: var(--accent); }
+  form {
+    display: flex; gap: 8px; padding: 10px 12px calc(10px + env(safe-area-inset-bottom));
+    background: var(--panel); border-top: 1px solid #243329;
+  }
+  input {
+    flex: 1; padding: 12px 14px; border-radius: 12px; border: 1px solid #2c3f33;
+    background: var(--bg); color: var(--text); font-size: 16px; outline: none;
+  }
+  input:focus { border-color: var(--accent); }
+  button {
+    padding: 0 18px; border: 0; border-radius: 12px; font-size: 16px; font-weight: 700;
+    background: var(--accent); color: #052e1c;
+  }
+  button:disabled { opacity: 0.5; }
+  .hint { color: var(--dim); font-size: 13px; text-align: center; padding: 18px 24px; }
+  .hint b { color: var(--text); }
+  .lang { margin-left: auto; font-size: 12px; color: var(--dim); display: flex; align-items: center; gap: 4px; }
+  .lang input { accent-color: var(--accent); }
+  header .badge { margin-left: 8px; }
+  #mic.rec { background: #ef4444; color: #fff; }
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">🏠🩺</span>
+  <h1>Sehat</h1>
+  <label class="lang"><input type="checkbox" id="langId" /> 🇮🇩 ID</label>
+  <span class="badge">100% on-device · no cloud</span>
+</header>
+
+<div id="chat">
+  <div class="hint">
+    Ask about your family's health records.<br />
+    Answers come from <b>MedGemma running on the family PC</b> —
+    nothing ever leaves your home network.<br /><br />
+    Try: <b>"How has Budi's blood sugar changed over his last tests?"</b>
+  </div>
+</div>
+
+<form id="f">
+  <input id="q" placeholder="Ask about the family's health records…" autocomplete="off" />
+  <button type="button" id="mic" title="Hold to talk">🎙️</button>
+  <button id="send">➤</button>
+</form>
+
+<script>
+  const chat = document.getElementById("chat");
+  const form = document.getElementById("f");
+  const input = document.getElementById("q");
+  const send = document.getElementById("send");
+
+  function add(cls, text) {
+    const d = document.createElement("div");
+    d.className = "msg " + cls;
+    d.textContent = text;
+    chat.appendChild(d);
+    chat.scrollTop = chat.scrollHeight;
+    return d;
+  }
+  function addMeta(html) {
+    const d = document.createElement("div");
+    d.className = "meta";
+    d.innerHTML = html;
+    chat.appendChild(d);
+    chat.scrollTop = chat.scrollHeight;
+  }
+
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const question = input.value.trim();
+    if (!question) return;
+    input.value = "";
+    send.disabled = true;
+    add("user", question);
+    const bot = add("bot", "…");
+    let text = "";
+    const t0 = performance.now();
+
+    const lang = document.getElementById("langId").checked ? "&lang=id" : "";
+    const es = new EventSource("/api/ask?q=" + encodeURIComponent(question) + lang);
+    es.addEventListener("token", (ev) => {
+      text += JSON.parse(ev.data);
+      bot.textContent = text;
+      chat.scrollTop = chat.scrollHeight;
+    });
+    es.addEventListener("done", (ev) => {
+      const { stats, sources } = JSON.parse(ev.data);
+      const secs = ((performance.now() - t0) / 1000).toFixed(1);
+      const tps = stats.durationMs ? (stats.tokenCount / (stats.durationMs / 1000)).toFixed(1) : "?";
+      addMeta(
+        `⚡ TTFT ${stats.ttftMs} ms · ${tps} tok/s · ${secs}s total` +
+        (sources.length ? ` · 📄 <span class="src">${sources.join(", ")}</span>` : "")
+      );
+      es.close();
+      send.disabled = false;
+      input.focus();
+    });
+    es.addEventListener("error", () => {
+      if (text === "") bot.textContent = "⚠️ Connection error — is the Sehat server running?";
+      es.close();
+      send.disabled = false;
+    });
+  });
+
+  // --- Voice input: record 16 kHz mono PCM in-browser, send as WAV ---------
+  const mic = document.getElementById("mic");
+  let recording = null;
+
+  function encodeWav(float32, rate) {
+    const n = float32.length;
+    const buf = new ArrayBuffer(44 + n * 2);
+    const v = new DataView(buf);
+    const s = (o, str) => { for (let i = 0; i < str.length; i++) v.setUint8(o + i, str.charCodeAt(i)); };
+    s(0, "RIFF"); v.setUint32(4, 36 + n * 2, true); s(8, "WAVE"); s(12, "fmt ");
+    v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 1, true);
+    v.setUint32(24, rate, true); v.setUint32(28, rate * 2, true);
+    v.setUint16(32, 2, true); v.setUint16(34, 16, true); s(36, "data");
+    v.setUint32(40, n * 2, true);
+    for (let i = 0; i < n; i++) {
+      const x = Math.max(-1, Math.min(1, float32[i]));
+      v.setInt16(44 + i * 2, x < 0 ? x * 0x8000 : x * 0x7fff, true);
+    }
+    return new Blob([buf], { type: "audio/wav" });
+  }
+
+  async function startRec() {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    const ctx = new AudioContext({ sampleRate: 16000 });
+    const src = ctx.createMediaStreamSource(stream);
+    const proc = ctx.createScriptProcessor(4096, 1, 1);
+    const parts = [];
+    proc.onaudioprocess = (e) => parts.push(new Float32Array(e.inputBuffer.getChannelData(0)));
+    src.connect(proc); proc.connect(ctx.destination);
+    mic.classList.add("rec"); mic.textContent = "⏹";
+    recording = { stream, ctx, proc, parts };
+  }
+
+  async function stopRec() {
+    const { stream, ctx, proc, parts } = recording;
+    recording = null;
+    proc.disconnect(); stream.getTracks().forEach((t) => t.stop());
+    const rate = ctx.sampleRate; await ctx.close();
+    mic.classList.remove("rec"); mic.textContent = "🎙️";
+    const total = parts.reduce((s, p) => s + p.length, 0);
+    const all = new Float32Array(total);
+    let off = 0; for (const p of parts) { all.set(p, off); off += p.length; }
+    input.placeholder = "Transcribing…";
+    try {
+      const r = await fetch("/api/voice", { method: "POST", body: encodeWav(all, rate) });
+      const { text, error } = await r.json();
+      if (error) throw new Error(error);
+      input.value = text;
+      if (text) form.requestSubmit();
+    } catch (err) {
+      add("bot", "⚠️ Voice failed: " + err.message);
+    } finally {
+      input.placeholder = "Ask about the family's health records…";
+    }
+  }
+
+  mic.addEventListener("click", async () => {
+    try {
+      if (recording) await stopRec();
+      else await startRec();
+    } catch (err) {
+      add("bot", "⚠️ Mic unavailable: " + err.message + " (HTTPS required on phones)");
+    }
+  });
+</script>
+</body>
+</html>
