@@ -1,68 +1,66 @@
-# Sehat — Demo Video Script (target ≤ 5:00)
+# Sehat — Demo Video Script v2 (target ≤ 5:00)
 
-Record at 1080p. OBS scene: screen capture + phone camera (or scrcpy mirror) side by side
-where relevant. Speak English (judges are international). Keep terminal font large.
+Record at 1080p, terminal font ≥ 18 pt. Speak English (international judges).
+Pre-cache all models (run every demo once before recording). Start a FRESH
+audit log for the on-camera run (delete artifacts/audit-log.jsonl first) and
+commit it after — judges cross-check log vs footage.
 
-## 0:00–0:30 — Hook & claim
-- On camera/voiceover over title slide:
-  "This is Sehat — a family health assistant that runs 100% on this PC.
-  No cloud, no API keys, no data leaving the house. Built on the QVAC SDK
-  with MedGemma. Let me prove it."
-- Show: `msinfo32` summary + Task Manager GPU tab (GTX 1660 Super, 16 GB RAM).
-- **Disconnect Wi-Fi/Ethernet on camera** (after models are cached) — the whole
-  demo runs offline. This is the strongest single visual proof; keep the
-  network icon visible for the rest of the video.
+## 0:00–0:25 — Hook
+- Title card + voiceover: "This is Sehat: a family health assistant running
+  9 AI models, 100% on this one PC — built on the QVAC SDK. No cloud. Watch."
+- Show msinfo32 + Task Manager GPU tab (GTX 1660 Super, 16 GB).
+- **Pull the network cable / toggle Wi-Fi off on camera.** Keep the offline
+  icon visible from here on. Strongest single proof in the video.
 
-## 0:30–1:30 — RAG over family documents (desktop)
-- Terminal: `npm run demo:rag` (models already cached so it starts fast).
-- Narrate while it ingests 5 synthetic documents.
-- Highlight Q1 answer on screen: glucose trend Sept'25 → Mar'26 combined from
-  TWO lab reports + the doctor's plan, with [doc: ...] citations.
-- Point at the stats line: "vector search in ~100 ms, first token in ~1.3 s,
-  ~30 tokens/sec — on a 4-year-old mid-range GPU."
+## 0:25–1:10 — RAG + citations (desktop)
+- `npm run demo:rag` — narrate over ingestion, then highlight the glucose-trend
+  answer combining two lab reports + doctor's plan with [doc: ...] citations.
+- Point at stats: "search 13 ms, first token 1.3 s, ~35 tok/s."
 
-## 1:30–2:20 — Photo → OCR → updated answers
-- Show the printed/displayed lab report photo (data/images/...june photo).
-- Terminal: `npm run demo:ocr`.
-- Narrate: "I photograph Dad's newest lab result. Local OCR reads it —
-  94% confidence — it goes into the same private index, and MedGemma now
-  compares June against March: everything improved."
-- Zoom on the answer showing matching numbers (102 vs 118, 201 vs 228).
+## 1:10–1:50 — Photo → OCR → updated answer
+- Show the printed June lab report, then `npm run demo:ocr`.
+- "Local OCR, 94% confidence, straight into the same private index — and now
+  it compares June against March: everything improved."
 
-## 2:20–3:10 — Voice loop
-- Terminal: `npm run demo:voice`.
-- Play artifacts/voice/question-44k.wav out loud ("Which vaccination is Rina
-  still due for?"), show STT transcription appearing (564 ms), answer streams,
-  then play artifacts/voice/answer.wav.
-- Narrate: "Speech-to-text, reasoning, and text-to-speech — three more models,
-  still zero cloud."
+## 1:50–2:30 — Phone: voice + Bahasa Indonesia (the daily-life shot)
+- Split screen: Redmi Note 10 Pro + desktop.
+- On the phone (https://<ip>:8787): tap 🎙️, ASK BY VOICE, show the question
+  transcribe itself and the answer stream in.
+- Toggle 🇮🇩, ask "Obat apa yang diminum Sari?" — answer comes back in
+  Indonesian. "A $200 phone, talking to the family PC, in our own language."
 
-## 3:10–4:10 — Phone + P2P delegation (the wow)
-- Split screen: phone (Redmi Note 10 Pro) + desktop terminal.
-- Phone browser → http://<desktop-ip>:8787 → ask "What medication does Sari
-  take?" → tokens stream onto the phone; stats line shows TTFT + tok/s.
-  Narrate: "A 4-year-old budget phone gets GPU-class private AI from the
-  family PC over the local network."
-- Then the deeper cut: terminal 2 runs `npm run provider`, terminal 3 runs
-  `npm run delegate <publicKey>` — point out the client loads NO local model;
-  inference is delegated over QVAC's P2P stack (Holepunch DHT), addressed by
-  public key, no server in between.
+## 2:30–3:15 — Multi-agent tool calling
+- `npm run demo:agent` — narrate the live tool trace:
+  "The orchestrator searches records... hands the math to a calculator tool —
+  no LLM arithmetic — and can consult the MedGemma specialist. Six tool calls,
+  exact answer: cholesterol down 6.5%."
 
-## 4:10–4:45 — Evidence & honesty
-- Open artifacts/audit-log.jsonl: point at model_load and inference entries
-  (prompt, tokens, TTFT, tok/s) matching what we just saw on screen.
-- Open remote-apis.yaml: "full disclosure — the only network the app ever
-  touches is the one-time model download and the P2P link between my own
-  devices."
+## 3:15–3:50 — Security + fine-tuning (rapid fire)
+- `npm run test:injection` — show the PASS table: "We poisoned a document with
+  a jailbreak and a phishing payload. Sehat answers the real fact, refuses the
+  attack, and warns the user."
+- Cut to pre-recorded `npm run demo:finetune` loss curve: "And with QVAC
+  Fabric we LoRA-tuned a model to our house style in four minutes — on this
+  same GPU. Loss 3.0 to 1.77."
 
-## 4:45–5:00 — Close
-- "Everything is Apache 2.0 on GitHub, reproducible with npm install + one
-  command per demo. Sehat, team #teamSehat — local AI is ready today."
+## 3:50–4:25 — P2P delegation + vision (pre-recorded cuts OK)
+- Two terminals: `npm run provider` → public key → `npm run delegate <key>`:
+  "This client has NO model. It connects by public key over a DHT — no server,
+  no port forwarding — and streams MedGemma from the family PC."
+- One vision shot: `npm run demo:vision` output over the lab photo: "and the
+  same machine can simply look at a document and explain it."
+
+## 4:25–5:00 — Evidence & close
+- Open artifacts/audit-log.jsonl + artifacts/profiler-export.json: "every load
+  and every call is logged — TTFT, tokens/sec — and matches what you just saw."
+- Open remote-apis.yaml: "full disclosure: zero cloud AI."
+- "Sehat. Apache 2.0, github.com/PugarHuda/sehat, #teamSehat. Local AI isn't
+  the future — it's already running in our living room."
 
 ## Recording checklist
-- [ ] Models pre-downloaded (run every demo once before recording)
-- [ ] Fresh audit log for the on-camera run (this is the one you commit)
-- [ ] Wi-Fi disconnect shown on camera
-- [ ] Phone screen visible with URL bar (proves LAN, not internet)
-- [ ] Terminal font ≥ 18 pt, dark theme
-- [ ] Upload as YouTube **unlisted**, ≤ 5 min
+- [ ] All models pre-downloaded; every demo rehearsed once
+- [ ] Fresh artifacts/audit-log.jsonl for the on-camera run; commit it after
+- [ ] Network disconnect ON CAMERA (after models cached)
+- [ ] Phone screen visible with URL bar + cert-warning already accepted
+- [ ] Pre-record the slow parts (finetune, vision, provider/delegate) and cut in
+- [ ] ≤ 5:00, YouTube unlisted, link into DoraHacks form

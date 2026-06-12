@@ -92,3 +92,6 @@
 {"ts":"2026-06-12T15:07:25.526Z","event":"inference","modelId":"ae6fdc4990c33a4a","task":"rag-answer","prompt":"How has Budi's blood sugar changed over his last tests?","promptTokens":null,"completionTokens":153,"ttftMs":1756,"durationMs":4638,"tokensPerSec":32.99}
 {"ts":"2026-06-12T15:07:25.919Z","event":"model_unload","modelId":"ae6fdc4990c33a4a"}
 {"ts":"2026-06-12T15:07:26.175Z","event":"model_unload","modelId":"329fc3cde51e8963"}
+{"ts":"2026-06-12T15:15:39.306Z","event":"model_load","modelSrc":"MEDGEMMA_4B_IT_Q4_1 (gpu_layers=99)","modelType":"llm","modelId":"ae6fdc4990c33a4a","durationMs":17095}
+{"ts":"2026-06-12T15:15:46.486Z","event":"model_load","modelSrc":"EMBEDDINGGEMMA_300M_Q8_0","modelType":"embeddings","modelId":"329fc3cde51e8963","durationMs":7177}
+{"ts":"2026-06-12T15:15:53.699Z","event":"inference","modelId":"ae6fdc4990c33a4a","task":"rag-answer","prompt":"vaccination","promptTokens":null,"completionTokens":258,"ttftMs":1002,"durationMs":5021,"tokensPerSec":51.38}
