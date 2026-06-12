@@ -18,3 +18,7 @@ logs/
 
 # Local TLS cert (self-signed, regenerate per machine)
 certs/
+
+# Fine-tune training intermediates (adapter is kept, checkpoints are not)
+artifacts/finetune/checkpoints/
+-w

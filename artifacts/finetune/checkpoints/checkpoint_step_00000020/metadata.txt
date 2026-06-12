@@ -1,9 +1,0 @@
-epoch=1
-lora_rank=8
-lora_alpha=16.000000
-target_modules=127
-global_step=20
-current_step=20
-resume_epoch=-1
-resume_batch=-1
-paused_during_validation=0
