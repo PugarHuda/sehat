@@ -715,3 +715,7 @@
 {"ts":"2026-06-13T16:21:20.125Z","event":"inference","modelId":"2b4191e5d8536f1c","task":"agent-final-answer","prompt":"By what percent did Budi's LDL change from 2025 to 2026?","promptTokens":null,"completionTokens":null,"durationMs":43375,"tokensPerSec":null}
 {"ts":"2026-06-13T17:00:12.089Z","event":"model_load","modelSrc":"OCR_LATIN_RECOGNIZER_1","modelType":"ocr","modelId":"f473f564f74e83b4","durationMs":3632}
 {"ts":"2026-06-13T17:00:27.844Z","event":"inference","modelId":"f473f564f74e83b4","task":"ocr-lab-photo","prompt":"data/images/lab-indonesia-budi-2026-06.png","promptTokens":null,"completionTokens":null,"durationMs":15754,"tokensPerSec":null}
+{"ts":"2026-06-13T17:47:25.950Z","event":"model_load","modelSrc":"QVAC MedPsy-4B Q4_K_M (gpu_layers=99)","modelType":"llm","modelId":"ae6963ed789f8525","durationMs":7532}
+{"ts":"2026-06-13T17:47:28.787Z","event":"model_load","modelSrc":"EMBEDDINGGEMMA_300M_Q8_0","modelType":"embeddings","modelId":"329fc3cde51e8963","durationMs":2836}
+{"ts":"2026-06-13T17:47:38.152Z","event":"inference","modelId":"ae6963ed789f8525","task":"rag-answer","prompt":"vaccination","promptTokens":null,"completionTokens":462,"ttftMs":1619,"durationMs":9169,"tokensPerSec":50.39}
+{"ts":"2026-06-13T17:50:53.549Z","event":"inference","modelId":"329fc3cde51e8963","task":"rag-ingest:photo-Budi-1781373053317","prompt":"(409 chars)","promptTokens":null,"completionTokens":null,"durationMs":231,"tokensPerSec":null}

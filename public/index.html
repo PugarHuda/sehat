@@ -168,11 +168,8 @@
 
 <!-- chat composer -->
 <div class="toggles" id="chatToggles">
-  <label class="tog"><input type="checkbox" id="agentMode" />
-    <span><span class="tt">🤖 Agent mode</span><span class="ds">Plans multi-step: searches records, does the math, consults MedPsy.</span></span></label>
-  <label class="tog"><input type="checkbox" id="autoSave" checked />
-    <span><span class="tt">📌 Auto-save</span><span class="ds">Report a measurement in chat ("my glucose is 95") and Sehat records it.</span></span></label>
-  <button type="button" id="newChat" class="iconbtn" title="Clear this conversation" style="align-self:center">🗑 New chat</button>
+  <label class="tog"><input type="checkbox" id="agentMode" /> <span class="tt">🤖 Agent</span></label>
+  <label class="tog"><input type="checkbox" id="autoSave" checked /> <span class="tt">📌 Auto-save</span></label>
 </div>
 <form id="f">
   <input id="q" placeholder="Ask about the family's health…" autocomplete="off" />
@@ -213,7 +210,10 @@
   <input id="fSource" placeholder="e.g. lab-agus-2026-06.txt" />
   <label>Record text</label>
   <textarea id="fText" rows="5" placeholder="Patient: Agus Santoso&#10;Date: 2026-06-10&#10;Fasting glucose: 110 mg/dL&#10;Blood pressure: 142/90 mmHg"></textarea>
-  <label style="margin-top:14px">…or import a CSV of readings</label>
+  <label style="margin-top:14px">…or upload a photo / document (OCR)</label>
+  <p style="margin:2px 0 6px">A photo of a lab result, prescription, or note — read on-device and added.</p>
+  <input type="file" id="fImage" accept="image/*" capture="environment" />
+  <label style="margin-top:12px">…or import a CSV of readings</label>
   <p style="margin:2px 0 6px">Rows: <code>date,metric,value</code> — metric = glucose / hba1c / ldl / chol / bp. e.g. <code>2026-06-01,glucose,98</code></p>
   <input type="file" id="fCsv" accept=".csv,text/csv" />
   <div id="formMsg"></div>
@@ -356,6 +356,20 @@
     const member = $("fMember").value.trim(), source = $("fSource").value.trim() || (member ? `record-${member}.txt` : ""), text = $("fText").value.trim();
     const relation = $("fRelation").value;
     const msg = $("formMsg");
+    // Photo/document upload path (OCR) takes priority if an image is chosen.
+    const imgFile = $("fImage").files?.[0];
+    if (imgFile) {
+      msg.textContent = "Reading the document on the family PC…";
+      try {
+        const q = `?member=${encodeURIComponent(member || "")}&relation=${relation}`;
+        const j = await (await fetch(`/api/upload-image${q}`, { method: "POST", headers: { "content-type": imgFile.type || "image/jpeg" }, body: imgFile })).json();
+        if (!j.ok) throw new Error(j.error);
+        msg.textContent = `✅ Added for ${j.member} (${j.chars} chars read).`;
+        $("fImage").value = "";
+        setTimeout(() => { $("modalBg").classList.remove("on"); msg.textContent = ""; loadDash(); }, 800);
+      } catch (e) { msg.textContent = "⚠️ " + e.message; }
+      return;
+    }
     // CSV import path (if a file is chosen, it takes over).
     const csvFile = $("fCsv").files?.[0];
     if (csvFile) {
@@ -438,18 +452,6 @@
   function add(cls, text, opt = {}) { const d = document.createElement("div"); d.className = "msg " + cls; d.textContent = text; chat.appendChild(d); chat.scrollTop = chat.scrollHeight; if (opt.save !== false) persist(cls, text); return d; }
   function addMeta(html, opt = {}) { const d = document.createElement("div"); d.className = "meta"; d.innerHTML = html; chat.appendChild(d); chat.scrollTop = chat.scrollHeight; if (opt.save !== false) persist("__meta", html); }
   for (const m of history) { if (m.cls === "__meta") addMeta(m.text, { save: false }); else add(m.cls, m.text, { save: false }); }
-  // "New chat" clears the visible conversation only. (Each question is grounded
-  // independently in the family records, so this never affects answer quality —
-  // it's for privacy / a clean slate when the phone is shared.)
-  $("newChat").onclick = () => {
-    localStorage.removeItem("sehat-history");
-    history.length = 0;
-    chat.innerHTML = `<div class="hint">Ask about your family's health records, in <b>any language</b>.<br />
-      Answers come from <b>QVAC MedPsy running on the family PC</b> — nothing leaves your home network.<br /><br />
-      Try: <b>"How has Budi's blood sugar changed?"</b></div>`;
-    input.focus();
-  };
-
   if ("serviceWorker" in navigator) navigator.serviceWorker.register("/sw.js").catch(() => {});
 
   form.addEventListener("submit", (e) => {

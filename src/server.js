@@ -13,7 +13,7 @@ import { SehatEngine } from "./engine.js";
 import { SehatAgent } from "./agent.js";
 import { Translator } from "./translator.js";
 import { loadFamily, computeAlerts, loadDocs, computeReminders, emergencyCard } from "./health-data.js";
-import { textToSpeech, TTS_EN_SUPERTONIC_Q8_0 } from "@qvac/sdk";
+import { textToSpeech, TTS_EN_SUPERTONIC_Q8_0, ocr, OCR_LATIN_RECOGNIZER_1 } from "@qvac/sdk";
 import QRCode from "qrcode";
 import { wavHeader, int16ToBuffer } from "./audio-utils.js";
 
@@ -64,6 +64,19 @@ async function getStt() {
     });
   }
   return sttId;
+}
+
+let ocrId = null;
+async function getOcr() {
+  if (!ocrId) {
+    console.log("Loading OCR...");
+    ocrId = await loadModel({
+      modelSrc: OCR_LATIN_RECOGNIZER_1,
+      modelType: "ocr",
+      modelConfig: { langList: ["en"], useGPU: true, defaultRotationAngles: [90, 180, 270] },
+    });
+  }
+  return ocrId;
 }
 
 let ttsId = null;
@@ -370,6 +383,41 @@ async function handler(req, res) {
       })
       .catch((err) => send("error", String(err?.message ?? err)))
       .finally(() => res.end());
+    return;
+  }
+
+  if (req.method === "POST" && url.pathname === "/api/upload-image") {
+    const member = (url.searchParams.get("member") || "").slice(0, 40);
+    const relation = url.searchParams.get("relation") === "self" ? "self" : "family";
+    const chunks = [];
+    req.on("data", (c) => chunks.push(c));
+    req.on("end", async () => {
+      const img = Buffer.concat(chunks);
+      if (img.length < 200) { res.writeHead(400, { "content-type": "application/json" }); return res.end(JSON.stringify({ ok: false, error: "image too small" })); }
+      const ext = (req.headers["content-type"] || "").includes("png") ? "png" : "jpg";
+      const tmp = join(tmpdir(), `sehat-upload-${Date.now()}.${ext}`);
+      writeFileSync(tmp, img);
+      queue = queue
+        .then(async () => {
+          const id = await getOcr();
+          const { blocks } = ocr({ modelId: id, image: tmp, options: { paragraph: false } });
+          const result = await blocks;
+          const text = result.map((b) => b.text).join("\n");
+          if (!text.trim()) throw new Error("no text found in image");
+          // Attribute to a member: explicit param, else a "Patient:" line in the OCR.
+          const who = member || /Patient:\s*([A-Za-z]+)/.exec(text)?.[1] || /Pasien:\s*([A-Za-z]+)/.exec(text)?.[1] || "Document";
+          let doc = `Patient: ${who}\nScanned document (OCR ${new Date().toISOString().slice(0, 10)}).\n${text}`;
+          if (relation === "self") doc = `Relation: self\n${doc}`;
+          const safe = `photo-${who}-${Date.now()}`.replace(/[^a-z0-9._-]+/gi, "-");
+          mkdirSync("data/records", { recursive: true });
+          writeFileSync(join("data/records", `${safe}.txt`), doc);
+          await engine.ingestDocument({ source: safe, text: doc });
+          res.writeHead(200, { "content-type": "application/json" });
+          res.end(JSON.stringify({ ok: true, member: who, chars: text.length, preview: text.slice(0, 160) }));
+        })
+        .catch((err) => { res.writeHead(400, { "content-type": "application/json" }); res.end(JSON.stringify({ ok: false, error: String(err?.message ?? err) })); })
+        .finally(() => { try { unlinkSync(tmp); } catch {} });
+    });
     return;
   }
 
