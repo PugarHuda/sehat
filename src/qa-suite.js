@@ -139,6 +139,45 @@ console.log(`QA suite against ${BASE}\n`);
   record("Long input handled", (r.answer ?? "").length > 50 && !r.error, `answer len ${r.answer.length}`);
 }
 
+// ---------- 13. Dashboard /api/family ----------
+{
+  const fam = await (await fetch(`${BASE}/api/family`)).json();
+  const budi = fam.Budi;
+  const hasSeries = budi && budi.series && Array.isArray(budi.series.glucose) && budi.series.glucose.length >= 2;
+  record("Dashboard /api/family: members + vital series",
+    Object.keys(fam).length >= 3 && hasSeries,
+    `members ${Object.keys(fam).join("/")}; Budi glucose pts ${budi?.series?.glucose?.length}`);
+}
+
+// ---------- 14. Proactive alerts /api/alerts (SSE) ----------
+{
+  const raw = await (await fetch(`${BASE}/api/alerts`)).text();
+  let alerts = null, briefing = "";
+  for (const block of raw.split("\n\n")) {
+    const ev = /event: (\w+)/.exec(block)?.[1];
+    const data = /data: (.*)/s.exec(block)?.[1];
+    if (ev === "alerts") alerts = JSON.parse(data);
+    if (ev === "briefing") briefing = JSON.parse(data);
+  }
+  const flaggedBudiGlucose = alerts?.some((a) => a.member === "Budi" && /glucose/i.test(a.metric));
+  record("Proactive alerts: detect + briefing",
+    Array.isArray(alerts) && alerts.length > 0 && flaggedBudiGlucose && briefing.length > 20,
+    `${alerts?.length} alerts; briefing ${briefing.length} chars`);
+}
+
+// ---------- 15. Agent mode (tool calling) via API ----------
+{
+  const r = await ask("By what percent did Budi's total cholesterol change from 2025 to 2026?", { });
+  // chat (non-agent) should still answer with a number; agent path tested separately in demo
+  record("Cholesterol % change answered", /%|percent|6\.\d|decreas|increas/i.test(r.answer), r.answer.replace(/\n/g, " "));
+}
+
+// ---------- 16. Date-specific retrieval precision ----------
+{
+  const r = await ask("What was Budi's HbA1c in September 2025 specifically?");
+  record("Date-precise retrieval (Sept 2025 HbA1c = 5.8)", /5\.8/.test(r.answer), r.answer.replace(/\n/g, " "));
+}
+
 // ---------- Report ----------
 const md = [
   `# Sehat QA Report — ${new Date().toISOString()}`,

@@ -225,25 +225,36 @@ async function handler(req, res) {
 }
 
 const PFX = "certs/sehat.pfx";
-const useTls = existsSync(PFX);
-const server = useTls
-  ? createHttpsServer({ pfx: readFileSync(PFX), passphrase: "sehat-lan" }, handler)
-  : createHttpServer(handler);
-const proto = useTls ? "https" : "http";
+const useTls = existsSync(PFX) && process.env.SEHAT_HTTP !== "1";
+const HTTP_PORT = PORT + 1; // plain-HTTP fallback (8788): no cert prompt; mic disabled
 
-server.listen(PORT, "0.0.0.0", async () => {
-  const ips = Object.values(networkInterfaces())
+const lanIps = () =>
+  Object.values(networkInterfaces())
     .flat()
     .filter((i) => i && i.family === "IPv4" && !i.internal)
     .map((i) => i.address);
-  console.log("\n=== Sehat is up ===");
-  for (const ip of ips) console.log(`Open on your phone:  ${proto}://${ip}:${PORT}`);
-  console.log(`Local:               ${proto}://localhost:${PORT}`);
-  if (useTls)
-    console.log("(self-signed cert: the phone shows a warning once — Advanced > Proceed)");
 
-  if (process.env.SEHAT_P2P === "1") {
-    const p = await startQVACProvider({});
-    if (p.success) console.log(`\nP2P provider public key:\n${p.publicKey}`);
+if (useTls) {
+  // Primary HTTPS (enables the phone mic) ...
+  createHttpsServer({ pfx: readFileSync(PFX), passphrase: "sehat-lan" }, handler).listen(PORT, "0.0.0.0");
+  // ... plus a plain-HTTP fallback on PORT+1 for phones that reject the
+  // self-signed cert. Chat/dashboard/alerts work over it; only mic needs HTTPS.
+  createHttpServer(handler).listen(HTTP_PORT, "0.0.0.0");
+} else {
+  createHttpServer(handler).listen(PORT, "0.0.0.0");
+}
+
+console.log("\n=== Sehat is up ===");
+for (const ip of lanIps()) {
+  if (useTls) {
+    console.log(`Phone (full, mic):   https://${ip}:${PORT}   (accept the cert warning once)`);
+    console.log(`Phone (easy, no mic): http://${ip}:${HTTP_PORT}`);
+  } else {
+    console.log(`Open on your phone:  http://${ip}:${PORT}`);
   }
-});
+}
+console.log(`Local:               ${useTls ? "https" : "http"}://localhost:${PORT}`);
+
+if (process.env.SEHAT_P2P === "1") {
+  startQVACProvider({}).then((p) => { if (p.success) console.log(`\nP2P provider public key:\n${p.publicKey}`); });
+}
