@@ -93,7 +93,7 @@ Numbers come from the committed [`artifacts/audit-log.jsonl`](artifacts/audit-lo
 | Medical reasoning (A/B benchmark) | `MEDGEMMA_4B_IT_Q4_1` (Google, comparison only) |
 | Orchestrator agent (tool calling) | `QWEN3_1_7B_INST_Q4` |
 | Embeddings / RAG | `EMBEDDINGGEMMA_300M_Q8_0` |
-| Speech-to-text (multilingual, auto-detect) | `WHISPER_BASE_Q8_0` |
+| Speech-to-text (multilingual, auto-detect) | `WHISPER_SMALL_Q8_0` |
 | Text-to-speech | `TTS_EN_SUPERTONIC_Q8_0` |
 | OCR | `OCR_LATIN_RECOGNIZER_1` |
 | Translation ID↔EN | `BERGAMOT_ID_EN` + `BERGAMOT_EN_ID` |
