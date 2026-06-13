@@ -2,7 +2,7 @@
 // Powers the dashboard (sparklines) and the proactive alerts agent. Parsing is
 // rule-based (no LLM) so numbers and trends are exact, never hallucinated — the
 // LLM is only used afterwards to phrase an alert in plain language.
-import { readFileSync, readdirSync } from "node:fs";
+import { readFileSync, readdirSync, existsSync } from "node:fs";
 import { join } from "node:path";
 
 const NUM = (re, s) => { const m = re.exec(s); return m ? Number(m[1]) : null; };
@@ -37,10 +37,14 @@ function parseDoc(name, text) {
   };
 }
 
-export function loadFamily(sampleDir = "data/sample") {
-  const docs = readdirSync(sampleDir)
-    .filter((f) => f.endsWith(".txt"))
-    .map((f) => parseDoc(f, readFileSync(join(sampleDir, f), "utf8")));
+export function loadFamily(dirs = ["data/sample", "data/records"]) {
+  const docs = [];
+  for (const dir of dirs) {
+    if (!existsSync(dir)) continue;
+    for (const f of readdirSync(dir).filter((x) => x.endsWith(".txt"))) {
+      docs.push(parseDoc(f, readFileSync(join(dir, f), "utf8")));
+    }
+  }
 
   const members = {};
   for (const d of docs) {

@@ -207,9 +207,18 @@ async function handler(req, res) {
     req.on("data", (c) => (body += c));
     req.on("end", async () => {
       try {
-        const { source, text } = JSON.parse(body);
+        const { source, text, member } = JSON.parse(body);
         if (!source || !text) throw new Error("source and text required");
-        await engine.ingestDocument({ source: String(source).slice(0, 100), text: String(text).slice(0, 50_000) });
+        // If a member name is given, ensure the doc is attributable on the
+        // dashboard (it parses "Patient: <name>").
+        let body2 = String(text).slice(0, 50_000);
+        if (member && !/Patient:/i.test(body2)) body2 = `Patient: ${String(member).slice(0, 40)}\n${body2}`;
+        const safe = String(source).slice(0, 80).replace(/[^a-z0-9._-]+/gi, "-");
+        // Persist to data/records so the dashboard + chat both see it (real-time).
+        mkdirSync("data/records", { recursive: true });
+        writeFileSync(join("data/records", safe.endsWith(".txt") ? safe : `${safe}.txt`), body2);
+        // Index into the RAG workspace for Q&A.
+        await engine.ingestDocument({ source: safe, text: body2 });
         res.writeHead(200, { "content-type": "application/json" });
         res.end(JSON.stringify({ ok: true }));
       } catch (err) {

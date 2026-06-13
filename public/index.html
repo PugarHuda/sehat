@@ -3,256 +3,326 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<meta name="theme-color" content="#0b1117" />
+<meta name="theme-color" content="#f3f5f2" />
 <link rel="manifest" href="/manifest.json" />
 <link rel="icon" href="/icon-192.png" />
 <link rel="apple-touch-icon" href="/icon-192.png" />
 <title>Sehat — Family Health, On-Device</title>
 <style>
   :root {
-    --bg: #0b1117; --bg2: #0e151d; --surface: #131c26; --surface2: #1a2735;
-    --line: #21313f; --text: #e8f1f8; --dim: #8aa0b2;
-    --teal: #2dd4bf; --emerald: #34d399; --sky: #38bdf8;
-    --amber: #f6b73c; --red: #f87171;
-    --grad: linear-gradient(135deg, #0f766e 0%, #0ea5e9 120%);
-    --radius: 16px;
+    --bg: #eef1ee; --bg-grad: radial-gradient(1100px 520px at 85% -8%, #e3efe9 0%, #eef1ee 60%);
+    --card: #ffffff; --card2: #f7f9f7; --line: #e4e9e4;
+    --ink: #16302a; --muted: #61776f; --faint: #8b9d95;
+    --brand: #0e9f6e; --brand-d: #0b8457; --brand-soft: #e7f6ef;
+    --sky: #2f6df0; --sky-soft: #eaf1ff;
+    --amber: #b7791f; --amber-soft: #fdf1dd;
+    --rose: #c2410c; --rose-soft: #fdeee6;
+    --violet: #6d28d9; --violet-soft: #f1ecfe;
+    --warn: #b7791f; --high: #c0392b;
+    --shadow: 0 1px 2px rgba(16,40,34,.05), 0 12px 30px rgba(16,40,34,.06);
+    --radius: 20px;
   }
   * { box-sizing: border-box; margin: 0; -webkit-tap-highlight-color: transparent; }
-  body {
-    background: radial-gradient(1200px 600px at 80% -10%, #11212e 0%, var(--bg) 55%);
-    color: var(--text); height: 100dvh; display: flex; flex-direction: column;
-    font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-    font-feature-settings: "cv02","cv03","cv04","ss01";
-  }
-  header {
-    padding: 14px 16px; display: flex; align-items: center; gap: 11px;
-    background: linear-gradient(180deg, rgba(19,28,38,.95), rgba(11,17,23,.6));
-    backdrop-filter: blur(8px); border-bottom: 1px solid var(--line);
-  }
-  .mark { width: 34px; height: 34px; border-radius: 10px; background: var(--grad);
-    display: grid; place-items: center; font-weight: 800; color: #042f2a; font-size: 15px;
-    box-shadow: 0 4px 14px rgba(45,212,191,.3); }
-  header h1 { font-size: 16px; font-weight: 700; letter-spacing: -.2px; }
-  header .sub { font-size: 11px; color: var(--dim); margin-top: -2px; }
-  header .badge { margin-left: auto; font-size: 10.5px; font-weight: 600; color: #052e1c;
-    background: var(--emerald); padding: 4px 9px; border-radius: 999px; white-space: nowrap; }
+  body { background: var(--bg-grad); color: var(--ink); height: 100dvh; display: flex; flex-direction: column;
+    font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; -webkit-font-smoothing: antialiased; }
 
-  nav { display: flex; gap: 4px; padding: 8px 12px 0; background: var(--bg); }
-  nav button { flex: 1; padding: 9px; border: 0; background: transparent; color: var(--dim);
-    font-size: 13px; font-weight: 600; border-radius: 10px 10px 0 0; cursor: pointer; }
-  nav button.on { color: var(--text); background: var(--surface); box-shadow: inset 0 -2px 0 var(--teal); }
+  header { padding: 15px 18px; display: flex; align-items: center; gap: 12px; background: rgba(255,255,255,.8);
+    backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); }
+  .mark { width: 36px; height: 36px; border-radius: 11px; background: linear-gradient(135deg,#12b886,#0b8457);
+    display: grid; place-items: center; font-weight: 800; color: #fff; font-size: 17px; box-shadow: 0 6px 16px rgba(14,159,110,.32); }
+  header h1 { font-size: 17px; font-weight: 800; letter-spacing: -.3px; }
+  header .sub { font-size: 11.5px; color: var(--muted); margin-top: -1px; }
+  .chip { margin-left: auto; font-size: 11px; font-weight: 700; color: var(--brand-d); background: var(--brand-soft);
+    padding: 5px 11px; border-radius: 999px; border: 1px solid #cdeede; white-space: nowrap; }
 
-  main { flex: 1; overflow-y: auto; background: var(--bg); }
-  .view { display: none; }
-  .view.on { display: block; }
+  nav { display: flex; gap: 6px; padding: 12px 14px 0; }
+  nav button { flex: 1; padding: 10px; border: 1px solid transparent; background: transparent; color: var(--muted);
+    font-size: 13.5px; font-weight: 700; border-radius: 12px; cursor: pointer; transition: .15s; }
+  nav button.on { color: var(--brand-d); background: var(--card); border-color: var(--line); box-shadow: var(--shadow); }
+
+  main { flex: 1; overflow-y: auto; }
+  .view { display: none; } .view.on { display: block; }
 
   /* chat */
-  #chat { padding: 14px; display: flex; flex-direction: column; gap: 10px; }
-  .msg { max-width: 88%; padding: 11px 14px; border-radius: 16px; white-space: pre-wrap; word-wrap: break-word; font-size: 14.5px; line-height: 1.5; }
-  .user { align-self: flex-end; background: var(--grad); color: #04222e; font-weight: 500; border-bottom-right-radius: 5px; }
-  .bot { align-self: flex-start; background: var(--surface2); border: 1px solid var(--line); border-bottom-left-radius: 5px; }
-  .meta { align-self: flex-start; font-size: 11px; color: var(--dim); padding: 0 6px; }
-  .src { color: var(--teal); }
-  .hint { color: var(--dim); font-size: 13.5px; text-align: center; padding: 26px 26px; line-height: 1.6; }
-  .hint b { color: var(--text); }
+  #chat { padding: 16px 14px; display: flex; flex-direction: column; gap: 11px; }
+  .msg { max-width: 86%; padding: 12px 15px; border-radius: 18px; white-space: pre-wrap; word-wrap: break-word; font-size: 14.5px; line-height: 1.55; box-shadow: var(--shadow); }
+  .user { align-self: flex-end; background: linear-gradient(135deg,#12b886,#0b8457); color: #fff; border-bottom-right-radius: 6px; }
+  .bot { align-self: flex-start; background: var(--card); border: 1px solid var(--line); border-bottom-left-radius: 6px; }
+  .meta { align-self: flex-start; font-size: 11px; color: var(--faint); padding: 0 6px; }
+  .src { color: var(--brand-d); font-weight: 600; }
+  .hint { color: var(--muted); font-size: 14px; text-align: center; padding: 30px 26px; line-height: 1.65; }
+  .hint b { color: var(--ink); }
 
-  form { display: flex; gap: 8px; padding: 10px 12px calc(10px + env(safe-area-inset-bottom)); background: var(--surface); border-top: 1px solid var(--line); }
-  input, textarea { font-family: inherit; }
-  #q { flex: 1; padding: 12px 15px; border-radius: 13px; border: 1px solid var(--line); background: var(--bg2); color: var(--text); font-size: 16px; outline: none; }
-  #q:focus { border-color: var(--teal); }
-  .iconbtn { background: var(--surface2); color: var(--text); border: 1px solid var(--line); padding: 0 13px; font-size: 16px; border-radius: 13px; cursor: pointer; }
-  #send { background: var(--grad); color: #042f2a; border: 0; padding: 0 17px; font-weight: 800; border-radius: 13px; }
-  #mic.rec { background: var(--red); color: #fff; }
-  .toggles { display: flex; gap: 14px; padding: 6px 14px 0; }
-  .toggles label { font-size: 12.5px; color: var(--dim); display: flex; align-items: center; gap: 5px; }
-  .toggles input { accent-color: var(--teal); }
+  form { display: flex; gap: 8px; padding: 10px 12px calc(10px + env(safe-area-inset-bottom)); background: rgba(255,255,255,.85); backdrop-filter: blur(10px); border-top: 1px solid var(--line); }
+  #q { flex: 1; padding: 13px 16px; border-radius: 14px; border: 1px solid var(--line); background: #fff; color: var(--ink); font-size: 16px; outline: none; font-family: inherit; }
+  #q:focus { border-color: var(--brand); box-shadow: 0 0 0 3px var(--brand-soft); }
+  .iconbtn { background: #fff; color: var(--ink); border: 1px solid var(--line); padding: 0 14px; font-size: 16px; border-radius: 14px; cursor: pointer; }
+  #send { background: linear-gradient(135deg,#12b886,#0b8457); color: #fff; border: 0; padding: 0 18px; font-weight: 800; border-radius: 14px; cursor: pointer; }
+  #mic.rec { background: #e03131; color: #fff; border-color: #e03131; }
 
-  /* cards */
-  .grid { padding: 14px; display: grid; gap: 12px; }
-  .card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 15px; }
-  .card h3 { font-size: 15px; display: flex; align-items: center; gap: 8px; }
-  .avatar { width: 30px; height: 30px; border-radius: 9px; background: var(--surface2); display: grid; place-items: center; font-size: 14px; }
-  .vital { display: flex; align-items: center; gap: 10px; margin-top: 11px; }
-  .vital .lbl { font-size: 12px; color: var(--dim); width: 96px; flex-shrink: 0; }
-  .vital .val { font-size: 14px; font-weight: 700; width: 74px; flex-shrink: 0; }
-  .spark { flex: 1; height: 26px; }
-  .pill { font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 999px; }
-  .pill.warn { background: rgba(246,183,60,.16); color: var(--amber); }
-  .pill.high { background: rgba(248,113,113,.16); color: var(--red); }
-  .pill.ok { background: rgba(52,211,153,.14); color: var(--emerald); }
-  .meds { margin-top: 11px; font-size: 12px; color: var(--dim); }
-  .meds span { display: inline-block; background: var(--surface2); border: 1px solid var(--line); border-radius: 8px; padding: 3px 8px; margin: 3px 4px 0 0; color: var(--text); }
+  .toggles { display: flex; gap: 8px; padding: 8px 14px 0; align-items: stretch; flex-wrap: wrap; }
+  .tog { flex: 1; min-width: 150px; display: flex; gap: 9px; align-items: flex-start; background: var(--card); border: 1px solid var(--line); border-radius: 13px; padding: 9px 11px; cursor: pointer; box-shadow: var(--shadow); }
+  .tog input { margin-top: 2px; accent-color: var(--brand); width: 16px; height: 16px; }
+  .tog .tt { font-size: 13px; font-weight: 700; }
+  .tog .ds { font-size: 11px; color: var(--muted); line-height: 1.35; margin-top: 1px; }
+
+  /* cards / dashboard */
+  .grid { padding: 14px; display: grid; gap: 13px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; box-shadow: var(--shadow); }
+  .mcard { cursor: pointer; transition: transform .12s, box-shadow .12s; }
+  .mcard:active { transform: scale(.99); }
+  .mhead { display: flex; align-items: center; gap: 11px; }
+  .avatar { width: 42px; height: 42px; border-radius: 13px; background: var(--brand-soft); display: grid; place-items: center; font-size: 20px; }
+  .mname { font-size: 16px; font-weight: 800; }
+  .msub { font-size: 11.5px; color: var(--muted); }
+  .chev { margin-left: auto; color: var(--faint); font-size: 18px; }
+  .quickrow { display: flex; gap: 8px; margin-top: 13px; flex-wrap: wrap; }
+  .stat { flex: 1; min-width: 84px; background: var(--card2); border: 1px solid var(--line); border-radius: 13px; padding: 9px 11px; }
+  .stat .k { font-size: 10.5px; color: var(--muted); font-weight: 600; }
+  .stat .v { font-size: 17px; font-weight: 800; margin-top: 1px; }
+  .stat .v small { font-size: 10px; color: var(--faint); font-weight: 600; }
+  .pill { font-size: 10px; font-weight: 800; padding: 2px 8px; border-radius: 999px; }
+  .pill.warn { background: var(--amber-soft); color: var(--amber); }
+  .pill.high { background: var(--rose-soft); color: var(--high); }
+  .pill.ok { background: var(--brand-soft); color: var(--brand-d); }
+  .sectionhead { display: flex; align-items: center; padding: 16px 16px 2px; }
+  .sectionhead h2 { font-size: 15px; font-weight: 800; }
+  .sectionhead button { margin-left: auto; font-size: 12.5px; font-weight: 700; color: var(--brand-d); background: var(--brand-soft); border: 1px solid #cdeede; border-radius: 10px; padding: 7px 12px; cursor: pointer; }
+
+  /* detail drawer */
+  .drawer-bg { position: fixed; inset: 0; background: rgba(16,40,34,.34); backdrop-filter: blur(2px); display: none; z-index: 40; }
+  .drawer-bg.on { display: block; }
+  .drawer { position: fixed; left: 0; right: 0; bottom: 0; max-height: 88dvh; overflow-y: auto; background: var(--bg); z-index: 50;
+    border-radius: 22px 22px 0 0; transform: translateY(100%); transition: transform .25s ease; padding-bottom: env(safe-area-inset-bottom); }
+  .drawer.on { transform: translateY(0); }
+  .drawer .grip { width: 40px; height: 4px; background: var(--line); border-radius: 4px; margin: 10px auto 4px; }
+  .drawer .dh { display: flex; align-items: center; gap: 12px; padding: 8px 18px 14px; border-bottom: 1px solid var(--line); }
+  .drawer .dh .x { margin-left: auto; font-size: 22px; color: var(--muted); background: none; border: 0; cursor: pointer; }
+  .vit { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 14px; margin: 12px 14px; box-shadow: var(--shadow); }
+  .vit .top { display: flex; align-items: baseline; gap: 8px; }
+  .vit .nm { font-size: 13px; color: var(--muted); font-weight: 600; }
+  .vit .big { font-size: 24px; font-weight: 800; margin-left: auto; }
+  .vit .big small { font-size: 12px; color: var(--faint); font-weight: 600; }
+  .vit .delta { font-size: 12px; font-weight: 700; }
+  .up { color: var(--high); } .down { color: var(--brand-d); }
+  .spark { width: 100%; height: 40px; margin-top: 8px; }
+  .meds span { display: inline-block; background: var(--card); border: 1px solid var(--line); border-radius: 9px; padding: 5px 10px; margin: 4px 5px 0 0; font-size: 12.5px; box-shadow: var(--shadow); }
 
   /* alerts */
-  .briefing { background: linear-gradient(135deg, rgba(45,212,191,.10), rgba(14,165,233,.06)); border: 1px solid var(--line); border-left: 3px solid var(--teal); border-radius: 12px; padding: 14px; font-size: 14px; line-height: 1.55; margin: 14px 14px 4px; }
-  .briefing .h { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--teal); font-weight: 700; margin-bottom: 6px; }
-  .alert { display: flex; gap: 12px; align-items: center; }
-  .alert .ic { width: 38px; height: 38px; border-radius: 11px; display: grid; place-items: center; font-size: 18px; flex-shrink: 0; }
-  .alert.warn .ic { background: rgba(246,183,60,.16); }
-  .alert.high .ic { background: rgba(248,113,113,.16); }
-  .alert .t { font-size: 14px; font-weight: 600; }
-  .alert .d { font-size: 12px; color: var(--dim); margin-top: 2px; }
-  .loading { color: var(--dim); font-size: 13px; padding: 18px; text-align: center; }
-  .docpanel { margin: 14px; }
-  .docpanel input, .docpanel textarea { width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--bg2); color: var(--text); font-size: 14px; margin-bottom: 8px; }
-  .docpanel button { width: 100%; padding: 11px; border: 0; border-radius: 10px; background: var(--grad); color: #042f2a; font-weight: 700; }
-  #docMsg { font-size: 12px; color: var(--teal); margin-top: 6px; }
+  .briefing { background: linear-gradient(135deg,#e7f6ef,#eaf1ff); border: 1px solid #d4ece0; border-radius: 16px; padding: 15px; font-size: 14px; line-height: 1.55; margin: 14px 14px 2px; color: var(--ink); box-shadow: var(--shadow); }
+  .briefing .h { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--brand-d); font-weight: 800; margin-bottom: 6px; }
+  .alert { display: flex; gap: 13px; align-items: center; }
+  .alert .ic { width: 42px; height: 42px; border-radius: 13px; display: grid; place-items: center; font-size: 19px; flex-shrink: 0; }
+  .alert.warn .ic { background: var(--amber-soft); } .alert.high .ic { background: var(--rose-soft); }
+  .alert .t { font-size: 14.5px; font-weight: 700; } .alert .d { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .loading { color: var(--muted); font-size: 13px; padding: 20px; text-align: center; }
+
+  /* modal form */
+  .modal-bg { position: fixed; inset: 0; background: rgba(16,40,34,.34); display: none; z-index: 60; align-items: flex-end; }
+  .modal-bg.on { display: flex; }
+  .modal { width: 100%; background: var(--bg); border-radius: 22px 22px 0 0; padding: 18px 16px calc(20px + env(safe-area-inset-bottom)); }
+  .modal h3 { font-size: 16px; font-weight: 800; margin-bottom: 4px; }
+  .modal p { font-size: 12.5px; color: var(--muted); margin-bottom: 12px; }
+  .modal label { font-size: 12px; font-weight: 700; color: var(--muted); display: block; margin: 10px 0 4px; }
+  .modal input, .modal textarea, .modal select { width: 100%; padding: 11px 13px; border-radius: 12px; border: 1px solid var(--line); background: #fff; color: var(--ink); font-size: 15px; font-family: inherit; }
+  .modal .row { display: flex; gap: 9px; margin-top: 14px; }
+  .modal .row button { flex: 1; padding: 12px; border-radius: 12px; font-weight: 800; font-size: 14px; cursor: pointer; }
+  .btn-primary { background: linear-gradient(135deg,#12b886,#0b8457); color: #fff; border: 0; }
+  .btn-ghost { background: #fff; color: var(--ink); border: 1px solid var(--line); }
+  #formMsg { font-size: 12.5px; color: var(--brand-d); margin-top: 8px; min-height: 16px; }
 </style>
 </head>
 <body>
 <header>
   <div class="mark">S</div>
-  <div>
-    <h1>Sehat</h1>
-    <div class="sub">Family health · on-device</div>
-  </div>
-  <span class="badge">100% local · no cloud</span>
+  <div><h1>Sehat</h1><div class="sub">Family health · on-device</div></div>
+  <span class="chip">100% local · no cloud</span>
 </header>
 
 <nav>
   <button class="on" data-view="chatView">💬 Chat</button>
-  <button data-view="dashView">📊 Dashboard</button>
+  <button data-view="dashView">📊 Family</button>
   <button data-view="alertView">🔔 Alerts</button>
 </nav>
 
 <main>
-  <!-- CHAT -->
-  <section id="chatView" class="view on">
-    <div id="chat">
-      <div class="hint">
-        Ask about your family's health records.<br />
-        Answers come from <b>QVAC MedPsy running on the family PC</b> —
-        nothing leaves your home network.<br /><br />
-        Try: <b>"How has Budi's blood sugar changed over his last tests?"</b>
-      </div>
-    </div>
-  </section>
+  <section id="chatView" class="view on"><div id="chat">
+    <div class="hint">Ask about your family's health records.<br />
+      Answers come from <b>QVAC MedPsy running on the family PC</b> — nothing leaves your home network.<br /><br />
+      Try: <b>"How has Budi's blood sugar changed over his last tests?"</b></div>
+  </div></section>
 
-  <!-- DASHBOARD -->
   <section id="dashView" class="view">
-    <div id="dash" class="grid"><div class="loading">Loading family dashboard…</div></div>
+    <div class="sectionhead"><h2>Family members</h2>
+      <button id="addBtn">＋ Add member / record</button></div>
+    <div id="dash" class="grid"><div class="loading">Loading…</div></div>
   </section>
 
-  <!-- ALERTS -->
   <section id="alertView" class="view">
     <div id="briefingBox"></div>
     <div id="alerts" class="grid"></div>
   </section>
 </main>
 
+<!-- chat composer -->
 <div class="toggles" id="chatToggles">
-  <label><input type="checkbox" id="langId" /> 🇮🇩 Bahasa</label>
-  <label><input type="checkbox" id="agentMode" /> 🤖 Agent</label>
-  <button class="iconbtn" id="docsBtn" style="margin-left:auto;font-size:13px;padding:4px 10px">📄 Add</button>
+  <label class="tog"><input type="checkbox" id="agentMode" />
+    <span><span class="tt">🤖 Agent mode</span><span class="ds">Plans multi-step: searches records, does the math, consults MedPsy.</span></span></label>
+  <label class="tog"><input type="checkbox" id="langId" />
+    <span><span class="tt">🇮🇩 Bahasa</span><span class="ds">Ask & get answers in Indonesian.</span></span></label>
 </div>
-<div class="docpanel" id="docs" hidden>
-  <input id="docName" placeholder="Document name, e.g. lab-budi-2026-09.txt" />
-  <textarea id="docText" rows="4" placeholder="Paste the document text…"></textarea>
-  <button id="docSave">Save to family records</button>
-  <div id="docMsg"></div>
-</div>
-
 <form id="f">
   <input id="q" placeholder="Ask about the family's health…" autocomplete="off" />
-  <button type="button" id="mic" class="iconbtn" title="Hold to talk">🎙️</button>
+  <button type="button" id="mic" class="iconbtn" title="Tap to talk">🎙️</button>
   <button id="send">➤</button>
 </form>
+
+<!-- member detail drawer -->
+<div class="drawer-bg" id="drawerBg"></div>
+<div class="drawer" id="drawer">
+  <div class="grip"></div>
+  <div class="dh"><div class="avatar" id="dAvatar">🙂</div>
+    <div><div class="mname" id="dName">—</div><div class="msub" id="dSub"></div></div>
+    <button class="x" id="dClose">×</button></div>
+  <div id="dBody"></div>
+</div>
+
+<!-- add member modal -->
+<div class="modal-bg" id="modalBg"><div class="modal">
+  <h3>Add member or record</h3>
+  <p>Paste a lab result, prescription, or note. A new name creates a new family member. Everything stays on this PC.</p>
+  <label>Family member name</label>
+  <input id="fMember" placeholder="e.g. Agus Santoso" />
+  <label>Record name</label>
+  <input id="fSource" placeholder="e.g. lab-agus-2026-06.txt" />
+  <label>Record text</label>
+  <textarea id="fText" rows="5" placeholder="Patient: Agus Santoso&#10;Date: 2026-06-10&#10;Fasting glucose: 110 mg/dL&#10;Blood pressure: 142/90 mmHg"></textarea>
+  <div id="formMsg"></div>
+  <div class="row"><button class="btn-ghost" id="fCancel">Cancel</button>
+    <button class="btn-primary" id="fSave">Save to family records</button></div>
+</div></div>
 
 <script>
   const $ = (id) => document.getElementById(id);
   const chat = $("chat"), form = $("f"), input = $("q"), send = $("send");
-
-  // ---- tab nav ----
-  const footer = form, toggles = $("chatToggles");
-  document.querySelectorAll("nav button").forEach((b) => {
-    b.onclick = () => {
-      document.querySelectorAll("nav button").forEach((x) => x.classList.toggle("on", x === b));
-      document.querySelectorAll(".view").forEach((v) => v.classList.toggle("on", v.id === b.dataset.view));
-      const isChat = b.dataset.view === "chatView";
-      footer.style.display = isChat ? "flex" : "none";
-      toggles.style.display = isChat ? "flex" : "none";
-      if (b.dataset.view === "dashView") loadDash();
-      if (b.dataset.view === "alertView") loadAlerts();
-    };
-  });
-
-  // ---- sparkline ----
-  function sparkline(values, w = 150, h = 26) {
-    if (!values || values.length < 2) return `<svg class="spark" viewBox="0 0 ${w} ${h}"></svg>`;
-    const min = Math.min(...values), max = Math.max(...values), rng = max - min || 1;
-    const pts = values.map((v, i) => `${(i / (values.length - 1)) * w},${h - 4 - ((v - min) / rng) * (h - 8)}`);
-    const up = values[values.length - 1] >= values[0];
-    const col = up ? "#f6b73c" : "#34d399";
-    return `<svg class="spark" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none">
-      <polyline points="${pts.join(" ")}" fill="none" stroke="${col}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-      <circle cx="${pts[pts.length-1].split(",")[0]}" cy="${pts[pts.length-1].split(",")[1]}" r="2.6" fill="${col}"/>
-    </svg>`;
-  }
-  const VLABEL = { glucose: "Glucose", hba1c: "HbA1c", ldl: "LDL", chol: "Cholesterol", sys: "Systolic BP" };
+  const VLABEL = { glucose: "Fasting glucose", hba1c: "HbA1c", ldl: "LDL", chol: "Total cholesterol", sys: "Systolic BP" };
+  const UNIT = { glucose: "mg/dL", hba1c: "%", ldl: "mg/dL", chol: "mg/dL", sys: "mmHg" };
+  const WARN = { glucose: 100, hba1c: 5.7, ldl: 130, chol: 200, sys: 130 };
+  const HIGH = { glucose: 126, hba1c: 6.5, ldl: 160, chol: 240, sys: 140 };
   const EMO = { Budi: "👨", Sari: "👩", Rina: "🧒", Agus: "👴", Dewi: "👵" };
 
+  function statusOf(k, v) { return v >= HIGH[k] ? "high" : v >= WARN[k] ? "warn" : "ok"; }
+  function sparkline(values, h = 40) {
+    if (!values || values.length < 2) return "";
+    const w = 300, min = Math.min(...values), max = Math.max(...values), rng = max - min || 1;
+    const pts = values.map((v, i) => `${(i / (values.length - 1)) * w},${h - 5 - ((v - min) / rng) * (h - 12)}`);
+    const up = values[values.length - 1] >= values[0], col = up ? "#c0392b" : "#0b8457";
+    const last = pts[pts.length - 1].split(",");
+    return `<svg class="spark" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none">
+      <polyline points="${pts.join(" ")}" fill="none" stroke="${col}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="${last[0]}" cy="${last[1]}" r="3.4" fill="${col}"/></svg>`;
+  }
+
+  // ---- nav ----
+  document.querySelectorAll("nav button").forEach((b) => b.onclick = () => {
+    document.querySelectorAll("nav button").forEach((x) => x.classList.toggle("on", x === b));
+    document.querySelectorAll(".view").forEach((v) => v.classList.toggle("on", v.id === b.dataset.view));
+    const chatOn = b.dataset.view === "chatView";
+    form.style.display = chatOn ? "flex" : "none"; $("chatToggles").style.display = chatOn ? "flex" : "none";
+    if (b.dataset.view === "dashView") loadDash();
+    if (b.dataset.view === "alertView") loadAlerts();
+  });
+
+  // ---- dashboard ----
+  let FAM = {};
   async function loadDash() {
-    const el = $("dash");
-    el.innerHTML = '<div class="loading">Loading family dashboard…</div>';
+    const el = $("dash"); el.innerHTML = '<div class="loading">Loading family…</div>';
     try {
-      const fam = await (await fetch("/api/family")).json();
+      FAM = await (await fetch("/api/family")).json();
       el.innerHTML = "";
-      for (const m of Object.values(fam)) {
-        const vitals = Object.entries(m.series).map(([k, s]) => {
-          const last = s[s.length - 1].value;
-          return `<div class="vital"><span class="lbl">${VLABEL[k] || k}</span>
-            <span class="val">${last}</span>${sparkline(s.map((p) => p.value))}</div>`;
+      for (const m of Object.values(FAM)) {
+        const keys = Object.keys(m.series).slice(0, 3);
+        const stats = keys.map((k) => {
+          const last = m.series[k][m.series[k].length - 1].value, st = statusOf(k, last);
+          return `<div class="stat"><div class="k">${VLABEL[k]}</div>
+            <div class="v">${last}<small> ${UNIT[k]}</small> ${st !== "ok" ? `<span class="pill ${st}">${st}</span>` : ""}</div></div>`;
         }).join("");
-        const meds = m.meds.length ? `<div class="meds">💊 ${m.meds.map((x) => `<span>${x}</span>`).join("")}</div>` : "";
-        el.insertAdjacentHTML("beforeend", `<div class="card">
-          <h3><span class="avatar">${EMO[m.name] || "🙂"}</span>${m.name}
-            <span class="pill ok" style="margin-left:auto">${m.docs} docs</span></h3>
-          ${vitals || '<div class="meds">No numeric vitals on record.</div>'}${meds}</div>`);
+        el.insertAdjacentHTML("beforeend", `<div class="card mcard" data-m="${m.name}">
+          <div class="mhead"><div class="avatar">${EMO[m.name] || "🙂"}</div>
+            <div><div class="mname">${m.name}</div><div class="msub">${m.docs} record${m.docs > 1 ? "s" : ""} · tap for detail</div></div>
+            <div class="chev">›</div></div>
+          ${stats ? `<div class="quickrow">${stats}</div>` : '<div class="msub" style="margin-top:10px">No numeric vitals yet</div>'}
+        </div>`);
       }
+      document.querySelectorAll(".mcard").forEach((c) => c.onclick = () => openMember(c.dataset.m));
     } catch (e) { el.innerHTML = `<div class="loading">⚠️ ${e.message}</div>`; }
   }
 
+  // ---- member detail drawer ----
+  function openMember(name) {
+    const m = FAM[name]; if (!m) return;
+    $("dAvatar").textContent = EMO[name] || "🙂";
+    $("dName").textContent = name;
+    $("dSub").textContent = `${m.docs} record${m.docs > 1 ? "s" : ""} on this device`;
+    const vit = Object.entries(m.series).map(([k, s]) => {
+      const last = s[s.length - 1], prev = s.length > 1 ? s[s.length - 2] : null;
+      const d = prev ? last.value - prev.value : null, st = statusOf(k, last.value);
+      const deltaTxt = d == null ? "" : `<span class="delta ${d > 0 ? "up" : "down"}">${d > 0 ? "▲ +" : "▼ "}${Math.abs(d).toFixed(1)} vs prev</span>`;
+      return `<div class="vit"><div class="top"><span class="nm">${VLABEL[k]}</span>
+        ${st !== "ok" ? `<span class="pill ${st}">${st}</span>` : `<span class="pill ok">ok</span>`}
+        <span class="big">${last.value}<small> ${UNIT[k]}</small></span></div>
+        ${sparkline(s.map((p) => p.value))}
+        <div style="display:flex;justify-content:space-between;margin-top:4px"><span class="msub">${s[0].date} → ${last.date}</span>${deltaTxt}</div></div>`;
+    }).join("");
+    const meds = m.meds.length ? `<div class="vit"><span class="nm">💊 Medications</span><div class="meds">${m.meds.map((x) => `<span>${x}</span>`).join("")}</div></div>` : "";
+    $("dBody").innerHTML = (vit || '<div class="loading">No numeric vitals on record.</div>') + meds;
+    $("drawerBg").classList.add("on"); $("drawer").classList.add("on");
+  }
+  const closeDrawer = () => { $("drawerBg").classList.remove("on"); $("drawer").classList.remove("on"); };
+  $("dClose").onclick = closeDrawer; $("drawerBg").onclick = closeDrawer;
+
+  // ---- add member modal ----
+  $("addBtn").onclick = () => $("modalBg").classList.add("on");
+  $("fCancel").onclick = () => $("modalBg").classList.remove("on");
+  $("fSave").onclick = async () => {
+    const member = $("fMember").value.trim(), source = $("fSource").value.trim() || (member ? `record-${member}.txt` : ""), text = $("fText").value.trim();
+    const msg = $("formMsg");
+    if (!member || !text) { msg.textContent = "⚠️ Name and record text are required."; return; }
+    msg.textContent = "Saving & indexing on the family PC…";
+    try {
+      const j = await (await fetch("/api/ingest", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ member, source, text }) })).json();
+      if (!j.ok) throw new Error(j.error);
+      msg.textContent = "✅ Saved.";
+      $("fText").value = ""; $("fMember").value = ""; $("fSource").value = "";
+      setTimeout(() => { $("modalBg").classList.remove("on"); msg.textContent = ""; loadDash(); }, 600);
+    } catch (e) { msg.textContent = "⚠️ " + e.message; }
+  };
+
+  // ---- alerts ----
   function loadAlerts() {
     const box = $("briefingBox"), list = $("alerts");
     box.innerHTML = '<div class="briefing"><div class="h">🔔 Proactive briefing</div><span class="loading">MedPsy is reviewing the records…</span></div>';
     list.innerHTML = "";
     const es = new EventSource("/api/alerts");
     es.addEventListener("alerts", (ev) => {
-      const alerts = JSON.parse(ev.data);
-      if (!alerts.length) { list.innerHTML = '<div class="card"><div class="alert ok"><div class="ic">✅</div><div><div class="t">All clear</div><div class="d">Every tracked vital is within range.</div></div></div></div>'; return; }
-      list.innerHTML = alerts.map((a) => `<div class="card"><div class="alert ${a.severity}">
-        <div class="ic">${a.severity === "high" ? "🚨" : "⚠️"}</div>
-        <div style="flex:1">
-          <div class="t">${a.member}: ${a.metric} ${a.value}${a.unit}
-            <span class="pill ${a.severity}">${a.severity}</span></div>
-          <div class="d">${a.rising ? "▲ rising " : ""}${a.trend != null ? `(${a.trend > 0 ? "+" : ""}${a.trend.toFixed(1)} vs previous) ` : ""}· ${a.date}</div>
-        </div>
-        ${sparkline(a.series, 90, 30)}
-      </div></div>`).join("");
+      const a = JSON.parse(ev.data);
+      if (!a.length) { list.innerHTML = '<div class="card"><div class="alert"><div class="ic" style="background:var(--brand-soft)">✅</div><div><div class="t">All clear</div><div class="d">Every tracked vital is within range.</div></div></div></div>'; return; }
+      list.innerHTML = a.map((x) => `<div class="card"><div class="alert ${x.severity}">
+        <div class="ic">${x.severity === "high" ? "🚨" : "⚠️"}</div>
+        <div style="flex:1"><div class="t">${x.member}: ${x.metric} ${x.value}${x.unit} <span class="pill ${x.severity}">${x.severity}</span></div>
+          <div class="d">${x.rising ? "▲ rising " : ""}${x.trend != null ? `(${x.trend > 0 ? "+" : ""}${x.trend.toFixed(1)} vs previous) ` : ""}· ${x.date}</div></div>
+        <div style="width:90px">${sparkline(x.series, 34)}</div></div></div>`).join("");
     });
-    es.addEventListener("briefing", (ev) => {
-      box.innerHTML = `<div class="briefing"><div class="h">🔔 Proactive briefing · MedPsy</div>${JSON.parse(ev.data)}</div>`;
-      es.close();
-    });
+    es.addEventListener("briefing", (ev) => { box.innerHTML = `<div class="briefing"><div class="h">🔔 Proactive briefing · MedPsy</div>${JSON.parse(ev.data)}</div>`; es.close(); });
     es.addEventListener("error", () => { box.innerHTML = '<div class="briefing">⚠️ Could not load alerts.</div>'; es.close(); });
   }
 
-  // ---- chat history ----
+  // ---- chat ----
   const history = JSON.parse(localStorage.getItem("sehat-history") || "[]");
   function persist(cls, text) { history.push({ cls, text }); while (history.length > 200) history.shift(); localStorage.setItem("sehat-history", JSON.stringify(history)); }
   function add(cls, text, opt = {}) { const d = document.createElement("div"); d.className = "msg " + cls; d.textContent = text; chat.appendChild(d); chat.scrollTop = chat.scrollHeight; if (opt.save !== false) persist(cls, text); return d; }
   function addMeta(html, opt = {}) { const d = document.createElement("div"); d.className = "meta"; d.innerHTML = html; chat.appendChild(d); chat.scrollTop = chat.scrollHeight; if (opt.save !== false) persist("__meta", html); }
   for (const m of history) { if (m.cls === "__meta") addMeta(m.text, { save: false }); else add(m.cls, m.text, { save: false }); }
-
-  $("docsBtn").onclick = () => ($("docs").hidden = !$("docs").hidden);
-  $("docSave").onclick = async () => {
-    const source = $("docName").value.trim(), text = $("docText").value.trim(), msg = $("docMsg");
-    if (!source || !text) { msg.textContent = "Name and text are required."; return; }
-    msg.textContent = "Indexing on the family PC…";
-    try { const j = await (await fetch("/api/ingest", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ source, text }) })).json();
-      msg.textContent = j.ok ? "✅ Saved — ask about it now." : "⚠️ " + j.error; if (j.ok) $("docText").value = "";
-    } catch (e) { msg.textContent = "⚠️ " + e.message; }
-  };
   if ("serviceWorker" in navigator) navigator.serviceWorker.register("/sw.js").catch(() => {});
 
   form.addEventListener("submit", (e) => {
@@ -261,8 +331,7 @@
     input.value = ""; send.disabled = true;
     add("user", question); const bot = add("bot", "…", { save: false });
     let text = ""; const t0 = performance.now();
-    const lang = $("langId").checked ? "&lang=id" : "";
-    const mode = $("agentMode").checked ? "&mode=agent" : "";
+    const lang = $("langId").checked ? "&lang=id" : "", mode = $("agentMode").checked ? "&mode=agent" : "";
     const es = new EventSource("/api/ask?q=" + encodeURIComponent(question) + lang + mode);
     es.addEventListener("token", (ev) => { text += JSON.parse(ev.data); bot.textContent = text; chat.scrollTop = chat.scrollHeight; });
     es.addEventListener("done", (ev) => {
@@ -278,13 +347,13 @@
   // ---- mic ----
   const mic = $("mic"); let rec = null;
   function encodeWav(f32, rate) { const n = f32.length, buf = new ArrayBuffer(44 + n * 2), v = new DataView(buf); const s = (o, t) => { for (let i = 0; i < t.length; i++) v.setUint8(o + i, t.charCodeAt(i)); };
-    s(0, "RIFF"); v.setUint32(4, 36 + n * 2, true); s(8, "WAVE"); s(12, "fmt "); v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 1, true); v.setUint32(24, rate, true); v.setUint32(28, rate * 2, true); v.setUint16(32, 2, true); v.setUint16(34, 16, true); s(36, "data"); v.setUint32(40, n * 2, true);
-    for (let i = 0; i < n; i++) { const x = Math.max(-1, Math.min(1, f32[i])); v.setInt16(44 + i * 2, x < 0 ? x * 0x8000 : x * 0x7fff, true); } return new Blob([buf], { type: "audio/wav" }); }
-  async function startRec() { const stream = await navigator.mediaDevices.getUserMedia({ audio: true }); const ctx = new AudioContext({ sampleRate: 16000 }); const srcN = ctx.createMediaStreamSource(stream); const proc = ctx.createScriptProcessor(4096, 1, 1); const parts = []; proc.onaudioprocess = (e) => parts.push(new Float32Array(e.inputBuffer.getChannelData(0))); srcN.connect(proc); proc.connect(ctx.destination); mic.classList.add("rec"); mic.textContent = "⏹"; rec = { stream, ctx, proc, parts }; }
-  async function stopRec() { const { stream, ctx, proc, parts } = rec; rec = null; proc.disconnect(); stream.getTracks().forEach((t) => t.stop()); const rate = ctx.sampleRate; await ctx.close(); mic.classList.remove("rec"); mic.textContent = "🎙️";
-    const total = parts.reduce((s, p) => s + p.length, 0); const all = new Float32Array(total); let off = 0; for (const p of parts) { all.set(p, off); off += p.length; }
-    input.placeholder = "Transcribing…"; try { const { text, error } = await (await fetch("/api/voice", { method: "POST", body: encodeWav(all, rate) })).json(); if (error) throw new Error(error); input.value = text; if (text) form.requestSubmit(); } catch (e) { add("bot", "⚠️ Voice failed: " + e.message); } finally { input.placeholder = "Ask about the family's health…"; } }
-  mic.addEventListener("click", async () => { try { if (rec) await stopRec(); else await startRec(); } catch (e) { add("bot", "⚠️ Mic needs HTTPS: " + e.message); } });
+    s(0,"RIFF");v.setUint32(4,36+n*2,true);s(8,"WAVE");s(12,"fmt ");v.setUint32(16,16,true);v.setUint16(20,1,true);v.setUint16(22,1,true);v.setUint32(24,rate,true);v.setUint32(28,rate*2,true);v.setUint16(32,2,true);v.setUint16(34,16,true);s(36,"data");v.setUint32(40,n*2,true);
+    for (let i=0;i<n;i++){const x=Math.max(-1,Math.min(1,f32[i]));v.setInt16(44+i*2,x<0?x*0x8000:x*0x7fff,true);} return new Blob([buf],{type:"audio/wav"}); }
+  async function startRec(){const stream=await navigator.mediaDevices.getUserMedia({audio:true});const ctx=new AudioContext({sampleRate:16000});const sn=ctx.createMediaStreamSource(stream);const pr=ctx.createScriptProcessor(4096,1,1);const parts=[];pr.onaudioprocess=(e)=>parts.push(new Float32Array(e.inputBuffer.getChannelData(0)));sn.connect(pr);pr.connect(ctx.destination);mic.classList.add("rec");mic.textContent="⏹";rec={stream,ctx,pr,parts};}
+  async function stopRec(){const{stream,ctx,pr,parts}=rec;rec=null;pr.disconnect();stream.getTracks().forEach(t=>t.stop());const rate=ctx.sampleRate;await ctx.close();mic.classList.remove("rec");mic.textContent="🎙️";
+    const total=parts.reduce((s,p)=>s+p.length,0);const all=new Float32Array(total);let off=0;for(const p of parts){all.set(p,off);off+=p.length;}
+    input.placeholder="Transcribing…";try{const{text,error}=await(await fetch("/api/voice",{method:"POST",body:encodeWav(all,rate)})).json();if(error)throw new Error(error);input.value=text;if(text)form.requestSubmit();}catch(e){add("bot","⚠️ Voice failed: "+e.message);}finally{input.placeholder="Ask about the family's health…";}}
+  mic.addEventListener("click", async () => { try { if (rec) await stopRec(); else await startRec(); } catch (e) { add("bot", "⚠️ Mic needs HTTPS (use the https link): " + e.message); } });
 </script>
 </body>
 </html>
