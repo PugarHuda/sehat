@@ -206,7 +206,7 @@ export class SehatEngine {
   // Auto-capture: if a chat message REPORTS new health measurements (not a
   // question), extract them as a structured record. Returns null otherwise.
   // A cheap regex pre-filter avoids running the LLM on plain questions.
-  async extractRecord(text, today) {
+  async extractRecord(text, today, meName = "You") {
     const hasNumber = /\d/.test(text);
     const hasSignal = /(glucose|sugar|gula|hba1c|a1c|cholesterol|kolesterol|ldl|hdl|triglycer|blood pressure|tekanan darah|\bbp\b|tensi|mg\/dl|mmhg|weight|berat|bmi|amlodipine|metformin|paracetamol|vitamin|dose|mg\b)/i.test(text);
     const looksLikeQuestion = /^\s*(what|when|which|how|why|who|is|are|does|do|can|should|apa|kapan|bagaimana|berapa|siapa|kenapa|apakah)\b/i.test(text) || text.trim().endsWith("?");
@@ -237,7 +237,10 @@ export class SehatEngine {
     const hasData = obj.glucose != null || obj.hba1c != null || obj.ldl != null || obj.chol != null || obj.bp || (obj.meds && obj.meds.length);
     if (!hasData) return null;
 
-    const member = (obj.member && String(obj.member).trim()) || "You";
+    // For self-reports use the user's profile name; otherwise the named person.
+    const member = obj.isSelf
+      ? meName || "You"
+      : (obj.member && String(obj.member).trim()) || meName || "You";
     const date = /^\d{4}-\d{2}-\d{2}$/.test(obj.date) ? obj.date : today;
     const lines = [`Patient: ${member}`, `Date: ${date}`];
     if (obj.isSelf) lines.push("Relation: self");

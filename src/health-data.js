@@ -32,7 +32,8 @@ function parseDoc(name, text) {
       hba1c: NUM(/HbA1?c:\s*(\d+(?:\.\d+)?)/i, text),
       ldl: NUM(/LDL:\s*(\d+(?:\.\d+)?)/i, text),
       chol: NUM(/cholesterol:\s*(\d+(?:\.\d+)?)/i, text),
-      sys: NUM(/(?:Blood pressure|BP)[^\d]*(\d{2,3})\/\d{2,3}/i, text),
+      // Require a colon so "target < 130/80" advice lines aren't read as readings.
+      sys: NUM(/(?:Blood pressure(?: at draw)?|BP):\s*(\d{2,3})\/\d{2,3}/i, text),
     },
     meds: [...text.matchAll(/(?:Amlodipine|Paracetamol|Cefixime|Metformin|Vitamin D3|Cetirizine|Omeprazole|Ibuprofen)[^\n.,]*/gi)].map((m) => m[0].trim()),
     text,

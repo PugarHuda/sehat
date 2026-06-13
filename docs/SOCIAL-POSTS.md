@@ -2,6 +2,13 @@
 
 ## ⚡ SHORT daily posts (use these — under 280 chars, punchy)
 
+**Auto-save from chat (newest):**
+> Sehat update 🩺 — now you just *tell* it: "my glucose today is 95, BP 118/76" and it saves a dated record to your private dashboard. Ask a question instead? It won't save that. All on-device on a GTX 1660 Super via @QVAC. #teamSehat
+
+**Family multi-user:**
+> Your family's health on one private PC 🏠 Invite anyone on your Wi-Fi — they chat in any language and Sehat auto-records their vitals into a shared dashboard with trend charts. Zero cloud, built on @QVAC MedPsy. #teamSehat
+
+
 **MedPsy swap:**
 > Swapped Sehat's brain to @QVAC's own MedPsy-4B: 16× faster first-token vs Google's MedGemma on my GTX 1660 Super. Same GPU, same prompt. 100% local. 🩺 #teamSehat
 

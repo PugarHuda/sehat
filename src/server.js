@@ -143,7 +143,8 @@ async function handler(req, res) {
         // record (real-time) and tell the UI. Disable with &autosave=0.
         if (url.searchParams.get("autosave") !== "0") {
           try {
-            const rec = await engine.extractRecord(question, new Date().toISOString().slice(0, 10));
+            const meName = (url.searchParams.get("me") || "You").slice(0, 40);
+            const rec = await engine.extractRecord(question, new Date().toISOString().slice(0, 10), meName);
             if (rec) {
               const safe = `chat-${rec.member}-${Date.now()}`.replace(/[^a-z0-9._-]+/gi, "-");
               mkdirSync("data/records", { recursive: true });

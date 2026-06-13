@@ -136,7 +136,7 @@
 <header>
   <div class="mark">S</div>
   <div><h1>Sehat</h1><div class="sub">Family health · on-device</div></div>
-  <span class="chip">100% local · no cloud</span>
+  <button id="profileBtn" class="chip" style="cursor:pointer;border:0">👤 Set name</button>
 </header>
 
 <nav>
@@ -219,10 +219,21 @@
 <script>
   const $ = (id) => document.getElementById(id);
   const chat = $("chat"), form = $("f"), input = $("q"), send = $("send");
+
+  // ---- profile name (stored on this device only) ----
+  let ME = localStorage.getItem("sehat-me") || "";
+  function renderProfile() { $("profileBtn").textContent = ME ? `👤 ${ME}` : "👤 Set name"; }
+  $("profileBtn").onclick = () => {
+    const n = prompt("Your name (used to label records you report in chat):", ME);
+    if (n && n.trim()) { ME = n.trim().slice(0, 40); localStorage.setItem("sehat-me", ME); renderProfile(); }
+  };
+  renderProfile();
   const VLABEL = { glucose: "Fasting glucose", hba1c: "HbA1c", ldl: "LDL", chol: "Total cholesterol", sys: "Systolic BP" };
   const UNIT = { glucose: "mg/dL", hba1c: "%", ldl: "mg/dL", chol: "mg/dL", sys: "mmHg" };
   const WARN = { glucose: 100, hba1c: 5.7, ldl: 130, chol: 200, sys: 130 };
   const HIGH = { glucose: 126, hba1c: 6.5, ldl: 160, chol: 240, sys: 140 };
+  const REF = { glucose: "70–99 mg/dL", hba1c: "< 5.7 %", ldl: "< 130 mg/dL", chol: "< 200 mg/dL", sys: "< 130 mmHg" };
+  const STATUSWORD = { ok: "in range", warn: "borderline", high: "high" };
   const EMO = { Budi: "👨", Sari: "👩", Rina: "🧒", Agus: "👴", Dewi: "👵" };
 
   function statusOf(k, v) { return v >= HIGH[k] ? "high" : v >= WARN[k] ? "warn" : "ok"; }
@@ -280,14 +291,20 @@
     $("dName").textContent = name;
     $("dSub").textContent = `${m.docs} record${m.docs > 1 ? "s" : ""} on this device`;
     const vit = Object.entries(m.series).map(([k, s]) => {
-      const last = s[s.length - 1], prev = s.length > 1 ? s[s.length - 2] : null;
+      const vals = s.map((p) => p.value);
+      const last = s[s.length - 1], prev = s.length > 1 ? s[s.length - 2] : null, first = s[0];
       const d = prev ? last.value - prev.value : null, st = statusOf(k, last.value);
+      const sincePct = first.value ? ((last.value - first.value) / first.value) * 100 : 0;
       const deltaTxt = d == null ? "" : `<span class="delta ${d > 0 ? "up" : "down"}">${d > 0 ? "▲ +" : "▼ "}${Math.abs(d).toFixed(1)} vs prev</span>`;
+      const sinceTxt = s.length > 1 ? `<span class="delta ${sincePct > 0 ? "up" : "down"}">${sincePct > 0 ? "+" : ""}${sincePct.toFixed(0)}% since ${first.date.slice(0, 7)}</span>` : "";
       return `<div class="vit"><div class="top"><span class="nm">${VLABEL[k]}</span>
-        ${st !== "ok" ? `<span class="pill ${st}">${st}</span>` : `<span class="pill ok">ok</span>`}
+        <span class="pill ${st}">${STATUSWORD[st]}</span>
         <span class="big">${last.value}<small> ${UNIT[k]}</small></span></div>
-        ${sparkline(s.map((p) => p.value))}
-        <div style="display:flex;justify-content:space-between;margin-top:4px"><span class="msub">${s[0].date} → ${last.date}</span>${deltaTxt}</div></div>`;
+        ${sparkline(vals)}
+        <div style="display:flex;justify-content:space-between;margin-top:6px;font-size:11.5px" class="msub">
+          <span>📅 ${last.date}</span>${deltaTxt}${sinceTxt}</div>
+        <div style="display:flex;justify-content:space-between;margin-top:3px;font-size:11px" class="msub">
+          <span>Normal: ${REF[k]}</span><span>${s.length} reading${s.length > 1 ? "s" : ""} · range ${Math.min(...vals)}–${Math.max(...vals)}</span></div></div>`;
     }).join("");
     const meds = m.meds.length ? `<div class="vit"><span class="nm">💊 Medications</span><div class="meds">${m.meds.map((x) => `<span>${x}</span>`).join("")}</div></div>` : "";
     $("dBody").innerHTML = (vit || '<div class="loading">No numeric vitals on record.</div>') + meds;
@@ -298,6 +315,7 @@
 
   // ---- add member modal ----
   $("addBtn").onclick = () => $("modalBg").classList.add("on");
+  $("fRelation").onchange = () => { if ($("fRelation").value === "self" && ME && !$("fMember").value.trim()) $("fMember").value = ME; };
   $("fCancel").onclick = () => $("modalBg").classList.remove("on");
   $("fSave").onclick = async () => {
     const member = $("fMember").value.trim(), source = $("fSource").value.trim() || (member ? `record-${member}.txt` : ""), text = $("fText").value.trim();
@@ -365,7 +383,8 @@
     let text = ""; const t0 = performance.now();
     const mode = $("agentMode").checked ? "&mode=agent" : "";
     const autosave = $("autoSave").checked ? "" : "&autosave=0";
-    const es = new EventSource("/api/ask?q=" + encodeURIComponent(question) + mode + autosave);
+    const me = ME ? "&me=" + encodeURIComponent(ME) : "";
+    const es = new EventSource("/api/ask?q=" + encodeURIComponent(question) + mode + autosave + me);
     es.addEventListener("token", (ev) => { text += JSON.parse(ev.data); bot.textContent = text; chat.scrollTop = chat.scrollHeight; });
     es.addEventListener("saved", (ev) => { const d = JSON.parse(ev.data); addMeta(`📌 Saved to records · <span class="src">${d.summary}</span>`); });
     es.addEventListener("done", (ev) => {
