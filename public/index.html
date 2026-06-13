@@ -172,6 +172,8 @@
   <label class="tog"><input type="checkbox" id="autoSave" checked /> <span class="tt">📌 Auto-save</span></label>
 </div>
 <form id="f">
+  <input type="file" id="attachFile" accept="image/*,.txt" hidden />
+  <button type="button" id="attach" class="iconbtn" title="Upload a photo or document">📎</button>
   <input id="q" placeholder="Ask about the family's health…" autocomplete="off" />
   <button type="button" id="mic" class="iconbtn" title="Tap to talk">🎙️</button>
   <button id="send">➤</button>
@@ -452,6 +454,29 @@
   function add(cls, text, opt = {}) { const d = document.createElement("div"); d.className = "msg " + cls; d.textContent = text; chat.appendChild(d); chat.scrollTop = chat.scrollHeight; if (opt.save !== false) persist(cls, text); return d; }
   function addMeta(html, opt = {}) { const d = document.createElement("div"); d.className = "meta"; d.innerHTML = html; chat.appendChild(d); chat.scrollTop = chat.scrollHeight; if (opt.save !== false) persist("__meta", html); }
   for (const m of history) { if (m.cls === "__meta") addMeta(m.text, { save: false }); else add(m.cls, m.text, { save: false }); }
+  // ---- attach a photo/document from the chat composer ----
+  $("attach").onclick = () => $("attachFile").click();
+  $("attachFile").onchange = async () => {
+    const file = $("attachFile").files?.[0];
+    if (!file) return;
+    $("attachFile").value = "";
+    add("user", `📎 ${file.name}`);
+    const bot = add("bot", "Reading on the family PC…", { save: false });
+    try {
+      const me = ME ? `&member=${encodeURIComponent(ME)}&relation=self` : "";
+      let j;
+      if (file.type.startsWith("image/")) {
+        j = await (await fetch(`/api/upload-image?${me}`, { method: "POST", headers: { "content-type": file.type }, body: file })).json();
+      } else {
+        const text = await file.text();
+        j = await (await fetch("/api/ingest", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ source: file.name, text, member: ME || undefined, relation: ME ? "self" : undefined }) })).json();
+      }
+      if (!j.ok) throw new Error(j.error);
+      bot.textContent = `✅ Added to records${j.member ? " for " + j.member : ""}. Ask me anything about it.`;
+      persist("bot", bot.textContent);
+    } catch (e) { bot.textContent = "⚠️ " + e.message; persist("bot", bot.textContent); }
+  };
+
   if ("serviceWorker" in navigator) navigator.serviceWorker.register("/sw.js").catch(() => {});
 
   form.addEventListener("submit", (e) => {

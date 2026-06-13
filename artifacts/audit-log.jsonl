@@ -719,3 +719,8 @@
 {"ts":"2026-06-13T17:47:28.787Z","event":"model_load","modelSrc":"EMBEDDINGGEMMA_300M_Q8_0","modelType":"embeddings","modelId":"329fc3cde51e8963","durationMs":2836}
 {"ts":"2026-06-13T17:47:38.152Z","event":"inference","modelId":"ae6963ed789f8525","task":"rag-answer","prompt":"vaccination","promptTokens":null,"completionTokens":462,"ttftMs":1619,"durationMs":9169,"tokensPerSec":50.39}
 {"ts":"2026-06-13T17:50:53.549Z","event":"inference","modelId":"329fc3cde51e8963","task":"rag-ingest:photo-Budi-1781373053317","prompt":"(409 chars)","promptTokens":null,"completionTokens":null,"durationMs":231,"tokensPerSec":null}
+{"ts":"2026-06-13T17:55:14.307Z","event":"inference","modelId":"ae6963ed789f8525","task":"proactive-briefing","prompt":"You are Sehat, proactively reviewing a family's health records (education only, not diagnosis). These flags were detecte","promptTokens":null,"completionTokens":138,"ttftMs":null,"durationMs":null,"tokensPerSec":null}
+{"ts":"2026-06-13T17:55:27.240Z","event":"model_load","modelSrc":"QVAC MedPsy-4B Q4_K_M (gpu_layers=99)","modelType":"llm","modelId":"ae6963ed789f8525","durationMs":5623}
+{"ts":"2026-06-13T17:55:29.260Z","event":"model_load","modelSrc":"EMBEDDINGGEMMA_300M_Q8_0","modelType":"embeddings","modelId":"329fc3cde51e8963","durationMs":2019}
+{"ts":"2026-06-13T17:55:38.257Z","event":"inference","modelId":"ae6963ed789f8525","task":"rag-answer","prompt":"vaccination","promptTokens":null,"completionTokens":448,"ttftMs":1514,"durationMs":8863,"tokensPerSec":50.55}
+{"ts":"2026-06-13T17:56:07.114Z","event":"inference","modelId":"329fc3cde51e8963","task":"rag-ingest:photo-Budi-1781373366901","prompt":"(401 chars)","promptTokens":null,"completionTokens":null,"durationMs":212,"tokensPerSec":null}
