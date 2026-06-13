@@ -169,8 +169,8 @@
 <div class="toggles" id="chatToggles">
   <label class="tog"><input type="checkbox" id="agentMode" />
     <span><span class="tt">🤖 Agent mode</span><span class="ds">Plans multi-step: searches records, does the math, consults MedPsy.</span></span></label>
-  <div class="tog" style="cursor:default"><span>🌐</span>
-    <span><span class="tt">Auto language</span><span class="ds">Ask in any language — Sehat replies in the same one.</span></span></div>
+  <label class="tog"><input type="checkbox" id="autoSave" checked />
+    <span><span class="tt">📌 Auto-save</span><span class="ds">Report a measurement in chat ("my glucose is 95") and Sehat records it.</span></span></label>
 </div>
 <form id="f">
   <input id="q" placeholder="Ask about the family's health…" autocomplete="off" />
@@ -364,8 +364,10 @@
     add("user", question); const bot = add("bot", "…", { save: false });
     let text = ""; const t0 = performance.now();
     const mode = $("agentMode").checked ? "&mode=agent" : "";
-    const es = new EventSource("/api/ask?q=" + encodeURIComponent(question) + mode);
+    const autosave = $("autoSave").checked ? "" : "&autosave=0";
+    const es = new EventSource("/api/ask?q=" + encodeURIComponent(question) + mode + autosave);
     es.addEventListener("token", (ev) => { text += JSON.parse(ev.data); bot.textContent = text; chat.scrollTop = chat.scrollHeight; });
+    es.addEventListener("saved", (ev) => { const d = JSON.parse(ev.data); addMeta(`📌 Saved to records · <span class="src">${d.summary}</span>`); });
     es.addEventListener("done", (ev) => {
       const { stats, sources } = JSON.parse(ev.data); persist("bot", text);
       const secs = ((performance.now() - t0) / 1000).toFixed(1);

@@ -203,6 +203,63 @@ export class SehatEngine {
     return answer;
   }
 
+  // Auto-capture: if a chat message REPORTS new health measurements (not a
+  // question), extract them as a structured record. Returns null otherwise.
+  // A cheap regex pre-filter avoids running the LLM on plain questions.
+  async extractRecord(text, today) {
+    const hasNumber = /\d/.test(text);
+    const hasSignal = /(glucose|sugar|gula|hba1c|a1c|cholesterol|kolesterol|ldl|hdl|triglycer|blood pressure|tekanan darah|\bbp\b|tensi|mg\/dl|mmhg|weight|berat|bmi|amlodipine|metformin|paracetamol|vitamin|dose|mg\b)/i.test(text);
+    const looksLikeQuestion = /^\s*(what|when|which|how|why|who|is|are|does|do|can|should|apa|kapan|bagaimana|berapa|siapa|kenapa|apakah)\b/i.test(text) || text.trim().endsWith("?");
+    if (!hasNumber || !hasSignal || looksLikeQuestion) return null;
+
+    const sys =
+      "You extract structured health records from a user's message. " +
+      "Respond with ONLY a JSON object, no prose, no markdown. Schema: " +
+      '{"isRecord":boolean,"member":string,"isSelf":boolean,"date":"YYYY-MM-DD",' +
+      '"glucose":number|null,"hba1c":number|null,"ldl":number|null,"chol":number|null,' +
+      '"bp":string|null,"meds":string[]}. ' +
+      `Set isRecord true ONLY if the user is REPORTING their own/a family member's measurements (not asking a question). ` +
+      `If they say "my/I/saya/aku" set isSelf true and member "You". Resolve relative dates against today=${today}. ` +
+      "bp is like \"140/90\". Use null for any field not mentioned.";
+    const result = completion({
+      modelId: this.llmId,
+      history: [{ role: "system", content: sys }, { role: "user", content: text }],
+      stream: true,
+    });
+    let raw = "";
+    for await (const tok of result.tokenStream) raw += tok;
+    raw = raw.replace(/<think>[\s\S]*?<\/think>/gi, "").replace(/^[\s\S]*?<\/think>/i, "");
+    const m = raw.match(/\{[\s\S]*\}/);
+    if (!m) return null;
+    let obj;
+    try { obj = JSON.parse(m[0]); } catch { return null; }
+    if (!obj.isRecord) return null;
+    const hasData = obj.glucose != null || obj.hba1c != null || obj.ldl != null || obj.chol != null || obj.bp || (obj.meds && obj.meds.length);
+    if (!hasData) return null;
+
+    const member = (obj.member && String(obj.member).trim()) || "You";
+    const date = /^\d{4}-\d{2}-\d{2}$/.test(obj.date) ? obj.date : today;
+    const lines = [`Patient: ${member}`, `Date: ${date}`];
+    if (obj.isSelf) lines.push("Relation: self");
+    if (obj.glucose != null) lines.push(`Fasting glucose: ${obj.glucose} mg/dL`);
+    if (obj.hba1c != null) lines.push(`HbA1c: ${obj.hba1c} %`);
+    if (obj.ldl != null) lines.push(`LDL: ${obj.ldl} mg/dL`);
+    if (obj.chol != null) lines.push(`Total cholesterol: ${obj.chol} mg/dL`);
+    if (obj.bp) lines.push(`Blood pressure: ${obj.bp} mmHg`);
+    for (const med of obj.meds ?? []) lines.push(`Medication: ${med}`);
+
+    const summaryBits = [];
+    if (obj.glucose != null) summaryBits.push(`glucose ${obj.glucose}`);
+    if (obj.hba1c != null) summaryBits.push(`HbA1c ${obj.hba1c}%`);
+    if (obj.ldl != null) summaryBits.push(`LDL ${obj.ldl}`);
+    if (obj.chol != null) summaryBits.push(`cholesterol ${obj.chol}`);
+    if (obj.bp) summaryBits.push(`BP ${obj.bp}`);
+    if (obj.meds?.length) summaryBits.push(obj.meds.join(", "));
+
+    this.log.inference({ modelId: this.llmId, task: "chat-extract-record", prompt: text.slice(0, 120), completionTokens: raw.length >> 2, ttftMs: null, durationMs: null });
+    return { member, isSelf: !!obj.isSelf, date, docText: lines.join("\n"), summary: `${member}: ${summaryBits.join(", ")} (${date})` };
+  }
+
   async stop() {
     if (this.llmId) {
       await unloadModel({ modelId: this.llmId });

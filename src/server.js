@@ -138,6 +138,21 @@ async function handler(req, res) {
           ),
         ];
         send("done", { stats, sources });
+
+        // Auto-capture: if the message REPORTED new measurements, save them as a
+        // record (real-time) and tell the UI. Disable with &autosave=0.
+        if (url.searchParams.get("autosave") !== "0") {
+          try {
+            const rec = await engine.extractRecord(question, new Date().toISOString().slice(0, 10));
+            if (rec) {
+              const safe = `chat-${rec.member}-${Date.now()}`.replace(/[^a-z0-9._-]+/gi, "-");
+              mkdirSync("data/records", { recursive: true });
+              writeFileSync(join("data/records", `${safe}.txt`), rec.docText);
+              await engine.ingestDocument({ source: safe, text: rec.docText });
+              send("saved", { summary: rec.summary, member: rec.member });
+            }
+          } catch { /* extraction is best-effort */ }
+        }
       })
       .catch((err) => send("error", String(err?.message ?? err)))
       .finally(() => res.end());

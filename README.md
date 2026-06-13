@@ -32,7 +32,12 @@ Sehat turns a regular family desktop into a private health hub:
    with QVAC tool calling plans the work — `search_records` (RAG), `calculate_change`
    (deterministic math, no LLM arithmetic), and `consult_medgemma` (hands medical
    interpretation to the MedGemma specialist agent).
-5. **Resist attacks** — documents are treated as untrusted data. `npm run test:injection`
+6. **Auto-capture from chat** — just say it ("my fasting glucose today is 95, BP 118/76")
+   and Sehat extracts the values and saves a dated record in real time (a "📌 Saved"
+   chip confirms). A regex pre-filter + an extraction pass distinguish *reporting* data
+   from *asking* a question, so plain questions are never saved. Toggle off with 📌 Auto-save.
+
+7. **Resist attacks** — documents are treated as untrusted data. `npm run test:injection`
    ingests a poisoned document (role-play hijack + canary exfiltration + phishing) and
    verifies the assistant answers the legitimate fact, refuses the injection, and warns
    the user the document looks tampered with. PASS on record.
