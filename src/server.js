@@ -12,7 +12,10 @@ import { startQVACProvider, loadModel, transcribe, PARAKEET_CTC_0_6B_Q8_0 } from
 import { SehatEngine } from "./engine.js";
 import { SehatAgent } from "./agent.js";
 import { Translator } from "./translator.js";
-import { loadFamily, computeAlerts } from "./health-data.js";
+import { loadFamily, computeAlerts, loadDocs, computeReminders, emergencyCard } from "./health-data.js";
+import { textToSpeech, TTS_EN_SUPERTONIC_Q8_0 } from "@qvac/sdk";
+import QRCode from "qrcode";
+import { wavHeader, int16ToBuffer } from "./audio-utils.js";
 
 const PORT = Number(process.env.PORT ?? 8787);
 const engine = new SehatEngine();
@@ -50,6 +53,19 @@ async function getStt() {
     sttId = await loadModel({ modelSrc: PARAKEET_CTC_0_6B_Q8_0, modelType: "parakeet" });
   }
   return sttId;
+}
+
+let ttsId = null;
+async function getTts() {
+  if (!ttsId) {
+    console.log("Loading Supertonic TTS...");
+    ttsId = await loadModel({
+      modelSrc: TTS_EN_SUPERTONIC_Q8_0.src ?? TTS_EN_SUPERTONIC_Q8_0,
+      modelType: "tts",
+      modelConfig: { ttsEngine: "supertonic", language: "en", voice: "F1", ttsSpeed: 1.0 },
+    });
+  }
+  return ttsId;
 }
 
 let agent = null;
@@ -199,6 +215,120 @@ async function handler(req, res) {
     const members = loadFamily();
     res.writeHead(200, { "content-type": "application/json" });
     return res.end(JSON.stringify(members));
+  }
+
+  if (req.method === "GET" && url.pathname === "/api/reminders") {
+    const today = new Date().toISOString().slice(0, 10);
+    const reminders = computeReminders(loadDocs(), today);
+    res.writeHead(200, { "content-type": "application/json" });
+    return res.end(JSON.stringify(reminders));
+  }
+
+  if (req.method === "GET" && url.pathname === "/api/qr") {
+    const name = url.searchParams.get("member") ?? "";
+    const card = emergencyCard(loadFamily(), name);
+    if (!card) { res.writeHead(404); return res.end("unknown member"); }
+    const lines = [
+      `SEHAT EMERGENCY CARD`,
+      `Name: ${card.name}`,
+      card.allergies.length ? `Allergies: ${card.allergies.join("; ")}` : `Allergies: none on record`,
+      card.conditions.length ? `Conditions: ${card.conditions.join("; ")}` : null,
+      card.medications.length ? `Medications: ${card.medications.join("; ")}` : null,
+      card.latest.bp ? `Recent BP: ${card.latest.bp} mmHg` : null,
+      card.latest.glucose ? `Recent glucose: ${card.latest.glucose} mg/dL` : null,
+      `(Generated on-device by Sehat — educational, not a medical record)`,
+    ].filter(Boolean);
+    const svg = await QRCode.toString(lines.join("\n"), { type: "svg", margin: 1, width: 320 });
+    res.writeHead(200, { "content-type": "image/svg+xml" });
+    return res.end(svg);
+  }
+
+  if (req.method === "GET" && url.pathname === "/api/export") {
+    const name = url.searchParams.get("member") ?? "";
+    const members = loadFamily();
+    const m = members[name];
+    if (!m) { res.writeHead(404); return res.end("unknown member"); }
+    const today = new Date().toISOString().slice(0, 10);
+    const reminders = computeReminders(loadDocs(), today).filter((r) => r.member === name);
+    const VL = { glucose: "Fasting glucose (mg/dL)", hba1c: "HbA1c (%)", ldl: "LDL (mg/dL)", chol: "Total cholesterol (mg/dL)", sys: "Systolic BP (mmHg)" };
+    const md = [
+      `# Sehat health summary — ${name}`,
+      `_Generated on-device ${today}. Educational summary, not a medical record._`,
+      ``,
+      m.allergies.length ? `**Allergies:** ${m.allergies.join("; ")}` : `**Allergies:** none on record`,
+      m.conditions.length ? `**Conditions:** ${m.conditions.join("; ")}` : null,
+      m.meds.length ? `**Medications:** ${m.meds.join("; ")}` : null,
+      ``,
+      `## Vital trends`,
+      ...Object.entries(m.series).map(([k, s]) =>
+        `- **${VL[k] ?? k}:** ${s.map((p) => `${p.date}: ${p.value}`).join("  →  ")}`),
+      ``,
+      `## Upcoming`,
+      reminders.length ? reminders.map((r) => `- ${r.due} — ${r.what}${r.overdue ? " (overdue)" : ""}`).join("\n") : "- none",
+    ].filter((x) => x !== null).join("\n");
+    res.writeHead(200, {
+      "content-type": "text/markdown; charset=utf-8",
+      "content-disposition": `attachment; filename="sehat-${name}-${today}.md"`,
+    });
+    return res.end(md);
+  }
+
+  if (req.method === "GET" && url.pathname === "/api/speak") {
+    const text = (url.searchParams.get("text") ?? "").slice(0, 800);
+    if (!text) { res.writeHead(400); return res.end("missing text"); }
+    queue = queue
+      .then(async () => {
+        const id = await getTts();
+        const out = textToSpeech({ modelId: id, text, inputType: "text", stream: false });
+        const samples = await out.buffer;
+        const data = int16ToBuffer(samples);
+        res.writeHead(200, { "content-type": "audio/wav" });
+        res.end(Buffer.concat([wavHeader(data.length, 44100), data]));
+      })
+      .catch((err) => { res.writeHead(500); res.end(String(err?.message ?? err)); });
+    return;
+  }
+
+  if (req.method === "POST" && url.pathname === "/api/import-csv") {
+    const member = (url.searchParams.get("member") || "").slice(0, 40);
+    const relation = url.searchParams.get("relation") === "self" ? "self" : "family";
+    let body = "";
+    req.on("data", (c) => (body += c));
+    req.on("end", async () => {
+      try {
+        if (!member) throw new Error("member query param required");
+        // CSV rows: date,metric,value (header optional). metric in glucose|hba1c|ldl|chol|bp
+        const map = { glucose: "Fasting glucose", hba1c: "HbA1c", ldl: "LDL", chol: "Total cholesterol", bp: "Blood pressure" };
+        const unit = { glucose: "mg/dL", hba1c: "%", ldl: "mg/dL", chol: "mg/dL", bp: "mmHg" };
+        const byDate = {};
+        for (const line of body.split(/\r?\n/)) {
+          const parts = line.split(",").map((s) => s.trim());
+          if (parts.length < 3) continue;
+          const [date, metricRaw, value] = parts;
+          if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) continue; // skips header
+          const metric = metricRaw.toLowerCase();
+          if (!map[metric]) continue;
+          (byDate[date] ??= []).push(`${map[metric]}: ${value} ${unit[metric]}`);
+        }
+        const dates = Object.keys(byDate);
+        if (!dates.length) throw new Error("no valid rows (expected: date,metric,value)");
+        let count = 0;
+        for (const date of dates) {
+          const docText = [`Patient: ${member}`, `Date: ${date}`, relation === "self" ? "Relation: self" : null, ...byDate[date]].filter(Boolean).join("\n");
+          const safe = `csv-${member}-${date}`.replace(/[^a-z0-9._-]+/gi, "-");
+          mkdirSync("data/records", { recursive: true });
+          writeFileSync(join("data/records", `${safe}.txt`), docText);
+          await engine.ingestDocument({ source: safe, text: docText });
+          count++;
+        }
+        res.writeHead(200, { "content-type": "application/json" });
+        res.end(JSON.stringify({ ok: true, imported: count, dates }));
+      } catch (err) {
+        res.writeHead(400, { "content-type": "application/json" });
+        res.end(JSON.stringify({ ok: false, error: String(err?.message ?? err) }));
+      }
+    });
+    return;
   }
 
   if (req.method === "GET" && url.pathname === "/api/alerts") {

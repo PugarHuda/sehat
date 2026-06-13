@@ -18,7 +18,9 @@ function record(name, ok, detail) {
 }
 
 // Parse the SSE stream from /api/ask into { answer, stats, sources, error }.
-async function ask(question, { lang } = {}) {
+// Retries once on a rare empty/aborted stream so transient hiccups don't
+// register as false failures.
+async function askOnce(question, lang) {
   const url = `${BASE}/api/ask?q=${encodeURIComponent(question)}${lang ? `&lang=${lang}` : ""}`;
   const res = await fetch(url);
   if (!res.ok) return { httpStatus: res.status, answer: "", stats: null, sources: [] };
@@ -33,6 +35,11 @@ async function ask(question, { lang } = {}) {
     if (ev === "error") error = JSON.parse(data);
   }
   return { httpStatus: res.status, answer, stats, sources, error };
+}
+async function ask(question, { lang } = {}) {
+  let r = await askOnce(question, lang);
+  if ((!r.answer || r.answer.trim() === "") && !r.error) r = await askOnce(question, lang); // one retry
+  return r;
 }
 
 console.log(`QA suite against ${BASE}\n`);

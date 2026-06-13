@@ -156,6 +156,7 @@
     <div class="sectionhead"><h2>Family members</h2>
       <button id="inviteBtn" style="margin-left:auto;margin-right:8px">🔗 Invite</button>
       <button id="addBtn" style="margin-left:0">＋ Add</button></div>
+    <div id="reminders"></div>
     <div id="dash" class="grid"><div class="loading">Loading…</div></div>
   </section>
 
@@ -211,6 +212,9 @@
   <input id="fSource" placeholder="e.g. lab-agus-2026-06.txt" />
   <label>Record text</label>
   <textarea id="fText" rows="5" placeholder="Patient: Agus Santoso&#10;Date: 2026-06-10&#10;Fasting glucose: 110 mg/dL&#10;Blood pressure: 142/90 mmHg"></textarea>
+  <label style="margin-top:14px">…or import a CSV of readings</label>
+  <p style="margin:2px 0 6px">Rows: <code>date,metric,value</code> — metric = glucose / hba1c / ldl / chol / bp. e.g. <code>2026-06-01,glucose,98</code></p>
+  <input type="file" id="fCsv" accept=".csv,text/csv" />
   <div id="formMsg"></div>
   <div class="row"><button class="btn-ghost" id="fCancel">Cancel</button>
     <button class="btn-primary" id="fSave">Save to family records</button></div>
@@ -281,7 +285,22 @@
         </div>`);
       }
       document.querySelectorAll(".mcard").forEach((c) => c.onclick = () => openMember(c.dataset.m));
+      loadReminders();
     } catch (e) { el.innerHTML = `<div class="loading">⚠️ ${e.message}</div>`; }
+  }
+
+  async function loadReminders() {
+    try {
+      const rem = await (await fetch("/api/reminders")).json();
+      const box = $("reminders");
+      if (!rem.length) { box.innerHTML = ""; return; }
+      const top = rem.slice(0, 5).map((r) =>
+        `<div style="display:flex;gap:8px;align-items:center;padding:6px 0;font-size:13px">
+          <span style="font-size:15px">${r.overdue ? "🔴" : "📅"}</span>
+          <span style="flex:1"><b>${r.member}</b> · ${r.what}</span>
+          <span class="msub">${r.due}${r.overdue ? " · overdue" : ""}</span></div>`).join("");
+      box.innerHTML = `<div class="card" style="margin:0 14px 4px"><div class="sectionhead" style="padding:0 0 4px"><h2 style="font-size:14px">⏰ Upcoming & reminders</h2></div>${top}</div>`;
+    } catch { $("reminders").innerHTML = ""; }
   }
 
   // ---- member detail drawer ----
@@ -307,11 +326,26 @@
           <span>Normal: ${REF[k]}</span><span>${s.length} reading${s.length > 1 ? "s" : ""} · range ${Math.min(...vals)}–${Math.max(...vals)}</span></div></div>`;
     }).join("");
     const meds = m.meds.length ? `<div class="vit"><span class="nm">💊 Medications</span><div class="meds">${m.meds.map((x) => `<span>${x}</span>`).join("")}</div></div>` : "";
-    $("dBody").innerHTML = (vit || '<div class="loading">No numeric vitals on record.</div>') + meds;
+    const allerg = m.allergies?.length ? `<div class="vit" style="border-left:3px solid var(--high)"><span class="nm">⚠️ Allergies</span><div class="meds">${m.allergies.map((x) => `<span>${x}</span>`).join("")}</div></div>` : "";
+    const actions = `<div style="display:flex;gap:8px;margin:12px 14px">
+      <button class="btn-ghost" style="flex:1;padding:10px;border-radius:12px;cursor:pointer" onclick="window.exportMember('${name}')">⬇ Export summary</button>
+      <button class="btn-primary" style="flex:1;padding:10px;border-radius:12px;cursor:pointer;border:0" onclick="window.showQR('${name}')">🆘 Emergency QR</button>
+    </div><div id="qrBox"></div>`;
+    $("dBody").innerHTML = actions + allerg + (vit || '<div class="loading">No numeric vitals on record.</div>') + meds;
     $("drawerBg").classList.add("on"); $("drawer").classList.add("on");
   }
   const closeDrawer = () => { $("drawerBg").classList.remove("on"); $("drawer").classList.remove("on"); };
   $("dClose").onclick = closeDrawer; $("drawerBg").onclick = closeDrawer;
+
+  window.exportMember = (name) => { window.location = "/api/export?member=" + encodeURIComponent(name); };
+  window.showQR = (name) => {
+    const box = $("qrBox");
+    box.innerHTML = `<div class="vit" style="text-align:center"><span class="nm">🆘 Emergency card — scan to read critical info</span>
+      <div style="background:#fff;border-radius:12px;padding:12px;margin-top:8px;display:inline-block">
+        <img src="/api/qr?member=${encodeURIComponent(name)}" alt="Emergency QR" style="width:240px;height:240px" /></div>
+      <div class="msub" style="margin-top:6px">Allergies, conditions, meds & recent vitals — works offline, no cloud.</div></div>`;
+    box.scrollIntoView({ behavior: "smooth", block: "center" });
+  };
 
   // ---- add member modal ----
   $("addBtn").onclick = () => $("modalBg").classList.add("on");
@@ -321,6 +355,21 @@
     const member = $("fMember").value.trim(), source = $("fSource").value.trim() || (member ? `record-${member}.txt` : ""), text = $("fText").value.trim();
     const relation = $("fRelation").value;
     const msg = $("formMsg");
+    // CSV import path (if a file is chosen, it takes over).
+    const csvFile = $("fCsv").files?.[0];
+    if (csvFile) {
+      if (!member) { msg.textContent = "⚠️ Enter the member name for the CSV."; return; }
+      msg.textContent = "Importing CSV on the family PC…";
+      try {
+        const csv = await csvFile.text();
+        const j = await (await fetch(`/api/import-csv?member=${encodeURIComponent(member)}&relation=${relation}`, { method: "POST", body: csv })).json();
+        if (!j.ok) throw new Error(j.error);
+        msg.textContent = `✅ Imported ${j.imported} date(s).`;
+        $("fCsv").value = "";
+        setTimeout(() => { $("modalBg").classList.remove("on"); msg.textContent = ""; loadDash(); }, 700);
+      } catch (e) { msg.textContent = "⚠️ " + e.message; }
+      return;
+    }
     if (!member || !text) { msg.textContent = "⚠️ Name and record text are required."; return; }
     msg.textContent = "Saving & indexing on the family PC…";
     try {
@@ -363,7 +412,20 @@
           <div class="d">${x.rising ? "▲ rising " : ""}${x.trend != null ? `(${x.trend > 0 ? "+" : ""}${x.trend.toFixed(1)} vs previous) ` : ""}· ${x.date}</div></div>
         <div style="width:90px">${sparkline(x.series, 34)}</div></div></div>`).join("");
     });
-    es.addEventListener("briefing", (ev) => { box.innerHTML = `<div class="briefing"><div class="h">🔔 Proactive briefing · MedPsy</div>${JSON.parse(ev.data)}</div>`; es.close(); });
+    es.addEventListener("briefing", (ev) => {
+      const txt = JSON.parse(ev.data);
+      box.innerHTML = `<div class="briefing"><div class="h">🔔 Proactive briefing · MedPsy</div>${txt}
+        <div style="margin-top:10px"><button id="listenBtn" class="btn-ghost" style="padding:8px 14px;border-radius:10px;cursor:pointer">🔊 Listen</button></div></div>`;
+      $("listenBtn").onclick = () => {
+        const b = $("listenBtn"); b.textContent = "🔊 Loading…"; b.disabled = true;
+        const a = new Audio("/api/speak?text=" + encodeURIComponent(txt.slice(0, 700)));
+        a.onplay = () => (b.textContent = "🔊 Playing…");
+        a.onended = () => { b.textContent = "🔊 Listen"; b.disabled = false; };
+        a.onerror = () => { b.textContent = "🔊 Listen"; b.disabled = false; };
+        a.play().catch(() => { b.textContent = "🔊 Listen"; b.disabled = false; });
+      };
+      es.close();
+    });
     es.addEventListener("error", () => { box.innerHTML = '<div class="briefing">⚠️ Could not load alerts.</div>'; es.close(); });
   }
 

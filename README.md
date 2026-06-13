@@ -32,6 +32,12 @@ Sehat turns a regular family desktop into a private health hub:
    with QVAC tool calling plans the work — `search_records` (RAG), `calculate_change`
    (deterministic math, no LLM arithmetic), and `consult_medgemma` (hands medical
    interpretation to the MedGemma specialist agent).
+6a. **Reminders, Emergency QR, Export, Voice, CSV** — the Family tab surfaces upcoming
+   re-tests/follow-ups/vaccine dates parsed from documents; each member has an offline
+   **Emergency QR** (allergies, conditions, meds, recent vitals — scannable, no cloud) and a
+   one-click **Markdown export**; the Alerts briefing can be **read aloud** (QVAC TTS); and
+   you can **import a CSV** of readings (`date,metric,value`) for instant trends.
+
 6. **Auto-capture from chat** — just say it ("my fasting glucose today is 95, BP 118/76")
    and Sehat extracts the values and saves a dated record in real time (a "📌 Saved"
    chip confirms). A regex pre-filter + an extraction pass distinguish *reporting* data
