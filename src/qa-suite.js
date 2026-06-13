@@ -178,6 +178,69 @@ console.log(`QA suite against ${BASE}\n`);
   record("Date-precise retrieval (Sept 2025 HbA1c = 5.8)", /5\.8/.test(r.answer), r.answer.replace(/\n/g, " "));
 }
 
+// ---------- 17. Auto language: Indonesian Q -> Indonesian A (no toggle) ----------
+{
+  const r = await ask("Bagaimana tren tekanan darah Sari?");
+  const indo = /\b(tekanan darah|berdasarkan|adalah|dokumen|tren)\b/i.test(r.answer);
+  record("Auto-language: Indonesian answer without toggle", indo, r.answer.replace(/\n/g, " ").slice(0, 160));
+}
+
+// ---------- 18. Auto language: French Q -> French A ----------
+{
+  const r = await ask("Quels médicaments Sari prend-elle ?");
+  const fr = /\b(prend|médicament|amlodipine|selon|le document|elle)\b/i.test(r.answer);
+  record("Auto-language: French answer", fr, r.answer.replace(/\n/g, " ").slice(0, 160));
+}
+
+// ---------- 19. Invite /api/info: home-LAN IP prioritised ----------
+{
+  const info = await (await fetch(`${BASE}/api/info`)).json();
+  const first = info.joinUrls?.[0] ?? "";
+  record("Invite /api/info: 192.168.x first, http port",
+    /192\.168\./.test(first) && info.httpPort === 8788,
+    `first=${first} httpPort=${info.httpPort}`);
+}
+
+// Unique LETTERS-ONLY member per run (the name parser only keeps [A-Za-z], and
+// a fresh name avoids leftover records from previous runs skewing counts).
+const TM = "Qa" + String(Date.now() % 1000000).split("").map((d) => "abcdefghij"[+d]).join("");
+const ingest = (source, text, relation) =>
+  fetch(`${BASE}/api/ingest`, {
+    method: "POST", headers: { "content-type": "application/json" },
+    body: JSON.stringify({ member: TM, relation, source, text }),
+  }).then((r) => r.json());
+
+// ---------- 20. Add SELF record -> appears with relation=self + vitals ----------
+{
+  const ok = (await ingest(`${TM}-a.txt`, "Date: 2026-06-12\nFasting glucose: 92 mg/dL\nTotal cholesterol: 180 mg/dL\nBlood pressure: 118/76 mmHg", "self")).ok;
+  const t = (await (await fetch(`${BASE}/api/family`)).json())[TM];
+  record("Add self record -> member with relation=self + vitals",
+    ok && t && t.relation === "self" && t.series?.glucose?.[0]?.value === 92,
+    `relation=${t?.relation} glucose=${t?.series?.glucose?.map((x) => x.value).join(",")}`);
+}
+
+// ---------- 21. Multi-record append extends an existing member's series ----------
+{
+  const before = (await (await fetch(`${BASE}/api/family`)).json())[TM]?.series?.glucose?.length ?? 0;
+  await ingest(`${TM}-b.txt`, "Date: 2026-09-12\nFasting glucose: 99 mg/dL", "self");
+  const after = (await (await fetch(`${BASE}/api/family`)).json())[TM]?.series?.glucose?.length ?? 0;
+  record("Multi-record append extends trend series", after === before + 1, `glucose points ${before} -> ${after}`);
+}
+
+// ---------- 22. Agent mode via API returns a tool trace ----------
+{
+  const url = `${BASE}/api/ask?q=${encodeURIComponent("By what percent did Budi's LDL change from 2025 to 2026?")}&mode=agent`;
+  const text = await (await fetch(url)).text();
+  let sources = [], answer = "";
+  for (const block of text.split("\n\n")) {
+    const ev = /event: (\w+)/.exec(block)?.[1], data = /data: (.*)/s.exec(block)?.[1];
+    if (ev === "token" && data) answer += JSON.parse(data);
+    if (ev === "done" && data) sources = JSON.parse(data).sources ?? [];
+  }
+  const usedTools = sources.some((s) => /tool|search|calculate/i.test(s));
+  record("Agent mode: tool trace returned", usedTools, `tools: ${sources.join(", ")}`);
+}
+
 // ---------- Report ----------
 const md = [
   `# Sehat QA Report — ${new Date().toISOString()}`,

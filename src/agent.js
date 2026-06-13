@@ -65,7 +65,7 @@ export class SehatAgent {
       modelSrc: QWEN3_1_7B_INST_Q4,
       modelType: "llm",
       modelConfig: {
-        ctx_size: 4096,
+        ctx_size: 8192, // headroom for multi-tool loops (tool results accumulate)
         tools: true,
         toolsMode: "dynamic",
         gpu_layers: 99,
@@ -87,11 +87,11 @@ export class SehatAgent {
       const hits = await ragSearch({
         modelId: this.engine.embedId,
         query: String(call.arguments.query ?? ""),
-        topK: 3,
+        topK: 2,
         workspace: WORKSPACE,
       });
       result = hits.length
-        ? hits.map((h) => h.content.slice(0, 600)).join("\n---\n")
+        ? hits.slice(0, 2).map((h) => h.content.slice(0, 360)).join("\n---\n")
         : "No matching documents.";
     } else if (call.name === "calculate_change") {
       const { metric, old_value, new_value } = call.arguments;
