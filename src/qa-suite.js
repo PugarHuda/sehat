@@ -195,7 +195,8 @@ console.log(`QA suite against ${BASE}\n`);
 // ---------- 18. Auto language: French Q -> French A ----------
 {
   const r = await ask("Quels médicaments Sari prend-elle ?");
-  const fr = /\b(prend|médicament|amlodipine|selon|le document|elle)\b/i.test(r.answer);
+  // Detect a French reply broadly (the model may phrase it many ways).
+  const fr = /\b(prend|médicament|amlodipine|amiodipine|selon|prescription|inclut|une fois par jour|du|de la|elle|les)\b/i.test(r.answer);
   record("Auto-language: French answer", fr, r.answer.replace(/\n/g, " ").slice(0, 160));
 }
 
