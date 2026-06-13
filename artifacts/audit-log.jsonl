@@ -724,3 +724,7 @@
 {"ts":"2026-06-13T17:55:29.260Z","event":"model_load","modelSrc":"EMBEDDINGGEMMA_300M_Q8_0","modelType":"embeddings","modelId":"329fc3cde51e8963","durationMs":2019}
 {"ts":"2026-06-13T17:55:38.257Z","event":"inference","modelId":"ae6963ed789f8525","task":"rag-answer","prompt":"vaccination","promptTokens":null,"completionTokens":448,"ttftMs":1514,"durationMs":8863,"tokensPerSec":50.55}
 {"ts":"2026-06-13T17:56:07.114Z","event":"inference","modelId":"329fc3cde51e8963","task":"rag-ingest:photo-Budi-1781373366901","prompt":"(401 chars)","promptTokens":null,"completionTokens":null,"durationMs":212,"tokensPerSec":null}
+{"ts":"2026-06-13T18:04:01.364Z","event":"model_load","modelSrc":"QVAC MedPsy-4B Q4_K_M (gpu_layers=99)","modelType":"llm","modelId":"ae6963ed789f8525","durationMs":6976}
+{"ts":"2026-06-13T18:04:03.462Z","event":"model_load","modelSrc":"EMBEDDINGGEMMA_300M_Q8_0","modelType":"embeddings","modelId":"329fc3cde51e8963","durationMs":2097}
+{"ts":"2026-06-13T18:04:12.875Z","event":"inference","modelId":"ae6963ed789f8525","task":"rag-answer","prompt":"vaccination","promptTokens":null,"completionTokens":474,"ttftMs":1517,"durationMs":9273,"tokensPerSec":51.12}
+{"ts":"2026-06-13T18:05:43.746Z","event":"inference","modelId":"ae6963ed789f8525","task":"proactive-briefing","prompt":"You are Sehat, proactively reviewing a family's health records (education only, not diagnosis). These flags were detecte","promptTokens":null,"completionTokens":307,"ttftMs":null,"durationMs":null,"tokensPerSec":null}
