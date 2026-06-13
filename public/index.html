@@ -227,6 +227,30 @@
   const $ = (id) => document.getElementById(id);
   const chat = $("chat"), form = $("f"), input = $("q"), send = $("send");
 
+  // ---- optional family PIN: auto-attach to every /api/* call ----
+  let PIN = localStorage.getItem("sehat-pin") || "";
+  const _addPin = (u) => {
+    try {
+      const s = typeof u === "string" ? u : u.url;
+      if (PIN && s && s.indexOf("/api/") === 0) return s + (s.includes("?") ? "&" : "?") + "pin=" + encodeURIComponent(PIN);
+      return u;
+    } catch { return u; }
+  };
+  const _fetch = window.fetch.bind(window);
+  window.fetch = (u, o) => _fetch(_addPin(u), o);
+  const _ES = window.EventSource;
+  window.EventSource = function (u, o) { return new _ES(_addPin(u), o); };
+  // Gate: probe /api/info; if locked, ask for the PIN once and store it.
+  (async function gate() {
+    for (let i = 0; i < 5; i++) {
+      const r = await _fetch(_addPin("/api/info")).catch(() => null);
+      if (!r || r.status !== 401) return;
+      const p = prompt("Enter the family PIN to access Sehat:");
+      if (!p) return;
+      PIN = p.trim(); localStorage.setItem("sehat-pin", PIN);
+    }
+  })();
+
   // ---- profile name (stored on this device only) ----
   let ME = localStorage.getItem("sehat-me") || "";
   function renderProfile() { $("profileBtn").textContent = ME ? `👤 ${ME}` : "👤 Set name"; }

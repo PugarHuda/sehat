@@ -114,12 +114,25 @@ const STATIC = {
   "/icon-512.png": ["image/png", readFileSync("public/icon-512.png")],
 };
 
+// Optional family PIN: set SEHAT_PIN=1234 to require it on every /api/* call.
+// Empty = open (LAN trust). The app page itself always loads so it can prompt.
+const SEHAT_PIN = process.env.SEHAT_PIN || "";
+
 async function handler(req, res) {
   const url = new URL(req.url, `http://${req.headers.host}`);
 
   if (req.method === "GET" && url.pathname === "/") {
     res.writeHead(200, { "content-type": "text/html; charset=utf-8" });
     return res.end(html);
+  }
+
+  // PIN gate for API routes (when enabled).
+  if (SEHAT_PIN && url.pathname.startsWith("/api/")) {
+    const given = req.headers["x-sehat-pin"] || url.searchParams.get("pin") || "";
+    if (given !== SEHAT_PIN) {
+      res.writeHead(401, { "content-type": "application/json" });
+      return res.end(JSON.stringify({ error: "pin required" }));
+    }
   }
 
   if (req.method === "GET" && STATIC[url.pathname]) {
@@ -483,6 +496,7 @@ for (const ip of lanIps()) {
   }
 }
 console.log(`Local:               ${useTls ? "https" : "http"}://localhost:${PORT}`);
+if (SEHAT_PIN) console.log(`🔒 Family PIN required (SEHAT_PIN set).`);
 
 if (process.env.SEHAT_P2P === "1") {
   startQVACProvider({}).then((p) => {

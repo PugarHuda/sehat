@@ -160,6 +160,10 @@ SEHAT_P2P=1 npm start            # also start the P2P "remote family node"
 npm run delegate <publicKey>     # from another device: delegated inference, no local model
 ```
 
+Optional family PIN: `SEHAT_PIN=2468 npm start` requires that PIN on every API
+call (the app prompts once and remembers it on-device). Default is open — fine on
+a trusted home Wi-Fi, recommended ON if others share the network.
+
 HTTPS: `npm start` serves TLS if `certs/sehat.pfx` exists (needed for the phone mic).
 Generate one with PowerShell `New-SelfSignedCertificate` + `Export-PfxCertificate`
 (passphrase `sehat-lan`), or delete `certs/` to run plain HTTP (mic disabled, chat works).
