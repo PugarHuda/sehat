@@ -388,7 +388,9 @@
       const info = await (await fetch("/api/info")).json();
       const url = info.joinUrls[0] || location.origin;
       $("joinUrl").value = url;
-      $("inviteMsg").textContent = info.joinUrls.length > 1 ? `Other addresses: ${info.joinUrls.slice(1).join("  ·  ")}` : "";
+      let msg = info.joinUrls.length > 1 ? `Other addresses: ${info.joinUrls.slice(1).join("  ·  ")}` : "";
+      if (info.p2pKey) msg += `${msg ? "\n\n" : ""}🌍 Remote family (P2P, any network): a relative's device can delegate to this home node by public key — ${info.p2pKey.slice(0, 16)}… (run \`npm run delegate <key>\`).`;
+      $("inviteMsg").textContent = msg;
     } catch { $("joinUrl").value = location.origin; }
   };
   $("iClose").onclick = () => $("inviteBg").classList.remove("on");
@@ -454,12 +456,22 @@
       const secs = ((performance.now() - t0) / 1000).toFixed(1);
       const tps = stats.durationMs && stats.ttftMs !== null ? (stats.tokenCount / (stats.durationMs / 1000)).toFixed(1) : null;
       addMeta((stats.ttftMs !== null ? `⚡ TTFT ${stats.ttftMs} ms · ${tps} tok/s · ` : `🤖 agent · `) + `${secs}s` + (sources.length ? ` · 📄 <span class="src">${sources.join(", ")}</span>` : ""));
-      es.close(); send.disabled = false; input.focus();
+      es.close(); send.disabled = false;
+      // Hands-free loop: if the question came from the mic, speak the answer back.
+      if (window.__voiceMode && text) { window.__voiceMode = false; speakAnswer(text); } else { input.focus(); }
     });
     es.addEventListener("error", () => { if (text === "") bot.textContent = "⚠️ Connection error — is the Sehat server running?"; es.close(); send.disabled = false; });
   });
 
-  // ---- mic ----
+  // ---- speak an answer aloud (QVAC TTS), strip citations first ----
+  function speakAnswer(t) {
+    const clean = t.replace(/\[(doc|source):[^\]]*\]/g, "").replace(/[#*`]/g, "").trim().slice(0, 700);
+    if (!clean) { input.focus(); return; }
+    const a = new Audio("/api/speak?text=" + encodeURIComponent(clean));
+    a.play().catch(() => {}).finally(() => {});
+  }
+
+  // ---- mic (tap to talk → hands-free: answer is spoken back) ----
   const mic = $("mic"); let rec = null;
   function encodeWav(f32, rate) { const n = f32.length, buf = new ArrayBuffer(44 + n * 2), v = new DataView(buf); const s = (o, t) => { for (let i = 0; i < t.length; i++) v.setUint8(o + i, t.charCodeAt(i)); };
     s(0,"RIFF");v.setUint32(4,36+n*2,true);s(8,"WAVE");s(12,"fmt ");v.setUint32(16,16,true);v.setUint16(20,1,true);v.setUint16(22,1,true);v.setUint32(24,rate,true);v.setUint32(28,rate*2,true);v.setUint16(32,2,true);v.setUint16(34,16,true);s(36,"data");v.setUint32(40,n*2,true);
@@ -467,7 +479,7 @@
   async function startRec(){const stream=await navigator.mediaDevices.getUserMedia({audio:true});const ctx=new AudioContext({sampleRate:16000});const sn=ctx.createMediaStreamSource(stream);const pr=ctx.createScriptProcessor(4096,1,1);const parts=[];pr.onaudioprocess=(e)=>parts.push(new Float32Array(e.inputBuffer.getChannelData(0)));sn.connect(pr);pr.connect(ctx.destination);mic.classList.add("rec");mic.textContent="⏹";rec={stream,ctx,pr,parts};}
   async function stopRec(){const{stream,ctx,pr,parts}=rec;rec=null;pr.disconnect();stream.getTracks().forEach(t=>t.stop());const rate=ctx.sampleRate;await ctx.close();mic.classList.remove("rec");mic.textContent="🎙️";
     const total=parts.reduce((s,p)=>s+p.length,0);const all=new Float32Array(total);let off=0;for(const p of parts){all.set(p,off);off+=p.length;}
-    input.placeholder="Transcribing…";try{const{text,error}=await(await fetch("/api/voice",{method:"POST",body:encodeWav(all,rate)})).json();if(error)throw new Error(error);input.value=text;if(text)form.requestSubmit();}catch(e){add("bot","⚠️ Voice failed: "+e.message);}finally{input.placeholder="Ask about the family's health…";}}
+    input.placeholder="Transcribing…";try{const{text,error}=await(await fetch("/api/voice",{method:"POST",body:encodeWav(all,rate)})).json();if(error)throw new Error(error);input.value=text;if(text){window.__voiceMode=true;form.requestSubmit();}}catch(e){add("bot","⚠️ Voice failed: "+e.message);}finally{input.placeholder="Ask about the family's health…";}}
   mic.addEventListener("click", async () => { try { if (rec) await stopRec(); else await startRec(); } catch (e) { add("bot", "⚠️ Mic needs HTTPS (use the https link): " + e.message); } });
 </script>
 </body>

@@ -27,7 +27,11 @@ Sehat turns a regular family desktop into a private health hub:
      🇮🇩 toggle to ask and be answered in Bahasa Indonesia (local Bergamot NMT).
    - **QVAC P2P delegated inference**: a client device loads *no model at all* and runs
      completions on the desktop via Holepunch DHT, addressed by public key — no server,
-     no port-forwarding, works across NATs.
+     no port-forwarding, works across NATs. Start the home node with `SEHAT_P2P=1 npm start`
+     and a relative on **any network** connects with `npm run delegate <publicKey>` (the key
+     is shown in the in-app Invite panel). This is the "remote family node" path.
+   - **Hands-free voice**: tap 🎙️, speak a question, and the answer is spoken back
+     (Parakeet STT → MedPsy → Supertonic TTS) — a full local voice loop in the browser.
 4. **Orchestrate** — a multi-agent mode (`npm run demo:agent`): a Qwen3 1.7B orchestrator
    with QVAC tool calling plans the work — `search_records` (RAG), `calculate_change`
    (deterministic math, no LLM arithmetic), and `consult_medgemma` (hands medical

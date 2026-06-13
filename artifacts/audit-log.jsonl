@@ -572,3 +572,6 @@
 {"ts":"2026-06-13T07:48:15.097Z","event":"inference","modelId":"2b4191e5d8536f1c","task":"tool:calculate_change","prompt":"{\"metric\":\"LDL\",\"new_value\":128,\"old_value\":140}","promptTokens":null,"completionTokens":null,"durationMs":0,"tokensPerSec":null}
 {"ts":"2026-06-13T07:48:25.355Z","event":"inference","modelId":"2b4191e5d8536f1c","task":"tool:calculate_change","prompt":"{\"metric\":\"LDL\",\"new_value\":128,\"old_value\":140}","promptTokens":null,"completionTokens":null,"durationMs":0,"tokensPerSec":null}
 {"ts":"2026-06-13T07:48:35.858Z","event":"inference","modelId":"2b4191e5d8536f1c","task":"agent-final-answer","prompt":"By what percent did Budi's LDL change from 2025 to 2026?","promptTokens":null,"completionTokens":null,"durationMs":43658,"tokensPerSec":null}
+{"ts":"2026-06-13T08:06:55.570Z","event":"model_load","modelSrc":"QVAC MedPsy-4B Q4_K_M (gpu_layers=99)","modelType":"llm","modelId":"ae6963ed789f8525","durationMs":6617}
+{"ts":"2026-06-13T08:06:59.102Z","event":"model_load","modelSrc":"EMBEDDINGGEMMA_300M_Q8_0","modelType":"embeddings","modelId":"329fc3cde51e8963","durationMs":3530}
+{"ts":"2026-06-13T08:07:16.709Z","event":"inference","modelId":"ae6963ed789f8525","task":"rag-answer","prompt":"vaccination","promptTokens":null,"completionTokens":859,"ttftMs":2036,"durationMs":16536,"tokensPerSec":51.95}

@@ -80,6 +80,7 @@ async function getAgent() {
 
 // One inference at a time; later requests queue up.
 let queue = Promise.resolve();
+let p2pKey = null; // set when started as a P2P provider (SEHAT_P2P=1)
 
 const html = readFileSync("public/index.html");
 const STATIC = {
@@ -208,7 +209,7 @@ async function handler(req, res) {
     const score = (ip) => (ip.startsWith("192.168.") ? 0 : ip.startsWith("10.") ? 1 : 2);
     const httpUrls = lanIps().sort((a, b) => score(a) - score(b)).map((ip) => `http://${ip}:${HTTP_PORT}`);
     res.writeHead(200, { "content-type": "application/json" });
-    return res.end(JSON.stringify({ joinUrls: httpUrls, httpsPort: PORT, httpPort: HTTP_PORT }));
+    return res.end(JSON.stringify({ joinUrls: httpUrls, httpsPort: PORT, httpPort: HTTP_PORT, p2pKey }));
   }
 
   if (req.method === "GET" && url.pathname === "/api/family") {
@@ -420,5 +421,7 @@ for (const ip of lanIps()) {
 console.log(`Local:               ${useTls ? "https" : "http"}://localhost:${PORT}`);
 
 if (process.env.SEHAT_P2P === "1") {
-  startQVACProvider({}).then((p) => { if (p.success) console.log(`\nP2P provider public key:\n${p.publicKey}`); });
+  startQVACProvider({}).then((p) => {
+    if (p.success) { p2pKey = p.publicKey; console.log(`\nP2P provider public key (remote family node):\n${p.publicKey}`); }
+  });
 }
