@@ -43,8 +43,9 @@ no data ever leaves the home network.
    arithmetic), and `consult` (hands medical interpretation to the MedPsy specialist).
 8. **Reach every device** —
    - **LAN web UI / PWA**: open the link below on any phone; invite the whole family with 🔗.
-   - **Hands-free voice**: tap 🎙️, speak, and the answer is spoken back
-     (Parakeet STT → MedPsy → Supertonic TTS) — a full local voice loop in the browser.
+   - **Hands-free voice (any language)**: tap 🎙️, speak, and the answer is spoken back
+     (multilingual Whisper STT → MedPsy → Supertonic TTS) — a full local voice loop in
+     the browser. Whisper auto-detects the spoken language (Indonesian, English, …).
    - **QVAC P2P delegated inference**: a client device loads *no model* and runs completions
      on the home PC via Holepunch DHT, addressed by public key — no server, no port
      forwarding, works across NATs. Start with `SEHAT_P2P=1 npm start`; a relative on **any
@@ -92,7 +93,7 @@ Numbers come from the committed [`artifacts/audit-log.jsonl`](artifacts/audit-lo
 | Medical reasoning (A/B benchmark) | `MEDGEMMA_4B_IT_Q4_1` (Google, comparison only) |
 | Orchestrator agent (tool calling) | `QWEN3_1_7B_INST_Q4` |
 | Embeddings / RAG | `EMBEDDINGGEMMA_300M_Q8_0` |
-| Speech-to-text | `PARAKEET_CTC_0_6B_Q8_0` |
+| Speech-to-text (multilingual, auto-detect) | `WHISPER_BASE_Q8_0` |
 | Text-to-speech | `TTS_EN_SUPERTONIC_Q8_0` |
 | OCR | `OCR_LATIN_RECOGNIZER_1` |
 | Translation ID↔EN | `BERGAMOT_ID_EN` + `BERGAMOT_EN_ID` |

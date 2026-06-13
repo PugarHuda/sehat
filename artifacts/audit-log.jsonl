@@ -669,3 +669,13 @@
 {"ts":"2026-06-13T09:25:38.903Z","event":"inference","modelId":"2b4191e5d8536f1c","task":"tool:search_records","prompt":"{\"query\":\"LDL 2025-09-02\"}","promptTokens":null,"completionTokens":null,"durationMs":17,"tokensPerSec":null}
 {"ts":"2026-06-13T09:25:47.390Z","event":"inference","modelId":"2b4191e5d8536f1c","task":"tool:search_records","prompt":"{\"query\":\"LDL 2025-09-02\"}","promptTokens":null,"completionTokens":null,"durationMs":14,"tokensPerSec":null}
 {"ts":"2026-06-13T09:25:56.561Z","event":"inference","modelId":"2b4191e5d8536f1c","task":"tool:search_records","prompt":"{\"query\":\"LDL 2025 to 2026\"}","promptTokens":null,"completionTokens":null,"durationMs":16,"tokensPerSec":null}
+{"ts":"2026-06-13T10:02:30.444Z","event":"model_load","modelSrc":"QVAC MedPsy-4B Q4_K_M (gpu_layers=99)","modelType":"llm","modelId":"ae6963ed789f8525","durationMs":36378}
+{"ts":"2026-06-13T10:02:34.143Z","event":"model_load","modelSrc":"EMBEDDINGGEMMA_300M_Q8_0","modelType":"embeddings","modelId":"329fc3cde51e8963","durationMs":3692}
+{"ts":"2026-06-13T10:02:44.763Z","event":"inference","modelId":"ae6963ed789f8525","task":"rag-answer","prompt":"vaccination","promptTokens":null,"completionTokens":256,"ttftMs":2982,"durationMs":7545,"tokensPerSec":33.93}
+{"ts":"2026-06-13T10:13:39.781Z","event":"inference","modelId":"ae6963ed789f8525","task":"rag-answer","prompt":"hello apaccus what are i doas","promptTokens":null,"completionTokens":558,"ttftMs":2543,"durationMs":14610,"tokensPerSec":38.19}
+{"ts":"2026-06-13T10:16:54.495Z","event":"model_load","modelSrc":"QVAC MedPsy-4B Q4_K_M (gpu_layers=99)","modelType":"llm","modelId":"ae6963ed789f8525","durationMs":10145}
+{"ts":"2026-06-13T10:16:59.052Z","event":"model_load","modelSrc":"EMBEDDINGGEMMA_300M_Q8_0","modelType":"embeddings","modelId":"329fc3cde51e8963","durationMs":4555}
+{"ts":"2026-06-13T10:17:12.435Z","event":"inference","modelId":"ae6963ed789f8525","task":"rag-answer","prompt":"vaccination","promptTokens":null,"completionTokens":515,"ttftMs":1756,"durationMs":13173,"tokensPerSec":39.1}
+{"ts":"2026-06-13T15:39:40.128Z","event":"model_load","modelSrc":"QVAC MedPsy-4B Q4_K_M (gpu_layers=99)","modelType":"llm","modelId":"ae6963ed789f8525","durationMs":6669}
+{"ts":"2026-06-13T15:39:43.068Z","event":"model_load","modelSrc":"EMBEDDINGGEMMA_300M_Q8_0","modelType":"embeddings","modelId":"329fc3cde51e8963","durationMs":2938}
+{"ts":"2026-06-13T15:39:57.269Z","event":"inference","modelId":"ae6963ed789f8525","task":"rag-answer","prompt":"vaccination","promptTokens":null,"completionTokens":744,"ttftMs":1728,"durationMs":13892,"tokensPerSec":53.56}

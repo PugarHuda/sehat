@@ -8,7 +8,7 @@ import { createServer as createHttpsServer } from "node:https";
 import { readFileSync, readdirSync, existsSync, writeFileSync, unlinkSync, mkdirSync } from "node:fs";
 import { join, basename } from "node:path";
 import { tmpdir, networkInterfaces } from "node:os";
-import { startQVACProvider, loadModel, transcribe, PARAKEET_CTC_0_6B_Q8_0 } from "@qvac/sdk";
+import { startQVACProvider, loadModel, transcribe, WHISPER_BASE_Q8_0 } from "@qvac/sdk";
 import { SehatEngine } from "./engine.js";
 import { SehatAgent } from "./agent.js";
 import { Translator } from "./translator.js";
@@ -49,8 +49,19 @@ async function getTranslator() {
 let sttId = null;
 async function getStt() {
   if (!sttId) {
-    console.log("Loading Parakeet STT...");
-    sttId = await loadModel({ modelSrc: PARAKEET_CTC_0_6B_Q8_0, modelType: "parakeet" });
+    console.log("Loading Whisper STT (multilingual, auto-detect)...");
+    sttId = await loadModel({
+      modelSrc: WHISPER_BASE_Q8_0, // multilingual base (NOT the _EN_ variants)
+      modelType: "whisper",
+      modelConfig: {
+        strategy: "greedy",
+        language: "", // empty = whisper auto-detects the spoken language (ID, EN, …)
+        translate: false, // keep the spoken language; don't force-translate to English
+        temperature: 0.0,
+        suppress_blank: true,
+        contextParams: { use_gpu: true, flash_attn: true, gpu_device: 0 },
+      },
+    });
   }
   return sttId;
 }
@@ -191,7 +202,12 @@ async function handler(req, res) {
       try {
         const modelId = await getStt();
         const heard = await transcribe({ modelId, audioChunk: tmp });
-        const text = (typeof heard === "string" ? heard : heard.text ?? "").trim();
+        // Whisper may return a string, a {text}, or an array of segments.
+        let text = "";
+        if (typeof heard === "string") text = heard;
+        else if (Array.isArray(heard)) text = heard.map((s) => s.text ?? "").join("");
+        else text = heard?.text ?? "";
+        text = text.replace(/\[(BLANK_AUDIO|.*?)\]/g, "").trim();
         res.writeHead(200, { "content-type": "application/json" });
         res.end(JSON.stringify({ text }));
       } catch (err) {
