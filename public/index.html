@@ -147,14 +147,15 @@
 
 <main>
   <section id="chatView" class="view on"><div id="chat">
-    <div class="hint">Ask about your family's health records.<br />
+    <div class="hint">Ask about your family's health records, in <b>any language</b>.<br />
       Answers come from <b>QVAC MedPsy running on the family PC</b> — nothing leaves your home network.<br /><br />
-      Try: <b>"How has Budi's blood sugar changed over his last tests?"</b></div>
+      Try: <b>"How has Budi's blood sugar changed?"</b> or <b>"Bagaimana tren gula darah Budi?"</b></div>
   </div></section>
 
   <section id="dashView" class="view">
     <div class="sectionhead"><h2>Family members</h2>
-      <button id="addBtn">＋ Add member / record</button></div>
+      <button id="inviteBtn" style="margin-left:auto;margin-right:8px">🔗 Invite</button>
+      <button id="addBtn" style="margin-left:0">＋ Add</button></div>
     <div id="dash" class="grid"><div class="loading">Loading…</div></div>
   </section>
 
@@ -168,8 +169,8 @@
 <div class="toggles" id="chatToggles">
   <label class="tog"><input type="checkbox" id="agentMode" />
     <span><span class="tt">🤖 Agent mode</span><span class="ds">Plans multi-step: searches records, does the math, consults MedPsy.</span></span></label>
-  <label class="tog"><input type="checkbox" id="langId" />
-    <span><span class="tt">🇮🇩 Bahasa</span><span class="ds">Ask & get answers in Indonesian.</span></span></label>
+  <div class="tog" style="cursor:default"><span>🌐</span>
+    <span><span class="tt">Auto language</span><span class="ds">Ask in any language — Sehat replies in the same one.</span></span></div>
 </div>
 <form id="f">
   <input id="q" placeholder="Ask about the family's health…" autocomplete="off" />
@@ -187,11 +188,24 @@
   <div id="dBody"></div>
 </div>
 
+<!-- invite modal -->
+<div class="modal-bg" id="inviteBg"><div class="modal">
+  <h3>Invite your family</h3>
+  <p>Anyone on the same Wi-Fi can open this link to chat and add their own records — everything syncs to this PC in real time. No accounts, no cloud.</p>
+  <label>Open on their phone</label>
+  <input id="joinUrl" readonly value="…" style="font-weight:700" />
+  <div id="inviteMsg" style="font-size:12.5px;color:var(--muted);margin-top:8px"></div>
+  <div class="row"><button class="btn-ghost" id="iClose">Close</button>
+    <button class="btn-primary" id="iCopy">Copy link</button></div>
+</div></div>
+
 <!-- add member modal -->
 <div class="modal-bg" id="modalBg"><div class="modal">
   <h3>Add member or record</h3>
   <p>Paste a lab result, prescription, or note. A new name creates a new family member. Everything stays on this PC.</p>
-  <label>Family member name</label>
+  <label>Who is this for?</label>
+  <select id="fRelation"><option value="family">A family member</option><option value="self">Me (myself)</option></select>
+  <label>Name</label>
   <input id="fMember" placeholder="e.g. Agus Santoso" />
   <label>Record name</label>
   <input id="fSource" placeholder="e.g. lab-agus-2026-06.txt" />
@@ -240,7 +254,8 @@
     try {
       FAM = await (await fetch("/api/family")).json();
       el.innerHTML = "";
-      for (const m of Object.values(FAM)) {
+      const ordered = Object.values(FAM).sort((a, b) => (a.relation === "self" ? -1 : 0) - (b.relation === "self" ? -1 : 0));
+      for (const m of ordered) {
         const keys = Object.keys(m.series).slice(0, 3);
         const stats = keys.map((k) => {
           const last = m.series[k][m.series[k].length - 1].value, st = statusOf(k, last);
@@ -249,7 +264,7 @@
         }).join("");
         el.insertAdjacentHTML("beforeend", `<div class="card mcard" data-m="${m.name}">
           <div class="mhead"><div class="avatar">${EMO[m.name] || "🙂"}</div>
-            <div><div class="mname">${m.name}</div><div class="msub">${m.docs} record${m.docs > 1 ? "s" : ""} · tap for detail</div></div>
+            <div><div class="mname">${m.name} ${m.relation === "self" ? '<span class="pill ok">You</span>' : ""}</div><div class="msub">${m.docs} record${m.docs > 1 ? "s" : ""} · tap for detail</div></div>
             <div class="chev">›</div></div>
           ${stats ? `<div class="quickrow">${stats}</div>` : '<div class="msub" style="margin-top:10px">No numeric vitals yet</div>'}
         </div>`);
@@ -286,16 +301,33 @@
   $("fCancel").onclick = () => $("modalBg").classList.remove("on");
   $("fSave").onclick = async () => {
     const member = $("fMember").value.trim(), source = $("fSource").value.trim() || (member ? `record-${member}.txt` : ""), text = $("fText").value.trim();
+    const relation = $("fRelation").value;
     const msg = $("formMsg");
     if (!member || !text) { msg.textContent = "⚠️ Name and record text are required."; return; }
     msg.textContent = "Saving & indexing on the family PC…";
     try {
-      const j = await (await fetch("/api/ingest", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ member, source, text }) })).json();
+      const j = await (await fetch("/api/ingest", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ member, source, text, relation }) })).json();
       if (!j.ok) throw new Error(j.error);
       msg.textContent = "✅ Saved.";
       $("fText").value = ""; $("fMember").value = ""; $("fSource").value = "";
       setTimeout(() => { $("modalBg").classList.remove("on"); msg.textContent = ""; loadDash(); }, 600);
     } catch (e) { msg.textContent = "⚠️ " + e.message; }
+  };
+
+  // ---- invite ----
+  $("inviteBtn").onclick = async () => {
+    $("inviteBg").classList.add("on");
+    try {
+      const info = await (await fetch("/api/info")).json();
+      const url = info.joinUrls[0] || location.origin;
+      $("joinUrl").value = url;
+      $("inviteMsg").textContent = info.joinUrls.length > 1 ? `Other addresses: ${info.joinUrls.slice(1).join("  ·  ")}` : "";
+    } catch { $("joinUrl").value = location.origin; }
+  };
+  $("iClose").onclick = () => $("inviteBg").classList.remove("on");
+  $("iCopy").onclick = async () => {
+    try { await navigator.clipboard.writeText($("joinUrl").value); $("iCopy").textContent = "Copied ✓"; setTimeout(() => $("iCopy").textContent = "Copy link", 1200); }
+    catch { $("joinUrl").select(); }
   };
 
   // ---- alerts ----
@@ -331,8 +363,8 @@
     input.value = ""; send.disabled = true;
     add("user", question); const bot = add("bot", "…", { save: false });
     let text = ""; const t0 = performance.now();
-    const lang = $("langId").checked ? "&lang=id" : "", mode = $("agentMode").checked ? "&mode=agent" : "";
-    const es = new EventSource("/api/ask?q=" + encodeURIComponent(question) + lang + mode);
+    const mode = $("agentMode").checked ? "&mode=agent" : "";
+    const es = new EventSource("/api/ask?q=" + encodeURIComponent(question) + mode);
     es.addEventListener("token", (ev) => { text += JSON.parse(ev.data); bot.textContent = text; chat.scrollTop = chat.scrollHeight; });
     es.addEventListener("done", (ev) => {
       const { stats, sources } = JSON.parse(ev.data); persist("bot", text);

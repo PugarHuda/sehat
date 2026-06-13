@@ -21,10 +21,12 @@ function parseDoc(name, text) {
     /Date:\s*(\d{4}-\d{2}-\d{2})/.exec(text)?.[1] ??
     /(\d{4}-\d{2}-\d{2})/.exec(text)?.[1] ?? null;
   const patient = /Patient:\s*([A-Za-z]+)/.exec(text)?.[1] ?? /Child:\s*([A-Za-z]+)/.exec(text)?.[1] ?? "Unknown";
+  const relation = /Relation:\s*(self|me)/i.test(text) ? "self" : "family";
   return {
     name,
     date,
     patient,
+    relation,
     vitals: {
       glucose: NUM(/glucose:\s*(\d+(?:\.\d+)?)/i, text),
       hba1c: NUM(/HbA1?c:\s*(\d+(?:\.\d+)?)/i, text),
@@ -48,8 +50,9 @@ export function loadFamily(dirs = ["data/sample", "data/records"]) {
 
   const members = {};
   for (const d of docs) {
-    const m = (members[d.patient] ??= { name: d.patient, series: {}, meds: new Set(), docs: 0 });
+    const m = (members[d.patient] ??= { name: d.patient, relation: "family", series: {}, meds: new Set(), docs: 0 });
     m.docs++;
+    if (d.relation === "self") m.relation = "self";
     d.meds.forEach((x) => m.meds.add(x));
     for (const [k, v] of Object.entries(d.vitals)) {
       if (v == null || !d.date) continue;

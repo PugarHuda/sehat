@@ -171,6 +171,14 @@ async function handler(req, res) {
     return;
   }
 
+  if (req.method === "GET" && url.pathname === "/api/info") {
+    // Prefer real home-LAN IPs (192.168.x / 10.x) over virtual adapters (172.x Hyper-V/WSL).
+    const score = (ip) => (ip.startsWith("192.168.") ? 0 : ip.startsWith("10.") ? 1 : 2);
+    const httpUrls = lanIps().sort((a, b) => score(a) - score(b)).map((ip) => `http://${ip}:${HTTP_PORT}`);
+    res.writeHead(200, { "content-type": "application/json" });
+    return res.end(JSON.stringify({ joinUrls: httpUrls, httpsPort: PORT, httpPort: HTTP_PORT }));
+  }
+
   if (req.method === "GET" && url.pathname === "/api/family") {
     const members = loadFamily();
     res.writeHead(200, { "content-type": "application/json" });
@@ -207,12 +215,13 @@ async function handler(req, res) {
     req.on("data", (c) => (body += c));
     req.on("end", async () => {
       try {
-        const { source, text, member } = JSON.parse(body);
+        const { source, text, member, relation } = JSON.parse(body);
         if (!source || !text) throw new Error("source and text required");
         // If a member name is given, ensure the doc is attributable on the
         // dashboard (it parses "Patient: <name>").
         let body2 = String(text).slice(0, 50_000);
         if (member && !/Patient:/i.test(body2)) body2 = `Patient: ${String(member).slice(0, 40)}\n${body2}`;
+        if (relation === "self" && !/Relation:/i.test(body2)) body2 = `Relation: self\n${body2}`;
         const safe = String(source).slice(0, 80).replace(/[^a-z0-9._-]+/gi, "-");
         // Persist to data/records so the dashboard + chat both see it (real-time).
         mkdirSync("data/records", { recursive: true });
