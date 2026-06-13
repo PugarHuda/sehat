@@ -12,11 +12,12 @@ import { startQVACProvider, loadModel, transcribe, PARAKEET_CTC_0_6B_Q8_0 } from
 import { SehatEngine } from "./engine.js";
 import { SehatAgent } from "./agent.js";
 import { Translator } from "./translator.js";
+import { loadFamily, computeAlerts } from "./health-data.js";
 
 const PORT = Number(process.env.PORT ?? 8787);
 const engine = new SehatEngine();
 
-console.log("Starting Sehat engine (MedGemma 4B GPU + EmbeddingGemma)...");
+console.log("Starting Sehat engine (QVAC MedPsy-4B GPU + EmbeddingGemma)...");
 await engine.start();
 
 // Seed the workspace from the sample docs if it's empty (first run).
@@ -167,6 +168,37 @@ async function handler(req, res) {
         try { unlinkSync(tmp); } catch {}
       }
     });
+    return;
+  }
+
+  if (req.method === "GET" && url.pathname === "/api/family") {
+    const members = loadFamily();
+    res.writeHead(200, { "content-type": "application/json" });
+    return res.end(JSON.stringify(members));
+  }
+
+  if (req.method === "GET" && url.pathname === "/api/alerts") {
+    res.writeHead(200, { "content-type": "text/event-stream", "cache-control": "no-cache", connection: "keep-alive" });
+    const send = (event, data) => res.write(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`);
+    queue = queue
+      .then(async () => {
+        const members = loadFamily();
+        const alerts = computeAlerts(members);
+        send("alerts", alerts); // deterministic, instant — UI renders cards/sparklines now
+        if (alerts.length === 0) { send("briefing", "No alerts — all tracked vitals are within range. 🎉"); return; }
+        // Proactive agent step: MedPsy writes a short plain-language briefing.
+        const summary = alerts
+          .map((a) => `${a.member}: ${a.metric} ${a.value}${a.unit} (${a.severity}${a.rising ? ", rising" : ""})`)
+          .join("; ");
+        const prompt =
+          `You are Sehat, proactively reviewing a family's health records (education only, not diagnosis). ` +
+          `These flags were detected: ${summary}. Write a calm 2-3 sentence briefing for the family: ` +
+          `what stands out, and one gentle, general next step. Do not diagnose; suggest seeing a doctor where appropriate.`;
+        const answer = await engine.complete(prompt);
+        send("briefing", answer.trim());
+      })
+      .catch((err) => send("error", String(err?.message ?? err)))
+      .finally(() => res.end());
     return;
   }
 

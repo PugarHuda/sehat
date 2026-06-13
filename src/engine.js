@@ -178,6 +178,28 @@ export class SehatEngine {
     return { answer, hits, stats: { searchMs, ttftMs, durationMs, tokenCount } };
   }
 
+  // Plain completion (no RAG) with the same thinking-strip safety. Used by the
+  // proactive alerts briefing, which already carries its own context.
+  async complete(userContent) {
+    const result = completion({
+      modelId: this.llmId,
+      history: [
+        { role: "system", content: SYSTEM_PROMPT },
+        { role: "user", content: userContent },
+      ],
+      stream: true,
+    });
+    let raw = "";
+    for await (const token of result.tokenStream) raw += token;
+    const answer = raw
+      .replace(/<think>[\s\S]*?<\/think>/gi, "")
+      .replace(/^[\s\S]*?<\/think>/i, "")
+      .replace(/<\/?think>/gi, "")
+      .trim();
+    this.log.inference({ modelId: this.llmId, task: "proactive-briefing", prompt: userContent.slice(0, 120), completionTokens: raw.length >> 2, ttftMs: null, durationMs: null });
+    return answer;
+  }
+
   async stop() {
     if (this.llmId) {
       await unloadModel({ modelId: this.llmId });

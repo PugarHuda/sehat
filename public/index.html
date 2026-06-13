@@ -3,276 +3,288 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<meta name="theme-color" content="#16201b" />
+<meta name="theme-color" content="#0b1117" />
 <link rel="manifest" href="/manifest.json" />
 <link rel="icon" href="/icon-192.png" />
 <link rel="apple-touch-icon" href="/icon-192.png" />
 <title>Sehat — Family Health, On-Device</title>
 <style>
   :root {
-    --bg: #0e1512; --panel: #16201b; --panel2: #1d2a23;
-    --text: #e8f3ec; --dim: #8aa496; --accent: #34d399; --accent2: #0ea5e9;
+    --bg: #0b1117; --bg2: #0e151d; --surface: #131c26; --surface2: #1a2735;
+    --line: #21313f; --text: #e8f1f8; --dim: #8aa0b2;
+    --teal: #2dd4bf; --emerald: #34d399; --sky: #38bdf8;
+    --amber: #f6b73c; --red: #f87171;
+    --grad: linear-gradient(135deg, #0f766e 0%, #0ea5e9 120%);
+    --radius: 16px;
   }
-  * { box-sizing: border-box; margin: 0; }
+  * { box-sizing: border-box; margin: 0; -webkit-tap-highlight-color: transparent; }
   body {
-    background: var(--bg); color: var(--text);
-    font: 16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-    display: flex; flex-direction: column; height: 100dvh;
+    background: radial-gradient(1200px 600px at 80% -10%, #11212e 0%, var(--bg) 55%);
+    color: var(--text); height: 100dvh; display: flex; flex-direction: column;
+    font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    font-feature-settings: "cv02","cv03","cv04","ss01";
   }
   header {
-    padding: 12px 16px; background: var(--panel);
-    display: flex; align-items: center; gap: 10px;
-    border-bottom: 1px solid #243329;
+    padding: 14px 16px; display: flex; align-items: center; gap: 11px;
+    background: linear-gradient(180deg, rgba(19,28,38,.95), rgba(11,17,23,.6));
+    backdrop-filter: blur(8px); border-bottom: 1px solid var(--line);
   }
-  header .logo { font-size: 22px; }
-  header h1 { font-size: 17px; font-weight: 700; }
-  header .badge {
-    margin-left: auto; font-size: 11px; font-weight: 600;
-    color: #052e1c; background: var(--accent);
-    padding: 3px 8px; border-radius: 999px; white-space: nowrap;
-  }
-  #chat { flex: 1; overflow-y: auto; padding: 14px; display: flex; flex-direction: column; gap: 10px; }
-  .msg { max-width: 88%; padding: 10px 13px; border-radius: 14px; white-space: pre-wrap; word-wrap: break-word; }
-  .user { align-self: flex-end; background: var(--accent2); color: #04222e; border-bottom-right-radius: 4px; }
-  .bot  { align-self: flex-start; background: var(--panel2); border-bottom-left-radius: 4px; }
+  .mark { width: 34px; height: 34px; border-radius: 10px; background: var(--grad);
+    display: grid; place-items: center; font-weight: 800; color: #042f2a; font-size: 15px;
+    box-shadow: 0 4px 14px rgba(45,212,191,.3); }
+  header h1 { font-size: 16px; font-weight: 700; letter-spacing: -.2px; }
+  header .sub { font-size: 11px; color: var(--dim); margin-top: -2px; }
+  header .badge { margin-left: auto; font-size: 10.5px; font-weight: 600; color: #052e1c;
+    background: var(--emerald); padding: 4px 9px; border-radius: 999px; white-space: nowrap; }
+
+  nav { display: flex; gap: 4px; padding: 8px 12px 0; background: var(--bg); }
+  nav button { flex: 1; padding: 9px; border: 0; background: transparent; color: var(--dim);
+    font-size: 13px; font-weight: 600; border-radius: 10px 10px 0 0; cursor: pointer; }
+  nav button.on { color: var(--text); background: var(--surface); box-shadow: inset 0 -2px 0 var(--teal); }
+
+  main { flex: 1; overflow-y: auto; background: var(--bg); }
+  .view { display: none; }
+  .view.on { display: block; }
+
+  /* chat */
+  #chat { padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+  .msg { max-width: 88%; padding: 11px 14px; border-radius: 16px; white-space: pre-wrap; word-wrap: break-word; font-size: 14.5px; line-height: 1.5; }
+  .user { align-self: flex-end; background: var(--grad); color: #04222e; font-weight: 500; border-bottom-right-radius: 5px; }
+  .bot { align-self: flex-start; background: var(--surface2); border: 1px solid var(--line); border-bottom-left-radius: 5px; }
   .meta { align-self: flex-start; font-size: 11px; color: var(--dim); padding: 0 6px; }
-  .src  { color: var(--accent); }
-  form {
-    display: flex; gap: 8px; padding: 10px 12px calc(10px + env(safe-area-inset-bottom));
-    background: var(--panel); border-top: 1px solid #243329;
-  }
-  input {
-    flex: 1; padding: 12px 14px; border-radius: 12px; border: 1px solid #2c3f33;
-    background: var(--bg); color: var(--text); font-size: 16px; outline: none;
-  }
-  input:focus { border-color: var(--accent); }
-  button {
-    padding: 0 18px; border: 0; border-radius: 12px; font-size: 16px; font-weight: 700;
-    background: var(--accent); color: #052e1c;
-  }
-  button:disabled { opacity: 0.5; }
-  .hint { color: var(--dim); font-size: 13px; text-align: center; padding: 18px 24px; }
+  .src { color: var(--teal); }
+  .hint { color: var(--dim); font-size: 13.5px; text-align: center; padding: 26px 26px; line-height: 1.6; }
   .hint b { color: var(--text); }
-  .lang { margin-left: auto; font-size: 13px; color: var(--dim); display: flex; align-items: center; gap: 3px; }
-  .lang + .lang, .lang + .iconbtn, .iconbtn + .iconbtn { margin-left: 4px; }
-  .lang input { accent-color: var(--accent); }
-  header .badge { margin-left: 6px; }
-  .iconbtn { background: var(--panel2); color: var(--text); padding: 4px 8px; font-size: 13px; border-radius: 8px; }
-  #mic.rec { background: #ef4444; color: #fff; }
-  #docs { padding: 10px 14px; background: var(--panel2); display: flex; flex-direction: column; gap: 8px; }
-  #docs input, #docs textarea {
-    width: 100%; padding: 8px 10px; border-radius: 8px; border: 1px solid #2c3f33;
-    background: var(--bg); color: var(--text); font-size: 14px;
-  }
-  #docs button { padding: 8px; border-radius: 8px; }
-  #docMsg { font-size: 12px; color: var(--accent); }
-  .tool { align-self: flex-start; font-size: 12px; color: var(--accent2); padding: 0 6px; font-family: monospace; }
+
+  form { display: flex; gap: 8px; padding: 10px 12px calc(10px + env(safe-area-inset-bottom)); background: var(--surface); border-top: 1px solid var(--line); }
+  input, textarea { font-family: inherit; }
+  #q { flex: 1; padding: 12px 15px; border-radius: 13px; border: 1px solid var(--line); background: var(--bg2); color: var(--text); font-size: 16px; outline: none; }
+  #q:focus { border-color: var(--teal); }
+  .iconbtn { background: var(--surface2); color: var(--text); border: 1px solid var(--line); padding: 0 13px; font-size: 16px; border-radius: 13px; cursor: pointer; }
+  #send { background: var(--grad); color: #042f2a; border: 0; padding: 0 17px; font-weight: 800; border-radius: 13px; }
+  #mic.rec { background: var(--red); color: #fff; }
+  .toggles { display: flex; gap: 14px; padding: 6px 14px 0; }
+  .toggles label { font-size: 12.5px; color: var(--dim); display: flex; align-items: center; gap: 5px; }
+  .toggles input { accent-color: var(--teal); }
+
+  /* cards */
+  .grid { padding: 14px; display: grid; gap: 12px; }
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 15px; }
+  .card h3 { font-size: 15px; display: flex; align-items: center; gap: 8px; }
+  .avatar { width: 30px; height: 30px; border-radius: 9px; background: var(--surface2); display: grid; place-items: center; font-size: 14px; }
+  .vital { display: flex; align-items: center; gap: 10px; margin-top: 11px; }
+  .vital .lbl { font-size: 12px; color: var(--dim); width: 96px; flex-shrink: 0; }
+  .vital .val { font-size: 14px; font-weight: 700; width: 74px; flex-shrink: 0; }
+  .spark { flex: 1; height: 26px; }
+  .pill { font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 999px; }
+  .pill.warn { background: rgba(246,183,60,.16); color: var(--amber); }
+  .pill.high { background: rgba(248,113,113,.16); color: var(--red); }
+  .pill.ok { background: rgba(52,211,153,.14); color: var(--emerald); }
+  .meds { margin-top: 11px; font-size: 12px; color: var(--dim); }
+  .meds span { display: inline-block; background: var(--surface2); border: 1px solid var(--line); border-radius: 8px; padding: 3px 8px; margin: 3px 4px 0 0; color: var(--text); }
+
+  /* alerts */
+  .briefing { background: linear-gradient(135deg, rgba(45,212,191,.10), rgba(14,165,233,.06)); border: 1px solid var(--line); border-left: 3px solid var(--teal); border-radius: 12px; padding: 14px; font-size: 14px; line-height: 1.55; margin: 14px 14px 4px; }
+  .briefing .h { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--teal); font-weight: 700; margin-bottom: 6px; }
+  .alert { display: flex; gap: 12px; align-items: center; }
+  .alert .ic { width: 38px; height: 38px; border-radius: 11px; display: grid; place-items: center; font-size: 18px; flex-shrink: 0; }
+  .alert.warn .ic { background: rgba(246,183,60,.16); }
+  .alert.high .ic { background: rgba(248,113,113,.16); }
+  .alert .t { font-size: 14px; font-weight: 600; }
+  .alert .d { font-size: 12px; color: var(--dim); margin-top: 2px; }
+  .loading { color: var(--dim); font-size: 13px; padding: 18px; text-align: center; }
+  .docpanel { margin: 14px; }
+  .docpanel input, .docpanel textarea { width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--bg2); color: var(--text); font-size: 14px; margin-bottom: 8px; }
+  .docpanel button { width: 100%; padding: 11px; border: 0; border-radius: 10px; background: var(--grad); color: #042f2a; font-weight: 700; }
+  #docMsg { font-size: 12px; color: var(--teal); margin-top: 6px; }
 </style>
 </head>
 <body>
 <header>
-  <span class="logo">🏠🩺</span>
-  <h1>Sehat</h1>
-  <label class="lang"><input type="checkbox" id="langId" /> 🇮🇩</label>
-  <label class="lang" title="Agent mode: multi-step tool calling"><input type="checkbox" id="agentMode" /> 🤖</label>
-  <button id="docsBtn" class="iconbtn" title="Add a document">📄+</button>
-  <button id="clearBtn" class="iconbtn" title="Clear chat">🗑</button>
-  <span class="badge">on-device</span>
+  <div class="mark">S</div>
+  <div>
+    <h1>Sehat</h1>
+    <div class="sub">Family health · on-device</div>
+  </div>
+  <span class="badge">100% local · no cloud</span>
 </header>
 
-<div id="docs" hidden>
+<nav>
+  <button class="on" data-view="chatView">💬 Chat</button>
+  <button data-view="dashView">📊 Dashboard</button>
+  <button data-view="alertView">🔔 Alerts</button>
+</nav>
+
+<main>
+  <!-- CHAT -->
+  <section id="chatView" class="view on">
+    <div id="chat">
+      <div class="hint">
+        Ask about your family's health records.<br />
+        Answers come from <b>QVAC MedPsy running on the family PC</b> —
+        nothing leaves your home network.<br /><br />
+        Try: <b>"How has Budi's blood sugar changed over his last tests?"</b>
+      </div>
+    </div>
+  </section>
+
+  <!-- DASHBOARD -->
+  <section id="dashView" class="view">
+    <div id="dash" class="grid"><div class="loading">Loading family dashboard…</div></div>
+  </section>
+
+  <!-- ALERTS -->
+  <section id="alertView" class="view">
+    <div id="briefingBox"></div>
+    <div id="alerts" class="grid"></div>
+  </section>
+</main>
+
+<div class="toggles" id="chatToggles">
+  <label><input type="checkbox" id="langId" /> 🇮🇩 Bahasa</label>
+  <label><input type="checkbox" id="agentMode" /> 🤖 Agent</label>
+  <button class="iconbtn" id="docsBtn" style="margin-left:auto;font-size:13px;padding:4px 10px">📄 Add</button>
+</div>
+<div class="docpanel" id="docs" hidden>
   <input id="docName" placeholder="Document name, e.g. lab-budi-2026-09.txt" />
-  <textarea id="docText" rows="5" placeholder="Paste the document text here…"></textarea>
+  <textarea id="docText" rows="4" placeholder="Paste the document text…"></textarea>
   <button id="docSave">Save to family records</button>
   <div id="docMsg"></div>
 </div>
 
-<div id="chat">
-  <div class="hint">
-    Ask about your family's health records.<br />
-    Answers come from <b>MedGemma running on the family PC</b> —
-    nothing ever leaves your home network.<br /><br />
-    Try: <b>"How has Budi's blood sugar changed over his last tests?"</b>
-  </div>
-</div>
-
 <form id="f">
-  <input id="q" placeholder="Ask about the family's health records…" autocomplete="off" />
-  <button type="button" id="mic" title="Hold to talk">🎙️</button>
+  <input id="q" placeholder="Ask about the family's health…" autocomplete="off" />
+  <button type="button" id="mic" class="iconbtn" title="Hold to talk">🎙️</button>
   <button id="send">➤</button>
 </form>
 
 <script>
-  const chat = document.getElementById("chat");
-  const form = document.getElementById("f");
-  const input = document.getElementById("q");
-  const send = document.getElementById("send");
+  const $ = (id) => document.getElementById(id);
+  const chat = $("chat"), form = $("f"), input = $("q"), send = $("send");
 
-  // --- persistent chat history (stays on THIS device only) -----------------
+  // ---- tab nav ----
+  const footer = form, toggles = $("chatToggles");
+  document.querySelectorAll("nav button").forEach((b) => {
+    b.onclick = () => {
+      document.querySelectorAll("nav button").forEach((x) => x.classList.toggle("on", x === b));
+      document.querySelectorAll(".view").forEach((v) => v.classList.toggle("on", v.id === b.dataset.view));
+      const isChat = b.dataset.view === "chatView";
+      footer.style.display = isChat ? "flex" : "none";
+      toggles.style.display = isChat ? "flex" : "none";
+      if (b.dataset.view === "dashView") loadDash();
+      if (b.dataset.view === "alertView") loadAlerts();
+    };
+  });
+
+  // ---- sparkline ----
+  function sparkline(values, w = 150, h = 26) {
+    if (!values || values.length < 2) return `<svg class="spark" viewBox="0 0 ${w} ${h}"></svg>`;
+    const min = Math.min(...values), max = Math.max(...values), rng = max - min || 1;
+    const pts = values.map((v, i) => `${(i / (values.length - 1)) * w},${h - 4 - ((v - min) / rng) * (h - 8)}`);
+    const up = values[values.length - 1] >= values[0];
+    const col = up ? "#f6b73c" : "#34d399";
+    return `<svg class="spark" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none">
+      <polyline points="${pts.join(" ")}" fill="none" stroke="${col}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="${pts[pts.length-1].split(",")[0]}" cy="${pts[pts.length-1].split(",")[1]}" r="2.6" fill="${col}"/>
+    </svg>`;
+  }
+  const VLABEL = { glucose: "Glucose", hba1c: "HbA1c", ldl: "LDL", chol: "Cholesterol", sys: "Systolic BP" };
+  const EMO = { Budi: "👨", Sari: "👩", Rina: "🧒", Agus: "👴", Dewi: "👵" };
+
+  async function loadDash() {
+    const el = $("dash");
+    el.innerHTML = '<div class="loading">Loading family dashboard…</div>';
+    try {
+      const fam = await (await fetch("/api/family")).json();
+      el.innerHTML = "";
+      for (const m of Object.values(fam)) {
+        const vitals = Object.entries(m.series).map(([k, s]) => {
+          const last = s[s.length - 1].value;
+          return `<div class="vital"><span class="lbl">${VLABEL[k] || k}</span>
+            <span class="val">${last}</span>${sparkline(s.map((p) => p.value))}</div>`;
+        }).join("");
+        const meds = m.meds.length ? `<div class="meds">💊 ${m.meds.map((x) => `<span>${x}</span>`).join("")}</div>` : "";
+        el.insertAdjacentHTML("beforeend", `<div class="card">
+          <h3><span class="avatar">${EMO[m.name] || "🙂"}</span>${m.name}
+            <span class="pill ok" style="margin-left:auto">${m.docs} docs</span></h3>
+          ${vitals || '<div class="meds">No numeric vitals on record.</div>'}${meds}</div>`);
+      }
+    } catch (e) { el.innerHTML = `<div class="loading">⚠️ ${e.message}</div>`; }
+  }
+
+  function loadAlerts() {
+    const box = $("briefingBox"), list = $("alerts");
+    box.innerHTML = '<div class="briefing"><div class="h">🔔 Proactive briefing</div><span class="loading">MedPsy is reviewing the records…</span></div>';
+    list.innerHTML = "";
+    const es = new EventSource("/api/alerts");
+    es.addEventListener("alerts", (ev) => {
+      const alerts = JSON.parse(ev.data);
+      if (!alerts.length) { list.innerHTML = '<div class="card"><div class="alert ok"><div class="ic">✅</div><div><div class="t">All clear</div><div class="d">Every tracked vital is within range.</div></div></div></div>'; return; }
+      list.innerHTML = alerts.map((a) => `<div class="card"><div class="alert ${a.severity}">
+        <div class="ic">${a.severity === "high" ? "🚨" : "⚠️"}</div>
+        <div style="flex:1">
+          <div class="t">${a.member}: ${a.metric} ${a.value}${a.unit}
+            <span class="pill ${a.severity}">${a.severity}</span></div>
+          <div class="d">${a.rising ? "▲ rising " : ""}${a.trend != null ? `(${a.trend > 0 ? "+" : ""}${a.trend.toFixed(1)} vs previous) ` : ""}· ${a.date}</div>
+        </div>
+        ${sparkline(a.series, 90, 30)}
+      </div></div>`).join("");
+    });
+    es.addEventListener("briefing", (ev) => {
+      box.innerHTML = `<div class="briefing"><div class="h">🔔 Proactive briefing · MedPsy</div>${JSON.parse(ev.data)}</div>`;
+      es.close();
+    });
+    es.addEventListener("error", () => { box.innerHTML = '<div class="briefing">⚠️ Could not load alerts.</div>'; es.close(); });
+  }
+
+  // ---- chat history ----
   const history = JSON.parse(localStorage.getItem("sehat-history") || "[]");
-  function persist(cls, text) {
-    history.push({ cls, text });
-    while (history.length > 200) history.shift();
-    localStorage.setItem("sehat-history", JSON.stringify(history));
-  }
+  function persist(cls, text) { history.push({ cls, text }); while (history.length > 200) history.shift(); localStorage.setItem("sehat-history", JSON.stringify(history)); }
+  function add(cls, text, opt = {}) { const d = document.createElement("div"); d.className = "msg " + cls; d.textContent = text; chat.appendChild(d); chat.scrollTop = chat.scrollHeight; if (opt.save !== false) persist(cls, text); return d; }
+  function addMeta(html, opt = {}) { const d = document.createElement("div"); d.className = "meta"; d.innerHTML = html; chat.appendChild(d); chat.scrollTop = chat.scrollHeight; if (opt.save !== false) persist("__meta", html); }
+  for (const m of history) { if (m.cls === "__meta") addMeta(m.text, { save: false }); else add(m.cls, m.text, { save: false }); }
 
-  function add(cls, text, { save = true } = {}) {
-    const d = document.createElement("div");
-    d.className = "msg " + cls;
-    d.textContent = text;
-    chat.appendChild(d);
-    chat.scrollTop = chat.scrollHeight;
-    if (save) persist(cls, text);
-    return d;
-  }
-  function addMeta(html, { save = true } = {}) {
-    const d = document.createElement("div");
-    d.className = "meta";
-    d.innerHTML = html;
-    chat.appendChild(d);
-    chat.scrollTop = chat.scrollHeight;
-    if (save) persist("__meta", html);
-  }
-
-  // restore previous session
-  for (const m of history) {
-    if (m.cls === "__meta") addMeta(m.text, { save: false });
-    else add(m.cls, m.text, { save: false });
-  }
-
-  document.getElementById("clearBtn").onclick = () => {
-    localStorage.removeItem("sehat-history");
-    location.reload();
-  };
-
-  // --- document ingest panel ------------------------------------------------
-  const docs = document.getElementById("docs");
-  document.getElementById("docsBtn").onclick = () => (docs.hidden = !docs.hidden);
-  document.getElementById("docSave").onclick = async () => {
-    const source = document.getElementById("docName").value.trim();
-    const text = document.getElementById("docText").value.trim();
-    const msg = document.getElementById("docMsg");
+  $("docsBtn").onclick = () => ($("docs").hidden = !$("docs").hidden);
+  $("docSave").onclick = async () => {
+    const source = $("docName").value.trim(), text = $("docText").value.trim(), msg = $("docMsg");
     if (!source || !text) { msg.textContent = "Name and text are required."; return; }
     msg.textContent = "Indexing on the family PC…";
-    try {
-      const r = await fetch("/api/ingest", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ source, text }),
-      });
-      const j = await r.json();
-      msg.textContent = j.ok ? "✅ Saved — you can ask about it now." : "⚠️ " + j.error;
-      if (j.ok) { document.getElementById("docText").value = ""; }
+    try { const j = await (await fetch("/api/ingest", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ source, text }) })).json();
+      msg.textContent = j.ok ? "✅ Saved — ask about it now." : "⚠️ " + j.error; if (j.ok) $("docText").value = "";
     } catch (e) { msg.textContent = "⚠️ " + e.message; }
   };
-
   if ("serviceWorker" in navigator) navigator.serviceWorker.register("/sw.js").catch(() => {});
 
   form.addEventListener("submit", (e) => {
     e.preventDefault();
-    const question = input.value.trim();
-    if (!question) return;
-    input.value = "";
-    send.disabled = true;
-    add("user", question);
-    const bot = add("bot", "…", { save: false });
-    let text = "";
-    const t0 = performance.now();
-
-    const lang = document.getElementById("langId").checked ? "&lang=id" : "";
-    const mode = document.getElementById("agentMode").checked ? "&mode=agent" : "";
+    const question = input.value.trim(); if (!question) return;
+    input.value = ""; send.disabled = true;
+    add("user", question); const bot = add("bot", "…", { save: false });
+    let text = ""; const t0 = performance.now();
+    const lang = $("langId").checked ? "&lang=id" : "";
+    const mode = $("agentMode").checked ? "&mode=agent" : "";
     const es = new EventSource("/api/ask?q=" + encodeURIComponent(question) + lang + mode);
-    es.addEventListener("token", (ev) => {
-      text += JSON.parse(ev.data);
-      bot.textContent = text;
-      chat.scrollTop = chat.scrollHeight;
-    });
+    es.addEventListener("token", (ev) => { text += JSON.parse(ev.data); bot.textContent = text; chat.scrollTop = chat.scrollHeight; });
     es.addEventListener("done", (ev) => {
-      const { stats, sources } = JSON.parse(ev.data);
-      persist("bot", text);
+      const { stats, sources } = JSON.parse(ev.data); persist("bot", text);
       const secs = ((performance.now() - t0) / 1000).toFixed(1);
-      const tps = stats.durationMs && stats.ttftMs !== null
-        ? (stats.tokenCount / (stats.durationMs / 1000)).toFixed(1) : null;
-      addMeta(
-        (stats.ttftMs !== null ? `⚡ TTFT ${stats.ttftMs} ms · ${tps} tok/s · ` : `🤖 agent · `) +
-        `${secs}s total` +
-        (sources.length ? ` · 📄 <span class="src">${sources.join(", ")}</span>` : "")
-      );
-      es.close();
-      send.disabled = false;
-      input.focus();
+      const tps = stats.durationMs && stats.ttftMs !== null ? (stats.tokenCount / (stats.durationMs / 1000)).toFixed(1) : null;
+      addMeta((stats.ttftMs !== null ? `⚡ TTFT ${stats.ttftMs} ms · ${tps} tok/s · ` : `🤖 agent · `) + `${secs}s` + (sources.length ? ` · 📄 <span class="src">${sources.join(", ")}</span>` : ""));
+      es.close(); send.disabled = false; input.focus();
     });
-    es.addEventListener("error", () => {
-      if (text === "") bot.textContent = "⚠️ Connection error — is the Sehat server running?";
-      es.close();
-      send.disabled = false;
-    });
+    es.addEventListener("error", () => { if (text === "") bot.textContent = "⚠️ Connection error — is the Sehat server running?"; es.close(); send.disabled = false; });
   });
 
-  // --- Voice input: record 16 kHz mono PCM in-browser, send as WAV ---------
-  const mic = document.getElementById("mic");
-  let recording = null;
-
-  function encodeWav(float32, rate) {
-    const n = float32.length;
-    const buf = new ArrayBuffer(44 + n * 2);
-    const v = new DataView(buf);
-    const s = (o, str) => { for (let i = 0; i < str.length; i++) v.setUint8(o + i, str.charCodeAt(i)); };
-    s(0, "RIFF"); v.setUint32(4, 36 + n * 2, true); s(8, "WAVE"); s(12, "fmt ");
-    v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 1, true);
-    v.setUint32(24, rate, true); v.setUint32(28, rate * 2, true);
-    v.setUint16(32, 2, true); v.setUint16(34, 16, true); s(36, "data");
-    v.setUint32(40, n * 2, true);
-    for (let i = 0; i < n; i++) {
-      const x = Math.max(-1, Math.min(1, float32[i]));
-      v.setInt16(44 + i * 2, x < 0 ? x * 0x8000 : x * 0x7fff, true);
-    }
-    return new Blob([buf], { type: "audio/wav" });
-  }
-
-  async function startRec() {
-    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-    const ctx = new AudioContext({ sampleRate: 16000 });
-    const src = ctx.createMediaStreamSource(stream);
-    const proc = ctx.createScriptProcessor(4096, 1, 1);
-    const parts = [];
-    proc.onaudioprocess = (e) => parts.push(new Float32Array(e.inputBuffer.getChannelData(0)));
-    src.connect(proc); proc.connect(ctx.destination);
-    mic.classList.add("rec"); mic.textContent = "⏹";
-    recording = { stream, ctx, proc, parts };
-  }
-
-  async function stopRec() {
-    const { stream, ctx, proc, parts } = recording;
-    recording = null;
-    proc.disconnect(); stream.getTracks().forEach((t) => t.stop());
-    const rate = ctx.sampleRate; await ctx.close();
-    mic.classList.remove("rec"); mic.textContent = "🎙️";
-    const total = parts.reduce((s, p) => s + p.length, 0);
-    const all = new Float32Array(total);
-    let off = 0; for (const p of parts) { all.set(p, off); off += p.length; }
-    input.placeholder = "Transcribing…";
-    try {
-      const r = await fetch("/api/voice", { method: "POST", body: encodeWav(all, rate) });
-      const { text, error } = await r.json();
-      if (error) throw new Error(error);
-      input.value = text;
-      if (text) form.requestSubmit();
-    } catch (err) {
-      add("bot", "⚠️ Voice failed: " + err.message);
-    } finally {
-      input.placeholder = "Ask about the family's health records…";
-    }
-  }
-
-  mic.addEventListener("click", async () => {
-    try {
-      if (recording) await stopRec();
-      else await startRec();
-    } catch (err) {
-      add("bot", "⚠️ Mic unavailable: " + err.message + " (HTTPS required on phones)");
-    }
-  });
+  // ---- mic ----
+  const mic = $("mic"); let rec = null;
+  function encodeWav(f32, rate) { const n = f32.length, buf = new ArrayBuffer(44 + n * 2), v = new DataView(buf); const s = (o, t) => { for (let i = 0; i < t.length; i++) v.setUint8(o + i, t.charCodeAt(i)); };
+    s(0, "RIFF"); v.setUint32(4, 36 + n * 2, true); s(8, "WAVE"); s(12, "fmt "); v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 1, true); v.setUint32(24, rate, true); v.setUint32(28, rate * 2, true); v.setUint16(32, 2, true); v.setUint16(34, 16, true); s(36, "data"); v.setUint32(40, n * 2, true);
+    for (let i = 0; i < n; i++) { const x = Math.max(-1, Math.min(1, f32[i])); v.setInt16(44 + i * 2, x < 0 ? x * 0x8000 : x * 0x7fff, true); } return new Blob([buf], { type: "audio/wav" }); }
+  async function startRec() { const stream = await navigator.mediaDevices.getUserMedia({ audio: true }); const ctx = new AudioContext({ sampleRate: 16000 }); const srcN = ctx.createMediaStreamSource(stream); const proc = ctx.createScriptProcessor(4096, 1, 1); const parts = []; proc.onaudioprocess = (e) => parts.push(new Float32Array(e.inputBuffer.getChannelData(0))); srcN.connect(proc); proc.connect(ctx.destination); mic.classList.add("rec"); mic.textContent = "⏹"; rec = { stream, ctx, proc, parts }; }
+  async function stopRec() { const { stream, ctx, proc, parts } = rec; rec = null; proc.disconnect(); stream.getTracks().forEach((t) => t.stop()); const rate = ctx.sampleRate; await ctx.close(); mic.classList.remove("rec"); mic.textContent = "🎙️";
+    const total = parts.reduce((s, p) => s + p.length, 0); const all = new Float32Array(total); let off = 0; for (const p of parts) { all.set(p, off); off += p.length; }
+    input.placeholder = "Transcribing…"; try { const { text, error } = await (await fetch("/api/voice", { method: "POST", body: encodeWav(all, rate) })).json(); if (error) throw new Error(error); input.value = text; if (text) form.requestSubmit(); } catch (e) { add("bot", "⚠️ Voice failed: " + e.message); } finally { input.placeholder = "Ask about the family's health…"; } }
+  mic.addEventListener("click", async () => { try { if (rec) await stopRec(); else await startRec(); } catch (e) { add("bot", "⚠️ Mic needs HTTPS: " + e.message); } });
 </script>
 </body>
 </html>

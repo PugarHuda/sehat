@@ -1,5 +1,22 @@
 # #teamSehat — Build in Public post bank
 
+## ⚡ SHORT daily posts (use these — under 280 chars, punchy)
+
+**MedPsy swap:**
+> Swapped Sehat's brain to @QVAC's own MedPsy-4B: 16× faster first-token vs Google's MedGemma on my GTX 1660 Super. Same GPU, same prompt. 100% local. 🩺 #teamSehat
+
+**Genesis fine-tune:**
+> Fine-tuned a model on @QVAC's own Genesis medical dataset with Fabric — on a gaming GPU, loss 4.4→1.5 in minutes. Their model, their data, zero cloud. #teamSehat
+
+**Proactive alerts:**
+> Sehat now reads the family's records and warns you *before* you ask: "Budi's glucose is rising across 2 tests." Proactive on-device health AI. @QVAC #teamSehat
+
+**Dashboard/UX:**
+> New Sehat dashboard 📊 — every family member's vitals + trend sparklines, all rendered from records that never leave the house. Built on @QVAC. #teamSehat
+
+**Offline flex:**
+> Pulled the ethernet cable and Sehat keeps answering health questions, by voice, in 2 languages. That's the whole point of @QVAC edge AI. #teamSehat
+
 ## ✨ DAILY UPDATE — post TODAY (attach: the medpsy-vs-medgemma table or a terminal shot)
 
 > #teamSehat day 3 @QVAC hackathon — we swapped our brain to Tether's own
