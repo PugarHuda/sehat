@@ -1,84 +1,84 @@
-# #teamSehat — 10-post build-in-public series (post 1/day, tag @QVAC)
+# #teamSehat — build-in-public posts (post whenever there's an update)
 
-All under 280 chars. Attach the suggested media. Repo: github.com/PugarHuda/sehat
-
----
-
-**1 — Join announcement**
-> We're in! 🚀 Building Sehat for the @QVAC hackathon — a private family health
-> assistant that runs 100% on one home PC. No cloud, no accounts, records never
-> leave the house. Edge AI for the people who matter most. #teamSehat
-_(media: photo of your PC + phone)_
+No day numbers — just post one when something ships. All under 280 chars.
+Tag @QVAC, use #teamSehat. Repo: github.com/PugarHuda/sehat
 
 ---
 
-**2 — First inference working**
-> Day 1 win 🎉 Got @QVAC SDK running on a 4-year-old GTX 1660 Super.
-> 127 tok/s, first token in 116 ms — fully on-device. If a budget gaming GPU can
-> do this, local AI really is for everyone. #teamSehat
-_(media: terminal with the tok/s numbers)_
+**Join announcement** (post first)
+> We're building Sehat for the @QVAC hackathon 🩺 — a private family health
+> assistant that runs 100% on one home PC. No cloud, no accounts, health records
+> never leave the house. Edge AI for the people who matter most. #teamSehat
+_(media: your PC + phone)_
 
 ---
 
-**3 — RAG over family docs**
-> Sehat can now read our family's lab reports and answer questions with citations:
-> "How has Dad's blood sugar changed?" → pulls 4 visits, shows the trend. All
-> local via @QVAC. #teamSehat
-_(media: screen recording of a cited answer)_
+**On-device, on a budget GPU**
+> Sehat runs entirely on a 4-year-old GTX 1660 Super via the @QVAC SDK —
+> 127 tok/s, first token in ~120 ms, zero cloud. If a budget gaming GPU can do
+> this, local AI really is for everyone. #teamSehat
+_(media: terminal with tok/s)_
 
 ---
 
-**4 — Switched to MedPsy (the plot twist)**
-> Plot twist 🤯 We were using Google's MedGemma. Switched to @QVAC's own MedPsy-4B
-> and it's 16× faster first-token on the SAME GPU. Their model just wins on the
-> edge. #teamSehat
-_(media: the medpsy-vs-medgemma comparison table)_
+**MedPsy is the brain**
+> Sehat's brain is @QVAC's own MedPsy-4B running locally. On our GTX 1660 Super
+> it answers in ~340 ms first-token — ~16× faster than Google's MedGemma-4B on
+> the same prompt & GPU. Small model, big reasoning. #teamSehat
+_(media: the medpsy benchmark table)_
 
 ---
 
-**5 — Fine-tuning on QVAC Genesis**
-> Today we fine-tuned a model on @QVAC's own Genesis medical dataset with Fabric —
-> on a gaming GPU, loss 4.4→1.5 in minutes. Model + dataset + fine-tuning, the
-> whole stack, 100% local. #teamSehat
-_(media: the LoRA loss curve / terminal)_
+**RAG over family records**
+> Ask Sehat: "How has Dad's blood sugar changed?" → it reads our lab reports and
+> answers with citations across 4 visits, showing the trend. All on-device with
+> MedPsy + @QVAC RAG. #teamSehat
+_(media: a cited answer / dashboard sparkline)_
 
 ---
 
-**6 — Multi-agent + security**
-> Sehat got smarter AND safer 🛡️ An agent now plans steps (search → calculate →
-> consult MedPsy), and it refuses prompt-injection from poisoned documents.
-> Tested 22/22. Built on @QVAC. #teamSehat
-_(media: the agent tool-trace + injection PASS)_
+**Fine-tuned on QVAC Genesis**
+> We LoRA-fine-tuned a model on @QVAC's own Genesis medical dataset with Fabric —
+> on a gaming GPU, loss 4.4→1.5 in minutes. Their model, their data, their
+> fine-tuning, 100% local. #teamSehat
+_(media: LoRA loss curve)_
 
 ---
 
-**7 — Dashboard + proactive alerts**
+**Agents + safety**
+> Sehat got smarter and safer 🛡️ An on-device agent plans steps (search →
+> calculate → consult MedPsy), and it refuses prompt-injection from tampered
+> documents. Tested 22/22. Built on @QVAC. #teamSehat
+_(media: agent tool-trace + injection PASS)_
+
+---
+
+**Proactive alerts + dashboard**
 > Sehat doesn't wait to be asked. It scans the family's records and warns you:
-> "Budi's glucose is rising across 2 tests." Plus a clean dashboard with trend
-> charts — all on-device. @QVAC #teamSehat
-_(media: dashboard + alerts screenshot)_
+> "Budi's glucose is rising across his tests." Clean dashboard, trend charts,
+> spoken briefings — all on-device. @QVAC #teamSehat
+_(media: dashboard + alerts)_
 
 ---
 
-**8 — Auto-save + multi-user**
-> Just *tell* Sehat: "my glucose today is 95" and it saves a dated record. Invite
-> the whole family on your Wi-Fi — everyone chats in any language, data syncs to
-> the home PC live. Zero cloud. @QVAC #teamSehat
-_(media: phone showing the 📌 Saved chip)_
+**Just tell it — auto-save**
+> Say "my glucose today is 95, BP 118/76" and Sehat saves a dated record. Ask a
+> question instead? It won't save that. Invite the whole family on your Wi-Fi,
+> any language, synced live to the home PC. @QVAC #teamSehat
+_(media: phone with 📌 Saved chip)_
 
 ---
 
-**9 — Emergency QR + reminders**
+**Emergency QR + reminders + voice**
 > New in Sehat: an offline Emergency QR (allergies, meds, conditions — scannable
-> on the fridge), upcoming-care reminders, one-tap export, and spoken health
-> briefings. A real family health hub, on @QVAC. #teamSehat
-_(media: the Emergency QR on screen)_
+> on the fridge), upcoming-care reminders, one-tap export, and a hands-free voice
+> loop (talk → it answers out loud). On @QVAC. #teamSehat
+_(media: Emergency QR on screen)_
 
 ---
 
-**10 — Demo / wrap**
-> Sehat is done 🩺 9 AI models, fully on one GTX 1660 Super, zero cloud:
-> MedPsy + RAG + OCR + voice + vision + agents + fine-tuning + P2P.
-> Watch the 5-min demo 👇 Open source (Apache-2.0): github.com/PugarHuda/sehat
-> Built with @QVAC #teamSehat
-_(media: the YouTube demo video link)_
+**Demo / wrap**
+> Sehat 🩺 9 AI models on one GTX 1660 Super, zero cloud: MedPsy + RAG + OCR +
+> voice + vision + agents + Genesis fine-tuning + P2P. 5-min demo 👇
+> Open source (Apache-2.0): github.com/PugarHuda/sehat — built with @QVAC #teamSehat
+_(media: YouTube demo link)_
