@@ -5,6 +5,12 @@
 Built for **QVAC Hackathon I – Unleash Edge AI** (June 2026).
 Tracks: **General Purpose** + **Psy Models** · Build in Public: `#teamSehat`
 
+> **Powered by QVAC MedPsy-4B** — Tether's own edge medical model. We independently
+> reproduced its efficiency on a GTX 1660 Super: **16x faster TTFT and +34% throughput
+> vs Google's MedGemma-4B** on the same prompt (see
+> [`artifacts/medpsy-vs-medgemma.md`](artifacts/medpsy-vs-medgemma.md)). Run
+> `SEHAT_MODEL=medgemma npm start` to A/B it yourself.
+
 ## What it does
 
 Sehat turns a regular family desktop into a private health hub:
@@ -56,7 +62,8 @@ every model load and inference call is logged with prompt, token counts, TTFT, a
 
 | Role | Model |
 |---|---|
-| Medical reasoning (specialist agent) | `MEDGEMMA_4B_IT_Q4_1` (Psy Models track) |
+| Medical reasoning (primary brain) | **QVAC MedPsy-4B Q4_K_M** (Tether's Psy model, from HF) |
+| Medical reasoning (A/B fallback) | `MEDGEMMA_4B_IT_Q4_1` (Google, for comparison only) |
 | Orchestrator agent (tool calling) | `QWEN3_1_7B_INST_Q4` |
 | Embeddings / RAG | `EMBEDDINGGEMMA_300M_Q8_0` |
 | Speech-to-text | `PARAKEET_CTC_0_6B_Q8_0` |

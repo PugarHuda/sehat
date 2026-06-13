@@ -1,12 +1,8 @@
 // Desktop P2P provider node: loads MedGemma on the GPU and serves it to
 // peers (e.g. the phone client) via QVAC delegated inference.
 // Set QVAC_HYPERSWARM_SEED to get a stable public key across restarts.
-import {
-  loadModel,
-  startQVACProvider,
-  MEDGEMMA_4B_IT_Q4_1,
-  EMBEDDINGGEMMA_300M_Q8_0,
-} from "@qvac/sdk";
+import { loadModel, startQVACProvider, EMBEDDINGGEMMA_300M_Q8_0 } from "@qvac/sdk";
+import { MEDPSY_4B_Q4_URL } from "./engine.js";
 import { AuditLogger } from "./audit-logger.js";
 
 const log = new AuditLogger("artifacts/audit-log.jsonl");
@@ -14,12 +10,12 @@ const log = new AuditLogger("artifacts/audit-log.jsonl");
 console.log("Loading models for provider...");
 let t = performance.now();
 const llmId = await loadModel({
-  modelSrc: MEDGEMMA_4B_IT_Q4_1,
+  modelSrc: MEDPSY_4B_Q4_URL,
   modelType: "llm",
-  modelConfig: { gpu_layers: 99, "main-gpu": "dedicated", ctx_size: 4096 },
+  modelConfig: { gpu_layers: 99, "main-gpu": "dedicated", ctx_size: 4096, reasoning_budget: 0 },
 });
 log.modelLoad({
-  modelSrc: "MEDGEMMA_4B_IT_Q4_1 (provider, gpu_layers=99)",
+  modelSrc: "MedPsy-4B Q4_K_M (provider, gpu_layers=99)",
   modelType: "llm",
   modelId: llmId,
   durationMs: Math.round(performance.now() - t),

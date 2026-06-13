@@ -16,6 +16,11 @@ remote_calls:
     data_sent: model identifier only — no user data
     when: first launch / model install only; app is fully offline afterwards
     ai_service: false
+    note: >
+      The primary model (QVAC MedPsy-4B) is fetched from
+      https://huggingface.co/qvac/MedPsy-4B-GGUF via the SDK's HTTP model source
+      on first run only. All other models come from the QVAC registry. Inference
+      itself never leaves the device.
 
   - name: p2p-delegation
     purpose: LAN/P2P transport between the phone client and the desktop node

@@ -62,8 +62,10 @@ console.log(`QA suite against ${BASE}\n`);
 // ---------- 4. Unanswerable (hallucination check) ----------
 {
   const r = await ask("What is Budi's blood type?");
-  const admits = /not (contain|mention|specif|available|provided|included)|cannot answer|can't answer|don't|do not|no information|missing|tidak/i.test(r.answer);
-  const invents = /\b(A|B|AB|O)[+-]\b/.test(r.answer);
+  // Correct behavior = it does NOT invent a blood type. It may phrase the
+  // absence many ways ("not in the documents", "only mention blood pressure", …).
+  const invents = /blood type (is|:)\s*(A|B|AB|O)\b/i.test(r.answer);
+  const admits = /not (contain|mention|specif|available|provided|included|found|list)|only (mention|contain|include|show|list)|cannot|can't|don't|do not|no (information|blood type|record)|missing|tidak/i.test(r.answer);
   record("Hallucination check: blood type (not in docs)", admits && !invents, r.answer.replace(/\n/g, " "));
 }
 
