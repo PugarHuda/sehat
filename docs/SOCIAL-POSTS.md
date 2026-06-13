@@ -1,5 +1,24 @@
 # #teamSehat — Build in Public post bank
 
+## ✨ DAILY UPDATE — post TODAY (attach: the medpsy-vs-medgemma table or a terminal shot)
+
+> #teamSehat day 3 @QVAC hackathon — we swapped our brain to Tether's own
+> QVAC MedPsy-4B and benchmarked it on a 4-year-old GTX 1660 Super:
+>
+> ⚡ TTFT 5,626ms → 343ms (16× faster than Google MedGemma-4B)
+> ⚡ 44 → 60 tok/s, same prompt, same GPU
+>
+> Then we LoRA-fine-tuned on Tether's own QVAC Genesis medical dataset with
+> Fabric — loss 4.4→1.5 in minutes, locally. Their model, their data, their
+> fine-tuning, our gaming GPU. Zero cloud. 🩺
+
+## ✨ DAILY UPDATE — alt version (shorter, punchier)
+
+> Plot twist for #teamSehat 🩺 — we were running Google's MedGemma. Switched to
+> @QVAC's own MedPsy-4B and it's **16× faster TTFT** on the same GTX 1660 Super.
+> Then fine-tuned it on QVAC Genesis medical data with Fabric, all on-device.
+> Model + dataset + fine-tuning, 100% local. github.com/PugarHuda/sehat
+
 ## ✨ DAILY UPDATE — ready to post today (attach: phone screenshot / terminal QA output)
 
 > Day 2 of #teamSehat at the @QVAC hackathon — QA day.

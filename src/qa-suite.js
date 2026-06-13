@@ -65,7 +65,11 @@ console.log(`QA suite against ${BASE}\n`);
   // Correct behavior = it does NOT invent a blood type. It may phrase the
   // absence many ways ("not in the documents", "only mention blood pressure", …).
   const invents = /blood type (is|:)\s*(A|B|AB|O)\b/i.test(r.answer);
-  const admits = /not (contain|mention|specif|available|provided|included|found|list)|only (mention|contain|include|show|list)|cannot|can't|don't|do not|no (information|blood type|record)|missing|tidak/i.test(r.answer);
+  // Correct = admits absence (many phrasings) and does not invent a type.
+  const admits =
+    /not (contain|mention|specif|available|provided|included|found|list)|none of|do(es)?n'?t (contain|mention|include)|only (mention|contain|include|show|list)|cannot|can'?t|no (information|blood type|record|mention|data)|missing|unavailable|not (in|present)|tidak/i.test(
+      r.answer
+    );
   record("Hallucination check: blood type (not in docs)", admits && !invents, r.answer.replace(/\n/g, " "));
 }
 
