@@ -29,4 +29,12 @@ remote_calls:
     when: when the phone client is used
     ai_service: false
 
+  - name: genesis-dataset-sample
+    purpose: One-time fetch of a small sample of QVAC Genesis-I medical dataset for the fine-tuning demo
+    endpoint: https://huggingface.co/datasets/qvac/GenesisI (HTTP Range request, first few MB only)
+    data_sent: none — an HTTP Range GET; no user data
+    when: only when running `node src/genesis-prepare.js` (optional fine-tune demo)
+    ai_service: false
+    license: CC-BY-NC 4.0 (see NOTICE-genesis.md)
+
 user_data_leaving_devices: none

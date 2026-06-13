@@ -52,6 +52,7 @@ Sehat turns a regular family desktop into a private health hub:
 | Multi-agent run (6 tool calls incl. MedGemma consult) | 33.7 s end-to-end |
 | Vision: photo of lab report → full structured analysis (no OCR) | every value read correctly; 43.7 tok/s generation (SDK stats), 33.6 s wall-clock TTFT — 5.4 GB model partially CPU-offloaded on 6 GB VRAM |
 | **LoRA fine-tune (QVAC Fabric)**: Qwen3 600M → "Sehat style" | **238 s for 2 epochs on the GTX 1660 Super**; train loss 3.00 → 1.77; visible style shift (verbose jargon → plain-language lifestyle framing) |
+| **LoRA on real QVAC Genesis-I medical data** | train loss 4.39 → 1.51, val accuracy 68.8% — Tether's own dataset + Fabric on the GTX 1660 Super (`npm run genesis:prepare && npm run demo:finetune:genesis`) |
 | ID↔EN translation (Bergamot, CPU) | sub-second per message |
 | P2P delegated completion (no local model) | TTFT 0.9–1.3 s; throughput 4.8 tok/s streamed / ~7.7 tok/s batched — transport-bound in SDK v0.12.2, documented honestly |
 
@@ -71,7 +72,7 @@ every model load and inference call is logged with prompt, token counts, TTFT, a
 | OCR | `OCR_LATIN_RECOGNIZER_1` |
 | Translation ID↔EN | `BERGAMOT_ID_EN` + `BERGAMOT_EN_ID` |
 | Vision (photo understanding) | `GEMMA4_4B_MULTIMODAL_Q4_K_M` + `MMPROJ_GEMMA4_4B_MULTIMODAL_F16` |
-| Fine-tune base (QVAC Fabric LoRA) | `QWEN3_600M_INST_Q4` + `data/finetune/*.jsonl` (16 bilingual examples) |
+| Fine-tune base (QVAC Fabric LoRA) | `QWEN3_600M_INST_Q4` + `data/finetune/*.jsonl` (hand-written) and **real `qvac/GenesisI` medical data** |
 
 ## Architecture
 

@@ -15,6 +15,8 @@
     "test:injection": "node src/test-injection.js",
     "demo:vision": "node src/demo-vision.js",
     "demo:finetune": "node src/demo-finetune.js",
+    "genesis:prepare": "node src/genesis-prepare.js",
+    "demo:finetune:genesis": "node src/demo-finetune-genesis.js",
     "profile": "node src/profile-run.js",
     "provider": "node src/provider.js",
     "delegate": "node src/delegate-test.js",

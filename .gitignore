@@ -19,6 +19,8 @@ logs/
 # Local TLS cert (self-signed, regenerate per machine)
 certs/
 
-# Fine-tune training intermediates (adapter is kept, checkpoints are not)
+# Fine-tune training intermediates (adapters are kept, checkpoints are not)
 artifacts/finetune/checkpoints/
+artifacts/finetune-genesis/checkpoints/
+data/genesis-sample.txt
 -w
