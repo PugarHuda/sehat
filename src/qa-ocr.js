@@ -5,9 +5,22 @@
 import { loadModel, unloadModel, ocr, OCR_LATIN_RECOGNIZER_1 } from "@qvac/sdk";
 import { readdirSync, appendFileSync } from "node:fs";
 
+// Key strings chosen from the actual OCR output of each image (so checks are
+// real but not brittle). Covers: clean print, prescriptions, vaccine/CGM tables,
+// Indonesian text, a different domain (eye exam), a dense pharmacy label, a
+// wearable summary, a discharge letter, handwriting, rotation, and small font.
 const EXPECT = {
   "lab-results-budi-2026-06-photo.png": ["102", "5.9", "201"],
+  "lab-indonesia-budi-2026-06.png": ["Budi", "102", "Kolesterol"],
+  "prescription-budi-2026-06.png": ["Metformin", "Atorvastatin"],
   "prescription-rina-2026-06.png": ["Cefixime", "Paracetamol", "Penicillin"],
+  "vaccine-card-rina-2026.png": ["Rina", "booster", "2027"],
+  "cgm-log-budi.png": ["104", "142", "fasting"],
+  "eye-exam-dewi.png": ["Dewi", "cataract"],
+  "discharge-summary-budi.png": ["Omeprazole", "chest"],
+  "pharmacy-label-sari.png": ["AMLODIPINE", "grapefruit"],
+  "wearable-weekly-budi.png": ["74", "steps", "SpO2"],
+  "note-handwritten-agus.png": ["Agus", "Amlodipine"],
   "test-rotated.png": ["102", "201"],
   "test-smallfont.png": ["Amlodipine", "135/86", "grapefruit"],
 };

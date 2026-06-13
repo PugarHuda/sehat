@@ -26,3 +26,40 @@ Server: https://localhost:8787 | **22 passed / 0 failed**
 | 20 | Add self record -> member with relation=self + vitals | ✅ PASS | relation=self glucose=92 |
 | 21 | Multi-record append extends trend series | ✅ PASS | glucose points 1 -> 2 |
 | 22 | Agent mode: tool trace returned | ✅ PASS | tools: 🔧 search_records, 🔧 search_records, 🔧 search_records, 🔧 search_records, 🔧 search_records, 🔧 calculate_change, 🔧 calculate_change |
+
+## OCR robustness sweep
+
+| Image | Blocks | Avg conf | Time | Key strings | OK |
+|---|---|---|---|---|---|
+| cgm-log-budi.png | 31 | 0.96 | 8249 ms | 0/0 | ✅ |
+| discharge-summary-budi.png | 13 | 0.80 | 6506 ms | 0/0 | ✅ |
+| eye-exam-dewi.png | 35 | 0.94 | 6773 ms | 0/0 | ✅ |
+| lab-indonesia-budi-2026-06.png | 48 | 0.94 | 6452 ms | 0/0 | ✅ |
+| lab-results-budi-2026-06-photo.png | 54 | 0.93 | 6411 ms | 3/3 | ✅ |
+| note-handwritten-agus.png | 16 | 0.82 | 5045 ms | 0/0 | ✅ |
+| pharmacy-label-sari.png | 14 | 0.89 | 5029 ms | 0/0 | ✅ |
+| prescription-budi-2026-06.png | 48 | 0.97 | 6477 ms | 0/0 | ✅ |
+| prescription-rina-2026-06.png | 59 | 0.95 | 6971 ms | 3/3 | ✅ |
+| test-rotated.png | 16 | 0.66 | 4838 ms | 2/2 | ✅ |
+| test-smallfont.png | 10 | 0.86 | 4769 ms | 3/3 | ✅ |
+| vaccine-card-rina-2026.png | 36 | 0.97 | 5378 ms | 0/0 | ✅ |
+| wearable-weekly-budi.png | 15 | 0.88 | 5967 ms | 0/0 | ✅ |
+
+
+## OCR robustness sweep
+
+| Image | Blocks | Avg conf | Time | Key strings | OK |
+|---|---|---|---|---|---|
+| cgm-log-budi.png | 31 | 0.96 | 7040 ms | 3/3 | ✅ |
+| discharge-summary-budi.png | 13 | 0.80 | 7182 ms | 2/2 | ✅ |
+| eye-exam-dewi.png | 35 | 0.94 | 7286 ms | 2/2 | ✅ |
+| lab-indonesia-budi-2026-06.png | 48 | 0.94 | 7882 ms | 3/3 | ✅ |
+| lab-results-budi-2026-06-photo.png | 54 | 0.93 | 8920 ms | 3/3 | ✅ |
+| note-handwritten-agus.png | 16 | 0.82 | 6463 ms | 2/2 | ✅ |
+| pharmacy-label-sari.png | 14 | 0.89 | 7165 ms | 2/2 | ✅ |
+| prescription-budi-2026-06.png | 48 | 0.97 | 8795 ms | 2/2 | ✅ |
+| prescription-rina-2026-06.png | 59 | 0.95 | 7724 ms | 3/3 | ✅ |
+| test-rotated.png | 16 | 0.66 | 5852 ms | 2/2 | ✅ |
+| test-smallfont.png | 10 | 0.86 | 5567 ms | 3/3 | ✅ |
+| vaccine-card-rina-2026.png | 36 | 0.97 | 6070 ms | 3/3 | ✅ |
+| wearable-weekly-budi.png | 15 | 0.88 | 5687 ms | 3/3 | ✅ |
