@@ -514,6 +514,7 @@
     const me = ME ? "&me=" + encodeURIComponent(ME) : "";
     const es = new EventSource("/api/ask?q=" + encodeURIComponent(question) + mode + autosave + me);
     es.addEventListener("token", (ev) => { text += JSON.parse(ev.data); bot.textContent = text; chat.scrollTop = chat.scrollHeight; });
+    es.addEventListener("reset", () => { text = ""; bot.textContent = ""; });
     es.addEventListener("saved", (ev) => { const d = JSON.parse(ev.data); addMeta(`📌 Saved to records · <span class="src">${d.summary}</span>`); });
     es.addEventListener("done", (ev) => {
       const { stats, sources } = JSON.parse(ev.data); persist("bot", text);

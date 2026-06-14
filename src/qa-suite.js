@@ -93,11 +93,11 @@ console.log(`QA suite against ${BASE}\n`);
   record("Typo robustness: cholesterol March 2026", /228/.test(r.answer), r.answer.replace(/\n/g, " "));
 }
 
-// ---------- 7. Indonesian mode ----------
+// ---------- 7. Indonesian (auto-language, the path the app uses) ----------
 {
-  const r = await ask("Kapan Rina harus vaksin lagi?", { lang: "id" });
-  const indo = /booster|vaksin|sekolah|usia/i.test(r.answer);
-  record("Indonesian mode round-trip", indo && r.stats !== null, r.answer.replace(/\n/g, " "));
+  const r = await ask("Kapan Rina harus vaksinasi lagi?");
+  const indo = /booster|vaksin|sekolah|usia|berikutnya/i.test(r.answer);
+  record("Indonesian auto-language answer", indo && r.stats !== null, r.answer.replace(/\n/g, " "));
 }
 
 // ---------- 8. Chat-side injection attempt ----------

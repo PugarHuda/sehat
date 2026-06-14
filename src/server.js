@@ -179,7 +179,9 @@ async function handler(req, res) {
           send("token", `🔁 ${asked}\n\n`);
         }
         const { answer, hits, stats } = await engine.ask(asked, {
+          userName: (url.searchParams.get("me") || "").slice(0, 40) || undefined,
           onToken: lang === "en" ? (tok) => send("token", tok) : undefined,
+          onReset: lang === "en" ? () => send("reset", 1) : undefined,
         });
         if (lang === "id") {
           const tr = await getTranslator();
