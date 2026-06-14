@@ -51,7 +51,10 @@ function parseAll(dirs) {
   for (const dir of dirs) {
     if (!existsSync(dir)) continue;
     for (const f of readdirSync(dir).filter((x) => x.endsWith(".txt"))) {
-      docs.push(parseDoc(f, readFileSync(join(dir, f), "utf8")));
+      const d = parseDoc(f, readFileSync(join(dir, f), "utf8"));
+      d.dir = dir;
+      d.removable = dir.replace(/\\/g, "/").endsWith("data/records"); // user docs only
+      docs.push(d);
     }
   }
   return docs;
@@ -66,8 +69,9 @@ export function loadFamily(dirs = ["data/sample", "data/records"]) {
   const docs = parseAll(dirs);
   const members = {};
   for (const d of docs) {
-    const m = (members[d.patient] ??= { name: d.patient, relation: "family", series: {}, meds: new Set(), allergies: new Set(), conditions: new Set(), docs: 0 });
+    const m = (members[d.patient] ??= { name: d.patient, relation: "family", series: {}, meds: new Set(), allergies: new Set(), conditions: new Set(), documents: [], docs: 0 });
     m.docs++;
+    m.documents.push({ source: d.name, date: d.date, removable: !!d.removable });
     if (d.relation === "self") m.relation = "self";
     d.meds.forEach((x) => m.meds.add(x));
     d.allergies.forEach((x) => m.allergies.add(x));

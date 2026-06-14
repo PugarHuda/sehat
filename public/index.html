@@ -358,13 +358,32 @@
       <button class="btn-ghost" style="flex:1;padding:10px;border-radius:12px;cursor:pointer" onclick="window.exportMember('${name}')">⬇ Export summary</button>
       <button class="btn-primary" style="flex:1;padding:10px;border-radius:12px;cursor:pointer;border:0" onclick="window.showQR('${name}')">🆘 Emergency QR</button>
     </div><div id="qrBox"></div>`;
-    $("dBody").innerHTML = actions + allerg + (vit || '<div class="loading">No numeric vitals on record.</div>') + meds;
+    const docs = (m.documents || []).length
+      ? `<div class="vit"><span class="nm">📄 Documents (${m.documents.length})</span>${m.documents.map((d) =>
+          `<div style="display:flex;align-items:center;gap:8px;margin-top:8px;font-size:13px">
+            <span style="flex:1">${d.source}${d.date ? ` · ${d.date}` : ""}</span>
+            ${d.removable
+              ? `<button onclick="window.delDoc('${d.source.replace(/'/g, "")}','${name}')" style="border:1px solid var(--line);background:#fff;border-radius:8px;padding:4px 8px;cursor:pointer;color:var(--high)">🗑</button>`
+              : `<span class="msub" style="font-size:11px">sample</span>`}
+          </div>`).join("")}</div>`
+      : "";
+    $("dBody").innerHTML = actions + allerg + (vit || '<div class="loading">No numeric vitals on record.</div>') + meds + docs;
     $("drawerBg").classList.add("on"); $("drawer").classList.add("on");
   }
   const closeDrawer = () => { $("drawerBg").classList.remove("on"); $("drawer").classList.remove("on"); };
   $("dClose").onclick = closeDrawer; $("drawerBg").onclick = closeDrawer;
 
   window.exportMember = (name) => { window.location = "/api/export?member=" + encodeURIComponent(name); };
+  window.delDoc = async (source, name) => {
+    if (!confirm(`Delete "${source}"? This removes it from records and search.`)) return;
+    try {
+      const j = await (await fetch("/api/delete-record?source=" + encodeURIComponent(source), { method: "POST" })).json();
+      if (!j.ok) throw new Error(j.error);
+      FAM = await (await fetch("/api/family")).json();
+      if (FAM[name]) openMember(name); else { closeDrawer(); }
+      loadDash();
+    } catch (e) { alert("⚠️ " + e.message); }
+  };
   window.showQR = (name) => {
     const box = $("qrBox");
     box.innerHTML = `<div class="vit" style="text-align:center"><span class="nm">🆘 Emergency card — scan to read critical info</span>

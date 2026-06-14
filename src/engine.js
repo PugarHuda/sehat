@@ -7,9 +7,12 @@ import {
   unloadModel,
   ragIngest,
   ragSearch,
+  ragCloseWorkspace,
   MEDGEMMA_4B_IT_Q4_1,
   EMBEDDINGGEMMA_300M_Q8_0,
 } from "@qvac/sdk";
+import { readFileSync, readdirSync, existsSync } from "node:fs";
+import { join } from "node:path";
 import { AuditLogger } from "./audit-logger.js";
 
 const DEFAULT_WORKSPACE = "sehat-family";
@@ -282,6 +285,18 @@ export class SehatEngine {
 
     this.log.inference({ modelId: this.llmId, task: "chat-extract-record", prompt: text.slice(0, 120), completionTokens: raw.length >> 2, ttftMs: null, durationMs: null });
     return { member, isSelf: !!obj.isSelf, date, docText: lines.join("\n"), summary: `${member}: ${summaryBits.join(", ")} (${date})` };
+  }
+
+  // Rebuild the RAG workspace from the current files on disk (sample + records).
+  // Used after a document is deleted so it can no longer be retrieved.
+  async reseed(dirs = ["data/sample", "data/records"]) {
+    try { await ragCloseWorkspace({ workspace: this.workspace, deleteOnClose: true }); } catch {}
+    for (const dir of dirs) {
+      if (!existsSync(dir)) continue;
+      for (const f of readdirSync(dir).filter((x) => x.endsWith(".txt"))) {
+        await this.ingestDocument({ source: f, text: readFileSync(join(dir, f), "utf8") });
+      }
+    }
   }
 
   async stop() {

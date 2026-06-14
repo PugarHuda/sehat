@@ -1,13 +1,20 @@
-// Minimal service worker: makes Sehat installable and serves the app shell
-// from cache when the desktop is briefly unreachable. API calls pass through.
-const SHELL = "sehat-shell-v1";
-self.addEventListener("install", (e) => {
-  e.waitUntil(caches.open(SHELL).then((c) => c.addAll(["/", "/manifest.json", "/icon-192.png"])));
-  self.skipWaiting();
+// Minimal service worker: makes Sehat installable. Network-first for everything
+// so the app always updates; old caches are purged on activate. The app shell
+// is NOT pre-cached (avoids serving a stale UI). API calls always pass through.
+const SHELL = "sehat-shell-v3";
+self.addEventListener("install", () => self.skipWaiting());
+self.addEventListener("activate", (e) => {
+  e.waitUntil(
+    caches.keys().then((keys) => Promise.all(keys.map((k) => k !== SHELL && caches.delete(k)))).then(() => self.clients.claim())
+  );
 });
-self.addEventListener("activate", (e) => e.waitUntil(self.clients.claim()));
 self.addEventListener("fetch", (e) => {
   const url = new URL(e.request.url);
   if (url.pathname.startsWith("/api/")) return; // always live
-  e.respondWith(fetch(e.request).catch(() => caches.match(e.request, { ignoreSearch: true })));
+  // Network-first; fall back to cache only when offline.
+  e.respondWith(
+    fetch(e.request)
+      .then((r) => { caches.open(SHELL).then((c) => c.put(e.request, r.clone())).catch(() => {}); return r; })
+      .catch(() => caches.match(e.request, { ignoreSearch: true }))
+  );
 });

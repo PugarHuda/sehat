@@ -122,8 +122,9 @@ async function handler(req, res) {
   const url = new URL(req.url, `http://${req.headers.host}`);
 
   if (req.method === "GET" && url.pathname === "/") {
-    res.writeHead(200, { "content-type": "text/html; charset=utf-8" });
-    return res.end(html);
+    // no-store so phones always get the latest UI (avoids stale cached client).
+    res.writeHead(200, { "content-type": "text/html; charset=utf-8", "cache-control": "no-store" });
+    return res.end(readFileSync("public/index.html")); // re-read so edits show on refresh
   }
 
   // PIN gate for API routes (when enabled).
@@ -433,6 +434,23 @@ async function handler(req, res) {
         .catch((err) => { res.writeHead(400, { "content-type": "application/json" }); res.end(JSON.stringify({ ok: false, error: String(err?.message ?? err) })); })
         .finally(() => { try { unlinkSync(tmp); } catch {} });
     });
+    return;
+  }
+
+  if (req.method === "POST" && url.pathname === "/api/delete-record") {
+    const raw = url.searchParams.get("source") || "";
+    const safe = raw.replace(/[\\/]/g, ""); // no path traversal
+    res.writeHead(200, { "content-type": "application/json" });
+    if (!safe.endsWith(".txt")) return res.end(JSON.stringify({ ok: false, error: "invalid source" }));
+    const p = join("data/records", safe);
+    if (!existsSync(p)) return res.end(JSON.stringify({ ok: false, error: "not a removable record (sample docs are read-only)" }));
+    queue = queue
+      .then(async () => {
+        unlinkSync(p);
+        await engine.reseed(); // rebuild RAG so the deleted doc isn't retrievable
+        res.end(JSON.stringify({ ok: true }));
+      })
+      .catch((err) => res.end(JSON.stringify({ ok: false, error: String(err?.message ?? err) })));
     return;
   }
 
