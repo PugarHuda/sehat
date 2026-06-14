@@ -2,6 +2,7 @@
 // both fully local via @qvac/sdk. All calls flow through the audit logger.
 import {
   completion,
+  cancel,
   embed,
   loadModel,
   unloadModel,
@@ -54,6 +55,16 @@ export class SehatEngine {
     this.workspace = workspace;
     this.llmId = null;
     this.embedId = null;
+    this.currentRunId = null;
+  }
+
+  // Stop the in-flight answer (Stop button). Targeted cancel by requestId.
+  async cancelCurrent() {
+    if (this.currentRunId) {
+      try { await cancel({ requestId: this.currentRunId }); } catch {}
+    } else if (this.llmId) {
+      try { await cancel({ operation: "inference", modelId: this.llmId }); } catch {}
+    }
   }
 
   async start() {
@@ -175,21 +186,25 @@ export class SehatEngine {
       ],
       stream: true,
     });
-    for await (const token of result.tokenStream) {
-      if (ttftMs === null) ttftMs = Math.round(performance.now() - tInfer);
-      tokenCount++;
-      raw += token;
-      if (!onToken) continue;
-      const clean = strip(raw);
-      if (clean.startsWith(shown)) {
-        const delta = clean.slice(shown.length);
-        if (delta) { onToken(delta); shown = clean; }
-      } else {
-        onReset?.();            // a </think> removed earlier text — clear & redraw
-        shown = clean.trimStart();
-        if (shown) onToken(shown);
+    this.currentRunId = result.requestId; // enables a Stop button via cancel()
+    try {
+      for await (const token of result.tokenStream) {
+        if (ttftMs === null) ttftMs = Math.round(performance.now() - tInfer);
+        tokenCount++;
+        raw += token;
+        if (!onToken) continue;
+        const clean = strip(raw);
+        if (clean.startsWith(shown)) {
+          const delta = clean.slice(shown.length);
+          if (delta) { onToken(delta); shown = clean; }
+        } else {
+          onReset?.();            // a </think> removed earlier text — clear & redraw
+          shown = clean.trimStart();
+          if (shown) onToken(shown);
+        }
       }
-    }
+    } catch { /* cancelled mid-stream — keep the partial answer */ }
+    this.currentRunId = null;
     const durationMs = Math.round(performance.now() - tInfer);
     const answer = strip(raw).trim();
 

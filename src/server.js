@@ -263,6 +263,12 @@ async function handler(req, res) {
     return res.end(JSON.stringify(members));
   }
 
+  if (req.method === "POST" && url.pathname === "/api/stop") {
+    await engine.cancelCurrent();
+    res.writeHead(200, { "content-type": "application/json" });
+    return res.end(JSON.stringify({ ok: true }));
+  }
+
   if (req.method === "GET" && url.pathname === "/api/reminders") {
     const today = new Date().toISOString().slice(0, 10);
     const reminders = computeReminders(loadDocs(), today);

@@ -522,29 +522,43 @@
 
   if ("serviceWorker" in navigator) navigator.serviceWorker.register("/sw.js").catch(() => {});
 
+  let streaming = false, currentES = null;
+  const endStream = () => { streaming = false; send.textContent = "➤"; send.title = "Send"; };
+  async function stopStream() {
+    try { await fetch("/api/stop", { method: "POST" }); } catch {}
+    try { currentES?.close(); } catch {}
+    endStream(); input.focus();
+  }
+
   form.addEventListener("submit", (e) => {
     e.preventDefault();
+    if (streaming) { stopStream(); return; } // ➤ became ■ — second press stops
     const question = input.value.trim(); if (!question) return;
-    input.value = ""; send.disabled = true;
+    input.value = "";
     add("user", question); const bot = add("bot", "…", { save: false });
+    streaming = true; send.textContent = "■"; send.title = "Stop";
     let text = ""; const t0 = performance.now();
     const mode = $("agentMode").checked ? "&mode=agent" : "";
     const autosave = $("autoSave").checked ? "" : "&autosave=0";
     const me = ME ? "&me=" + encodeURIComponent(ME) : "";
     const es = new EventSource("/api/ask?q=" + encodeURIComponent(question) + mode + autosave + me);
+    currentES = es;
     es.addEventListener("token", (ev) => { text += JSON.parse(ev.data); bot.textContent = text; chat.scrollTop = chat.scrollHeight; });
     es.addEventListener("reset", () => { text = ""; bot.textContent = ""; });
     es.addEventListener("saved", (ev) => { const d = JSON.parse(ev.data); addMeta(`📌 Saved to records · <span class="src">${d.summary}</span>`); });
     es.addEventListener("done", (ev) => {
-      const { stats, sources } = JSON.parse(ev.data); persist("bot", text);
+      const { stats, sources } = JSON.parse(ev.data); persist("bot", text || (bot.textContent = "(stopped)"));
       const secs = ((performance.now() - t0) / 1000).toFixed(1);
       const tps = stats.durationMs && stats.ttftMs !== null ? (stats.tokenCount / (stats.durationMs / 1000)).toFixed(1) : null;
       addMeta((stats.ttftMs !== null ? `⚡ TTFT ${stats.ttftMs} ms · ${tps} tok/s · ` : `🤖 agent · `) + `${secs}s` + (sources.length ? ` · 📄 <span class="src">${sources.join(", ")}</span>` : ""));
-      es.close(); send.disabled = false;
-      // Hands-free loop: if the question came from the mic, speak the answer back.
+      es.close(); endStream();
       if (window.__voiceMode && text) { window.__voiceMode = false; speakAnswer(text); } else { input.focus(); }
     });
-    es.addEventListener("error", () => { if (text === "") bot.textContent = "⚠️ Connection error — is the Sehat server running?"; es.close(); send.disabled = false; });
+    es.addEventListener("error", () => {
+      if (text) persist("bot", text);
+      else bot.textContent = "⚠️ Connection error — is the Sehat server running?";
+      es.close(); endStream();
+    });
   });
 
   // ---- speak an answer aloud (QVAC TTS), strip citations first ----
