@@ -1,6 +1,12 @@
 # Sehat 🏠🩺
 
+![Sehat](assets/banner.png)
+
 **Offline-first family health assistant — 100% on-device AI via the [QVAC SDK](https://qvac.tether.io).**
+
+📊 One-glance metrics: [`docs/BENCHMARKS.md`](docs/BENCHMARKS.md) · Architecture below.
+
+![Architecture](assets/architecture.png)
 
 Built for **QVAC Hackathon I – Unleash Edge AI** (June 2026).
 Tracks: **General Purpose** + **Psy Models** · Build in Public: `#teamSehat`
