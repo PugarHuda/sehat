@@ -8,7 +8,7 @@ import { createServer as createHttpsServer } from "node:https";
 import { readFileSync, readdirSync, existsSync, writeFileSync, unlinkSync, mkdirSync } from "node:fs";
 import { join, basename } from "node:path";
 import { tmpdir, networkInterfaces } from "node:os";
-import { startQVACProvider, loadModel, transcribe, WHISPER_SMALL_Q8_0 } from "@qvac/sdk";
+import { startQVACProvider, loadModel, transcribe, WHISPER_LARGE_V3_TURBO } from "@qvac/sdk";
 import { SehatEngine } from "./engine.js";
 import { SehatAgent } from "./agent.js";
 import { Translator } from "./translator.js";
@@ -50,9 +50,9 @@ async function getTranslator() {
 let sttId = null;
 async function getStt() {
   if (!sttId) {
-    console.log("Loading Whisper STT (multilingual small, auto-detect)...");
+    console.log("Loading Whisper STT (large-v3-turbo, auto-detect)...");
     sttId = await loadModel({
-      modelSrc: WHISPER_SMALL_Q8_0, // multilingual small — better accuracy than base
+      modelSrc: WHISPER_LARGE_V3_TURBO, // highest-accuracy multilingual STT
       modelType: "whisper",
       modelConfig: {
         strategy: "greedy",

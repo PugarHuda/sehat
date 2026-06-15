@@ -11,7 +11,7 @@ import {
   ragReindex,
   ragCloseWorkspace,
   MEDGEMMA_4B_IT_Q4_1,
-  EMBEDDINGGEMMA_300M_Q8_0,
+  GTE_LARGE_FP16,
 } from "@qvac/sdk";
 import { readFileSync, readdirSync, existsSync } from "node:fs";
 import { join } from "node:path";
@@ -97,11 +97,11 @@ export class SehatEngine {
 
     t = performance.now();
     this.embedId = await loadModel({
-      modelSrc: EMBEDDINGGEMMA_300M_Q8_0,
+      modelSrc: GTE_LARGE_FP16, // higher-accuracy retrieval embeddings
       modelType: "embeddings",
     });
     this.log.modelLoad({
-      modelSrc: "EMBEDDINGGEMMA_300M_Q8_0",
+      modelSrc: "GTE_LARGE_FP16",
       modelType: "embeddings",
       modelId: this.embedId,
       durationMs: Math.round(performance.now() - t),
