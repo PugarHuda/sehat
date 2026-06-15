@@ -98,8 +98,8 @@ Numbers come from the committed [`artifacts/audit-log.jsonl`](artifacts/audit-lo
 | Medical reasoning (primary brain) | **QVAC MedPsy-4B Q4_K_M** (Tether's Psy model, from HF) |
 | Medical reasoning (A/B benchmark) | `MEDGEMMA_4B_IT_Q4_1` (Google, comparison only) |
 | Orchestrator agent (tool calling) | `QWEN3_1_7B_INST_Q4` |
-| Embeddings / RAG | `EMBEDDINGGEMMA_300M_Q8_0` |
-| Speech-to-text (multilingual, auto-detect) | `WHISPER_SMALL_Q8_0` |
+| Embeddings / RAG | `GTE_LARGE_FP16` (higher-accuracy retrieval) |
+| Speech-to-text (multilingual, auto-detect) | `WHISPER_LARGE_V3_TURBO` |
 | Text-to-speech | `TTS_EN_SUPERTONIC_Q8_0` |
 | OCR | `OCR_LATIN_RECOGNIZER_1` |
 | Translation ID↔EN | `BERGAMOT_ID_EN` + `BERGAMOT_EN_ID` |
