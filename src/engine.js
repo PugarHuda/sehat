@@ -8,6 +8,7 @@ import {
   unloadModel,
   ragIngest,
   ragSearch,
+  ragReindex,
   ragCloseWorkspace,
   MEDGEMMA_4B_IT_Q4_1,
   EMBEDDINGGEMMA_300M_Q8_0,
@@ -302,6 +303,12 @@ export class SehatEngine {
     return { member, isSelf: !!obj.isSelf, date, docText: lines.join("\n"), summary: `${member}: ${summaryBits.join(", ")} (${date})` };
   }
 
+  // Rebalance the IVF index (k-means centroids) for more accurate + faster
+  // retrieval once the workspace has enough vectors. No-op on tiny corpora.
+  async reindex() {
+    try { await ragReindex({ workspace: this.workspace }); } catch {}
+  }
+
   // Rebuild the RAG workspace from the current files on disk (sample + records).
   // Used after a document is deleted so it can no longer be retrieved.
   async reseed(dirs = ["data/sample", "data/records"]) {
@@ -312,6 +319,7 @@ export class SehatEngine {
         await this.ingestDocument({ source: f, text: readFileSync(join(dir, f), "utf8") });
       }
     }
+    await this.reindex();
   }
 
   async stop() {

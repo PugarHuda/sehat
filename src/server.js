@@ -33,6 +33,7 @@ if (!probe || probe.hits.length === 0) {
       text: readFileSync(join("data/sample", f), "utf8"),
     });
   }
+  await engine.reindex(); // IVF rebalance for more accurate retrieval
 }
 
 // Lazy singletons for optional capabilities.
@@ -73,7 +74,7 @@ async function getOcr() {
     ocrId = await loadModel({
       modelSrc: OCR_LATIN_RECOGNIZER_1,
       modelType: "ocr",
-      modelConfig: { langList: ["en"], useGPU: true, defaultRotationAngles: [90, 180, 270] },
+      modelConfig: { langList: ["en"], useGPU: true, defaultRotationAngles: [90, 180, 270], magRatio: 1.5, contrastRetry: true, lowConfidenceThreshold: 0.5 },
     });
   }
   return ocrId;
@@ -373,6 +374,7 @@ async function handler(req, res) {
           await engine.ingestDocument({ source: safe, text: docText });
           count++;
         }
+        await engine.reindex();
         res.writeHead(200, { "content-type": "application/json" });
         res.end(JSON.stringify({ ok: true, imported: count, dates }));
       } catch (err) {
@@ -434,6 +436,7 @@ async function handler(req, res) {
           mkdirSync("data/records", { recursive: true });
           writeFileSync(join("data/records", `${safe}.txt`), doc);
           await engine.ingestDocument({ source: safe, text: doc });
+          await engine.reindex();
           res.writeHead(200, { "content-type": "application/json" });
           res.end(JSON.stringify({ ok: true, member: who, chars: text.length, preview: text.slice(0, 160) }));
         })
@@ -478,6 +481,7 @@ async function handler(req, res) {
         writeFileSync(join("data/records", safe.endsWith(".txt") ? safe : `${safe}.txt`), body2);
         // Index into the RAG workspace for Q&A.
         await engine.ingestDocument({ source: safe, text: body2 });
+        await engine.reindex();
         res.writeHead(200, { "content-type": "application/json" });
         res.end(JSON.stringify({ ok: true }));
       } catch (err) {
