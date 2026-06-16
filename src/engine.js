@@ -128,7 +128,7 @@ export class SehatEngine {
     return result;
   }
 
-  async ask(question, { topK = 8, onToken, onReset, userName } = {}) {
+  async ask(question, { topK = 12, onToken, onReset, userName } = {}) {
     const tSearch = performance.now();
     // If the user speaks in the first person ("my/me/I/saya"), bias retrieval
     // toward their own records by adding their name to the search query.

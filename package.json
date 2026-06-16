@@ -36,7 +36,7 @@
     "node": ">=22"
   },
   "dependencies": {
-    "@qvac/sdk": "^0.12.2",
+    "@qvac/sdk": "^0.13.0",
     "qrcode": "^1.5.4"
   }
 }

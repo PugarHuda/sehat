@@ -72,3 +72,32 @@ All under 280 chars. Tag @QVAC, use #teamSehat. Repo: github.com/PugarHuda/sehat
 > Sehat 🩺 9 AI models on one GTX 1660 Super, zero cloud: MedPsy + RAG + OCR +
 > voice + vision + agents + Genesis fine-tuning + P2P. Open source (Apache-2.0):
 > github.com/PugarHuda/sehat — built with @QVAC #teamSehat
+
+---
+
+## More posts (latest milestones)
+
+**11 — accuracy upgrade**
+> Sharper Sehat 🔬 swapped in @QVAC's GTE-large retrieval embeddings + Whisper
+> large-v3-turbo for speech — more accurate answers and transcription, still
+> 100% on-device on a GTX 1660 Super. #teamSehat
+
+**12 — speed / Stop**
+> Long answer? Tap Stop ⏹ — Sehat cancels the in-flight inference instantly
+> (QVAC's cancel-by-requestId) and keeps the partial text. Local AI that respects
+> your time. @QVAC #teamSehat
+
+**13 — privacy & control**
+> Your records, your rules: in Sehat you can upload by photo/voice/chat, set a
+> family PIN, and delete any document (it's wiped from the index too). All on the
+> home PC, never the cloud. @QVAC #teamSehat
+
+**14 — tested**
+> Not a demo-ware: Sehat ships with an automated suite — 22/22 end-to-end cases +
+> 13/13 OCR docs (print, handwriting, rotated, Indonesian) — all green, on-device.
+> @QVAC #teamSehat
+
+**15 — multilingual**
+> Ask Sehat in Indonesian, English, Spanish, French… it auto-detects and replies
+> in your language, by text or voice — MedPsy + Whisper + Bergamot, all local.
+> @QVAC #teamSehat
