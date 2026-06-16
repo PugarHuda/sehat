@@ -151,6 +151,38 @@ named, or screen-record the moment described.
 >
 > github.com/PugarHuda/sehat #teamSehat
 
+**L4 — DESKTOP APP LAUNCH (post this next)**  [media: screen-record the double-click → window opening → ask a question → spoken answer]
+> Sehat just became a real desktop app. 🖥️
+>
+> One double-click → a native window opens and your whole family's health AI is
+> already running — 100% on your own PC. No cloud setup, no account, no internet
+> needed once the models are cached.
+>
+> Under the hood the @QVAC SDK packages **nine on-device models** straight into the
+> app: MedPsy-4B (medical reasoning), GTE-large (RAG over your records), Whisper
+> (voice in), Supertonic (voice out), OCR (paper reports), Bergamot (translation),
+> a vision model, agent orchestration — plus a Genesis-dataset LoRA fine-tune.
+>
+> Ask "how has Dad's blood sugar changed?" → it answers from your real lab reports,
+> with citations, by text or voice, in any language — and warns you proactively when
+> a vital trends the wrong way.
+>
+> All of it on a 4-year-old GTX 1660 Super (6 GB). Open source, Apache-2.0:
+> github.com/PugarHuda/sehat — #teamSehat 🩺
+
+**16 — desktop app (short)**
+> Sehat is now one double-click away 🖥️ — a native desktop app that boots 9
+> on-device AI models in a private window. Family health Q&A, voice, OCR & proactive
+> alerts, 100% offline via @QVAC. No cloud, ever. github.com/PugarHuda/sehat #teamSehat
+
+**17 — packaged & private (short)**
+> We packaged Sehat into a single desktop app with @QVAC's Electron tooling — the
+> on-device worker + every model ships inside. Verified: native window, live MedPsy
+> streaming over your records, zero network. Edge AI you can actually hand to family.
+> #teamSehat
+
+---
+
 **L3 — the privacy/safety angle**  [media: screen-record the injection test or PIN+delete flow]
 > Your health records are the most sensitive data you own. Sehat treats them that
 > way — and treats the *documents themselves* as untrusted.
