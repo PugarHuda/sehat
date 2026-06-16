@@ -12,14 +12,17 @@ const PORT = process.env.PORT || 8787;
 let serverProc = null;
 let win = null;
 
-// Sehat serves HTTPS (self-signed) on 8787 and plain HTTP on 8788. The desktop
-// window uses HTTP to avoid cert prompts; mic still works (Electron grants it).
-const APP_URL = `http://localhost:${Number(PORT) + 1}`;
+// Run the server in plain-HTTP mode and point the window at localhost. http://localhost
+// is a secure context in Chromium/Electron, so the mic/voice loop still works — and we
+// don't need to ship or trust a TLS cert inside the package.
+const APP_URL = `http://localhost:${PORT}`;
 
 function startServer() {
+  // In a packaged app process.execPath is Sehat.exe (Electron). ELECTRON_RUN_AS_NODE
+  // makes it behave as plain Node so server.js runs as an ordinary script.
   serverProc = spawn(process.execPath, [path.join(ROOT, "src", "server.js")], {
     cwd: ROOT,
-    env: { ...process.env, SEHAT_DESKTOP: "1" },
+    env: { ...process.env, SEHAT_DESKTOP: "1", SEHAT_HTTP: "1", ELECTRON_RUN_AS_NODE: "1" },
     stdio: "inherit",
   });
   serverProc.on("exit", (code) => console.log(`[sehat server exited ${code}]`));

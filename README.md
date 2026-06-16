@@ -77,6 +77,15 @@ app — it boots the local server, loads the on-device models, and opens the UI 
 native window (mic permission auto-granted, no cert prompt). Same 100%-local engine,
 zero cloud.
 
+**Package it as a distributable app:** `npm run package` runs the official
+`@qvac/sdk/electron-forge` plugin, which bundles the QVAC worker + native addons
+(pruning the model backends we don't use, per `qvac.config.json`) so models run
+inside the package. On a host where Forge's zip extractor stalls, assemble the
+portable build directly with `powershell -ExecutionPolicy Bypass -File
+scripts/make-portable.ps1` → `out/Sehat-win32-x64/Sehat.exe` (+ a zip). The packaged
+app was verified end-to-end: native window, in-package QVAC worker, live MedPsy
+streaming over RAG — all offline.
+
 ## Measured performance (GTX 1660 Super, all local)
 
 | Workload | Result |
