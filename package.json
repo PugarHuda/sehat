@@ -1,7 +1,7 @@
 {
   "name": "sehat",
   "version": "0.1.0",
-  "description": "Sehat — offline-first family health assistant. RAG over family health documents, voice Q&A with MedGemma, OCR ingestion, and P2P delegated inference to budget phones. 100% on-device via QVAC SDK.",
+  "description": "Sehat — offline-first family health assistant. RAG over family health documents, voice Q&A with MedPsy-4B, OCR ingestion, and P2P delegated inference to budget phones. 100% on-device via QVAC SDK.",
   "type": "module",
   "scripts": {
     "smoke": "node src/smoke-test.js",
@@ -20,7 +20,8 @@
     "profile": "node src/profile-run.js",
     "provider": "node src/provider.js",
     "delegate": "node src/delegate-test.js",
-    "start": "node src/server.js"
+    "start": "node src/server.js",
+    "desktop": "electron electron/main.cjs"
   },
   "keywords": [
     "qvac",
@@ -38,5 +39,8 @@
   "dependencies": {
     "@qvac/sdk": "^0.13.0",
     "qrcode": "^1.5.4"
+  },
+  "devDependencies": {
+    "electron": "^42.4.0"
   }
 }

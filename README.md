@@ -72,6 +72,11 @@ The mic/voice loop needs HTTPS (browsers only allow microphone access in a secur
 context); everything else works over plain HTTP. After models are cached you can pull the
 internet entirely — Sehat keeps working on the LAN.
 
+**Desktop app (native window):** `npm run desktop` launches Sehat as an Electron
+app — it boots the local server, loads the on-device models, and opens the UI in a
+native window (mic permission auto-granted, no cert prompt). Same 100%-local engine,
+zero cloud.
+
 ## Measured performance (GTX 1660 Super, all local)
 
 | Workload | Result |
