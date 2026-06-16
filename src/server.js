@@ -253,9 +253,12 @@ async function handler(req, res) {
   if (req.method === "GET" && url.pathname === "/api/info") {
     // Prefer real home-LAN IPs (192.168.x / 10.x) over virtual adapters (172.x Hyper-V/WSL).
     const score = (ip) => (ip.startsWith("192.168.") ? 0 : ip.startsWith("10.") ? 1 : 2);
-    const httpUrls = lanIps().sort((a, b) => score(a) - score(b)).map((ip) => `http://${ip}:${HTTP_PORT}`);
+    const ips = lanIps().sort((a, b) => score(a) - score(b));
+    const httpUrls = ips.map((ip) => `http://${ip}:${HTTP_PORT}`);
+    // HTTPS URLs are only reachable when TLS is actually on (mic/voice needs them).
+    const httpsUrls = useTls ? ips.map((ip) => `https://${ip}:${PORT}`) : [];
     res.writeHead(200, { "content-type": "application/json" });
-    return res.end(JSON.stringify({ joinUrls: httpUrls, httpsPort: PORT, httpPort: HTTP_PORT, p2pKey }));
+    return res.end(JSON.stringify({ joinUrls: httpUrls, httpsUrls, https: useTls, httpsPort: PORT, httpPort: HTTP_PORT, p2pKey }));
   }
 
   if (req.method === "GET" && url.pathname === "/api/family") {

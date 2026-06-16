@@ -39,6 +39,9 @@
   nav button { flex: 1; padding: 10px; border: 1px solid transparent; background: transparent; color: var(--muted);
     font-size: 13.5px; font-weight: 700; border-radius: 12px; cursor: pointer; transition: .15s; }
   nav button.on { color: var(--brand-d); background: var(--card); border-color: var(--line); box-shadow: var(--shadow); }
+  .navbadge { display: none; min-width: 17px; height: 17px; line-height: 17px; padding: 0 4px; margin-left: 5px; font-size: 10.5px; font-weight: 800;
+    color: #fff; background: var(--high); border-radius: 999px; vertical-align: middle; }
+  .navbadge.on { display: inline-block; }
 
   main { flex: 1; overflow-y: auto; }
   .view { display: none; } .view.on { display: block; }
@@ -142,7 +145,7 @@
 <nav>
   <button class="on" data-view="chatView">💬 Chat</button>
   <button data-view="dashView">📊 Family</button>
-  <button data-view="alertView">🔔 Alerts</button>
+  <button data-view="alertView">🔔 Alerts<span id="alertBadge" class="navbadge"></span></button>
 </nav>
 
 <main>
@@ -195,7 +198,7 @@
   <p>Anyone on the same Wi-Fi can open this link to chat and add their own records — everything syncs to this PC in real time. No accounts, no cloud.</p>
   <label>Open on their phone</label>
   <input id="joinUrl" readonly value="…" style="font-weight:700" />
-  <div id="inviteMsg" style="font-size:12.5px;color:var(--muted);margin-top:8px"></div>
+  <div id="inviteMsg" style="font-size:12.5px;color:var(--muted);margin-top:8px;white-space:pre-line"></div>
   <div class="row"><button class="btn-ghost" id="iClose">Close</button>
     <button class="btn-primary" id="iCopy">Copy link</button></div>
 </div></div>
@@ -223,8 +226,35 @@
     <button class="btn-primary" id="fSave">Save to family records</button></div>
 </div></div>
 
+<!-- generic prompt modal (Electron has no window.prompt) -->
+<div class="modal-bg" id="promptBg"><div class="modal">
+  <h3 id="promptTitle">…</h3>
+  <p id="promptDesc"></p>
+  <input id="promptInput" autocomplete="off" />
+  <div class="row"><button class="btn-ghost" id="promptCancel">Cancel</button>
+    <button class="btn-primary" id="promptOk">OK</button></div>
+</div></div>
+
 <script>
   const $ = (id) => document.getElementById(id);
+
+  // In-app prompt — works in the desktop app (Electron disables window.prompt).
+  function askPrompt(title, { desc = "", value = "", placeholder = "" } = {}) {
+    return new Promise((resolve) => {
+      $("promptTitle").textContent = title;
+      const dp = $("promptDesc"); dp.textContent = desc; dp.style.display = desc ? "block" : "none";
+      const inp = $("promptInput"); inp.value = value || ""; inp.placeholder = placeholder || "";
+      $("promptBg").classList.add("on"); setTimeout(() => inp.focus(), 40);
+      const finish = (val) => {
+        $("promptBg").classList.remove("on");
+        $("promptOk").onclick = null; $("promptCancel").onclick = null; inp.onkeydown = null;
+        resolve(val);
+      };
+      $("promptOk").onclick = () => finish(inp.value.trim());
+      $("promptCancel").onclick = () => finish(null);
+      inp.onkeydown = (e) => { if (e.key === "Enter") finish(inp.value.trim()); if (e.key === "Escape") finish(null); };
+    });
+  }
   const chat = $("chat"), form = $("f"), input = $("q"), send = $("send");
 
   // ---- optional family PIN: auto-attach to every /api/* call ----
@@ -245,7 +275,7 @@
     for (let i = 0; i < 5; i++) {
       const r = await _fetch(_addPin("/api/info")).catch(() => null);
       if (!r || r.status !== 401) return;
-      const p = prompt("Enter the family PIN to access Sehat:");
+      const p = await askPrompt("Family PIN", { desc: "Enter the PIN to access Sehat on this device." });
       if (!p) return;
       PIN = p.trim(); localStorage.setItem("sehat-pin", PIN);
     }
@@ -254,9 +284,12 @@
   // ---- profile name (stored on this device only) ----
   let ME = localStorage.getItem("sehat-me") || "";
   function renderProfile() { $("profileBtn").textContent = ME ? `👤 ${ME}` : "👤 Set name"; }
-  $("profileBtn").onclick = () => {
-    const n = prompt("Your name (used to label records you report in chat):", ME);
-    if (n && n.trim()) { ME = n.trim().slice(0, 40); localStorage.setItem("sehat-me", ME); renderProfile(); }
+  $("profileBtn").onclick = async () => {
+    const n = await askPrompt("Your name", { desc: "Used to label records you report in chat, and to show your own card.", value: ME, placeholder: "e.g. Huda" });
+    if (n) {
+      ME = n.slice(0, 40); localStorage.setItem("sehat-me", ME); renderProfile();
+      if ($("dashView").classList.contains("on")) loadDash();
+    }
   };
   renderProfile();
   const VLABEL = { glucose: "Fasting glucose", hba1c: "HbA1c", ldl: "LDL", chol: "Total cholesterol", sys: "Systolic BP" };
@@ -291,12 +324,39 @@
 
   // ---- dashboard ----
   let FAM = {};
+  let HIDE_SAMPLE = localStorage.getItem("sehat-hide-sample") === "1";
+  // A member is "sample" demo data when every document is built-in (non-removable).
+  const isSampleMember = (m) => { const d = m.documents || []; return d.length > 0 && d.every((x) => !x.removable); };
+  function updateAlertBadge() {
+    let n = 0;
+    for (const m of Object.values(FAM)) for (const [k, s] of Object.entries(m.series || {}))
+      if (s.length && statusOf(k, s[s.length - 1].value) !== "ok") n++;
+    const b = $("alertBadge"); if (b) { b.textContent = n; b.classList.toggle("on", n > 0); }
+  }
+  function openAddFor(relation) {
+    $("modalBg").classList.add("on");
+    if (relation === "self") { $("fRelation").value = "self"; if (ME && !$("fMember").value.trim()) $("fMember").value = ME; }
+  }
   async function loadDash() {
     const el = $("dash"); el.innerHTML = '<div class="loading">Loading family…</div>';
     try {
       FAM = await (await fetch("/api/family")).json();
+      updateAlertBadge();
       el.innerHTML = "";
-      const ordered = Object.values(FAM).sort((a, b) => (a.relation === "self" ? -1 : 0) - (b.relation === "self" ? -1 : 0));
+      const all = Object.values(FAM);
+      const hasSample = all.some(isSampleMember);
+      let ordered = all.sort((a, b) => (a.relation === "self" ? -1 : 0) - (b.relation === "self" ? -1 : 0));
+      if (HIDE_SAMPLE) ordered = ordered.filter((m) => !isSampleMember(m));
+
+      // #2 Self bootstrap: if you set your name but have no records, invite you to add one.
+      const haveSelf = all.some((m) => m.relation === "self" || (ME && m.name.toLowerCase() === ME.toLowerCase()));
+      if (ME && !haveSelf) {
+        el.insertAdjacentHTML("beforeend", `<div class="card mcard" id="selfCta" style="border:1px dashed var(--brand);background:var(--brand-soft)">
+          <div class="mhead"><div class="avatar">🙂</div>
+            <div><div class="mname">${ME} <span class="pill ok">You</span></div><div class="msub">No records yet · tap to add your first</div></div>
+            <div class="chev">＋</div></div></div>`);
+      }
+
       for (const m of ordered) {
         const keys = Object.keys(m.series).slice(0, 3);
         const stats = keys.map((k) => {
@@ -304,14 +364,25 @@
           return `<div class="stat"><div class="k">${VLABEL[k]}</div>
             <div class="v">${last}<small> ${UNIT[k]}</small> ${st !== "ok" ? `<span class="pill ${st}">${st}</span>` : ""}</div></div>`;
         }).join("");
+        const sampleTag = isSampleMember(m) ? ' <span class="pill" style="background:var(--card2);color:var(--faint);border:1px solid var(--line)">Sample</span>' : "";
         el.insertAdjacentHTML("beforeend", `<div class="card mcard" data-m="${m.name}">
           <div class="mhead"><div class="avatar">${EMO[m.name] || "🙂"}</div>
-            <div><div class="mname">${m.name} ${m.relation === "self" ? '<span class="pill ok">You</span>' : ""}</div><div class="msub">${m.docs} record${m.docs > 1 ? "s" : ""} · tap for detail</div></div>
+            <div><div class="mname">${m.name} ${m.relation === "self" ? '<span class="pill ok">You</span>' : ""}${sampleTag}</div><div class="msub">${m.docs} record${m.docs > 1 ? "s" : ""} · tap for detail</div></div>
             <div class="chev">›</div></div>
           ${stats ? `<div class="quickrow">${stats}</div>` : '<div class="msub" style="margin-top:10px">No numeric vitals yet</div>'}
         </div>`);
       }
-      document.querySelectorAll(".mcard").forEach((c) => c.onclick = () => openMember(c.dataset.m));
+
+      // #3 Sample-data notice + show/hide toggle (non-destructive).
+      if (hasSample) {
+        el.insertAdjacentHTML("beforeend", `<div class="msub" style="text-align:center;padding:8px 14px 2px">
+          ${HIDE_SAMPLE ? "Built-in sample family hidden." : "Includes a built-in <b>sample</b> family for the demo."}
+          <a href="#" id="toggleSample" style="color:var(--brand-d);font-weight:700;text-decoration:none">${HIDE_SAMPLE ? "Show" : "Hide"}</a></div>`);
+        $("toggleSample").onclick = (e) => { e.preventDefault(); HIDE_SAMPLE = !HIDE_SAMPLE; localStorage.setItem("sehat-hide-sample", HIDE_SAMPLE ? "1" : "0"); loadDash(); };
+      }
+
+      document.querySelectorAll(".mcard").forEach((c) => { if (c.id !== "selfCta") c.onclick = () => openMember(c.dataset.m); });
+      const cta = $("selfCta"); if (cta) cta.onclick = () => openAddFor("self");
       loadReminders();
     } catch (e) { el.innerHTML = `<div class="loading">⚠️ ${e.message}</div>`; }
   }
@@ -394,7 +465,7 @@
   };
 
   // ---- add member modal ----
-  $("addBtn").onclick = () => $("modalBg").classList.add("on");
+  $("addBtn").onclick = () => openAddFor();
   $("fRelation").onchange = () => { if ($("fRelation").value === "self" && ME && !$("fMember").value.trim()) $("fMember").value = ME; };
   $("fCancel").onclick = () => $("modalBg").classList.remove("on");
   $("fSave").onclick = async () => {
@@ -446,11 +517,18 @@
     $("inviteBg").classList.add("on");
     try {
       const info = await (await fetch("/api/info")).json();
-      const url = info.joinUrls[0] || location.origin;
-      $("joinUrl").value = url;
-      let msg = info.joinUrls.length > 1 ? `Other addresses: ${info.joinUrls.slice(1).join("  ·  ")}` : "";
-      if (info.p2pKey) msg += `${msg ? "\n\n" : ""}🌍 Remote family (P2P, any network): a relative's device can delegate to this home node by public key — ${info.p2pKey.slice(0, 16)}… (run \`npm run delegate <key>\`).`;
-      $("inviteMsg").textContent = msg;
+      const httpsUrl = (info.httpsUrls || [])[0];
+      const httpUrl = (info.joinUrls || [])[0] || location.origin;
+      // Prefer the HTTPS link so the invited phone gets the mic / voice loop.
+      $("joinUrl").value = httpsUrl || httpUrl;
+      const lines = [];
+      if (httpsUrl) lines.push("🎙️ This link enables voice (mic needs HTTPS) — accept the certificate warning once on the phone.");
+      lines.push(`💬 Easy link (chat & dashboard, no mic): ${httpUrl}`);
+      if (!httpsUrl) lines.push("(Voice needs the HTTPS server — run `npm start` with a cert on the PC.)");
+      const others = (httpsUrl ? info.httpsUrls : info.joinUrls).slice(1);
+      if (others.length) lines.push(`Other addresses: ${others.join("  ·  ")}`);
+      if (info.p2pKey) lines.push(`🌍 Remote family (P2P, any network): a relative's device can delegate to this home node by public key — ${info.p2pKey.slice(0, 16)}… (run \`npm run delegate <key>\`).`);
+      $("inviteMsg").textContent = lines.join("\n\n");
     } catch { $("joinUrl").value = location.origin; }
   };
   $("iClose").onclick = () => $("inviteBg").classList.remove("on");
@@ -521,6 +599,9 @@
   };
 
   if ("serviceWorker" in navigator) navigator.serviceWorker.register("/sw.js").catch(() => {});
+
+  // Initial alert badge so 🔔 shows a count before the dashboard is ever opened.
+  (async () => { try { FAM = await (await fetch("/api/family")).json(); updateAlertBadge(); } catch {} })();
 
   let streaming = false, currentES = null;
   const endStream = () => { streaming = false; send.textContent = "➤"; send.title = "Send"; };
