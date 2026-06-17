@@ -16,6 +16,9 @@ them in so the 5:00 stays tight.
 - Title card → voiceover: "This is Sehat — a family health assistant running nine
   AI models on this one PC. No cloud. Built on the QVAC SDK with MedPsy. Watch."
 - Show msinfo32 + Task Manager → Performance (GTX 1660 Super, 16 GB).
+- Optional strong open: double-click the packaged **desktop app** (`npm run desktop`
+  / `Sehat.exe`) → a native window opens with the models already loading. "One
+  double-click, a real desktop app — no browser, no cloud."
 
 **0:20–0:35 — Prove it's local**
 - On camera, toggle Wi-Fi/Ethernet OFF (models already cached). Keep the offline

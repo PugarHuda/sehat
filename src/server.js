@@ -8,7 +8,7 @@ import { createServer as createHttpsServer } from "node:https";
 import { readFileSync, readdirSync, existsSync, writeFileSync, unlinkSync, mkdirSync } from "node:fs";
 import { join, basename } from "node:path";
 import { tmpdir, networkInterfaces } from "node:os";
-import { startQVACProvider, loadModel, transcribe, WHISPER_LARGE_V3_TURBO } from "@qvac/sdk";
+import { startQVACProvider, loadModel, unloadModel, transcribe, WHISPER_LARGE_V3_TURBO } from "@qvac/sdk";
 import { SehatEngine } from "./engine.js";
 import { SehatAgent } from "./agent.js";
 import { Translator } from "./translator.js";
@@ -37,8 +37,30 @@ if (!probe || probe.hits.length === 0) {
 }
 
 // Lazy singletons for optional capabilities.
-let translator = null;
+// Optional models, loaded on demand. On a 6 GB GPU only ONE may be resident at a
+// time alongside the always-on base (MedPsy-4B + GTE-large): loading two heavy
+// optional models on top of the base can exceed VRAM and crash the Bare worker.
+// Since these features are used one at a time, claimSlot() unloads the previously
+// active optional model when you switch features.
+let translator = null, sttId = null, ocrId = null, ttsId = null, agent = null;
+let optActive = null;
+async function claimSlot(key) {
+  if (optActive === key) return;
+  if (optActive) {
+    try {
+      if (optActive === "stt" && sttId) { await unloadModel({ modelId: sttId }); sttId = null; }
+      else if (optActive === "ocr" && ocrId) { await unloadModel({ modelId: ocrId }); ocrId = null; }
+      else if (optActive === "tts" && ttsId) { await unloadModel({ modelId: ttsId }); ttsId = null; }
+      else if (optActive === "agent" && agent) { await agent.stop(); agent = null; }
+      else if (optActive === "translator" && translator) { await translator.stop(); translator = null; }
+      console.log(`[vram] unloaded optional model '${optActive}' (switching to '${key}')`);
+    } catch (e) { console.warn(`[vram] unload '${optActive}' failed: ${e.message}`); }
+  }
+  optActive = key;
+}
+
 async function getTranslator() {
+  await claimSlot("translator");
   if (!translator) {
     console.log("Loading Bergamot ID<->EN translator...");
     translator = new Translator();
@@ -47,8 +69,8 @@ async function getTranslator() {
   return translator;
 }
 
-let sttId = null;
 async function getStt() {
+  await claimSlot("stt");
   if (!sttId) {
     console.log("Loading Whisper STT (large-v3-turbo, auto-detect)...");
     sttId = await loadModel({
@@ -67,8 +89,8 @@ async function getStt() {
   return sttId;
 }
 
-let ocrId = null;
 async function getOcr() {
+  await claimSlot("ocr");
   if (!ocrId) {
     console.log("Loading OCR...");
     ocrId = await loadModel({
@@ -80,8 +102,8 @@ async function getOcr() {
   return ocrId;
 }
 
-let ttsId = null;
 async function getTts() {
+  await claimSlot("tts");
   if (!ttsId) {
     console.log("Loading Supertonic TTS...");
     ttsId = await loadModel({
@@ -93,11 +115,11 @@ async function getTts() {
   return ttsId;
 }
 
-let agent = null;
 async function getAgent() {
+  await claimSlot("agent");
   if (!agent) {
     console.log("Loading Qwen3 orchestrator for agent mode...");
-    agent = new SehatAgent({ engine }); // shares the already-loaded MedGemma
+    agent = new SehatAgent({ engine }); // shares the already-loaded MedPsy specialist
     await agent.start();
   }
   return agent;
