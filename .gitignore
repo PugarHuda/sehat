@@ -8,6 +8,11 @@ qvac/
 forge-make.log
 eztest.cjs
 
+# Raw Playwright video (the committed mp4 in assets/social/shots/ is the deliverable)
+assets/social/shots/video/
+pkg-server.log
+qa-pkg.log
+
 # Downloaded model weights (large binaries; fetched at runtime by QVAC SDK)
 models/
 
