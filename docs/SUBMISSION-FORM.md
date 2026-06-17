@@ -84,8 +84,8 @@ Built entirely within the hackathon build period (started June 11, 2026). It bui
 Requirements: Node.js >= 22. Steps: git clone https://github.com/PugarHuda/sehat -> npm install -> `npm start` (web UI: http://localhost:8788, HTTPS :8787 for mic) or `npm run desktop` (native window). First run downloads model weights once (QVAC registry / HuggingFace), then runs fully offline. Per-feature demos: npm run demo:rag | demo:voice | demo:ocr | demo:agent | demo:vision | demo:translate | demo:finetune. Tests: node src/qa-suite.js (22/22), node src/qa-ocr.js (13/13).
 
 Hardware used in the demo:
-- Main device (desktop): Intel Core i3-12100F (4C/8T), 16 GB DDR4, NVIDIA GTX 1660 Super 6 GB VRAM, <storage e.g. 512 GB NVMe SSD>, Windows 11.
-- Secondary (P2P client): Xiaomi Redmi Note 10 Pro, Snapdragon 732G, 8 GB RAM, Android.
+- Main device (desktop): Intel Core i3-12100F (4C/8T), 16 GB DDR4, NVIDIA GTX 1660 Super 6 GB VRAM, 500 GB NVMe SSD (Kingston SNV2S500G), MSI MS-7E44 board, Windows 11.
+- Secondary (P2P client): Xiaomi Redmi Note 10 Pro (M2101K6G), Snapdragon 732G octa-core @2.3 GHz, 8 GB RAM, 128 GB storage, Android 13 (MIUI 14.0.2). Specs evidence: artifacts/hardware/phone-spec-1.jpeg, phone-spec-2.jpeg.
 ```
 
 **Repo has clear remote-API explanation?** → **Yes** (`remote-apis.yaml`).
