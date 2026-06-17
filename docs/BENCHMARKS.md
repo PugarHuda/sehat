@@ -27,7 +27,11 @@ the committed [`artifacts/audit-log.jsonl`](../artifacts/audit-log.jsonl),
 | Qwen3-1.7B | agent orchestrator | multi-tool runs within 8k ctx |
 | Gemma4-4B multimodal | vision (photo→analysis) | 43.7 tok/s (SDK stats) |
 
-## RAG (EmbeddingGemma 300M)
+## RAG (embeddings: GTE-large FP16)
+
+> Current embedder is GTE-large FP16 (higher-accuracy retrieval). The latency
+> figures below were measured on the earlier EmbeddingGemma-300M embedder; the
+> `ragReindex` (IVF) speedup is embedder-independent.
 
 | Metric | Result |
 |---|---|

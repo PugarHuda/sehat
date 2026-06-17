@@ -94,7 +94,7 @@ streaming over RAG — all offline.
 | Llama 3.2 1B Q4, GPU (`gpu_layers: 99`) | 127.6 tok/s · TTFT 116 ms (CPU baseline 31.6 tok/s) |
 | RAG vector search (GTE-large FP16) | `ragReindex` (IVF) cuts 200-doc search 125 ms → 11 ms |
 | OCR of a photographed lab report | 54 blocks · 0.94 avg confidence (rotated 90° & 11 pt also pass) |
-| STT (Parakeet CTC 0.6B) | 451–564 ms |
+| STT (Whisper large-v3-turbo) | multilingual, auto-detects language; transcribes on-device |
 | Multi-agent run (tool calls incl. MedPsy consult) | completes within the 8 k ctx window |
 | Vision: photo → structured analysis (no OCR) | all values read correctly; 43.7 tok/s (SDK stats) |
 | **LoRA fine-tune (QVAC Fabric), Qwen3-600M** | hand-written set: loss 3.00→1.77 in 238 s; **real QVAC Genesis-I medical data: loss 4.39→1.51, val acc 68.8%** |
