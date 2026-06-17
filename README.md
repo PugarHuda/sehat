@@ -92,7 +92,7 @@ streaming over RAG — all offline.
 |---|---|
 | **QVAC MedPsy-4B Q4_K_M, GPU** | **TTFT 343 ms · 59.7 tok/s** (vs MedGemma-4B: TTFT 5,626 ms · 44.4 tok/s, same prompt/GPU) |
 | Llama 3.2 1B Q4, GPU (`gpu_layers: 99`) | 127.6 tok/s · TTFT 116 ms (CPU baseline 31.6 tok/s) |
-| RAG vector search (EmbeddingGemma 300M) | 13–171 ms; `ragReindex` cuts 200-doc search 125 ms → 11 ms |
+| RAG vector search (GTE-large FP16) | `ragReindex` (IVF) cuts 200-doc search 125 ms → 11 ms |
 | OCR of a photographed lab report | 54 blocks · 0.94 avg confidence (rotated 90° & 11 pt also pass) |
 | STT (Parakeet CTC 0.6B) | 451–564 ms |
 | Multi-agent run (tool calls incl. MedPsy consult) | completes within the 8 k ctx window |
@@ -129,9 +129,9 @@ Numbers come from the committed [`artifacts/audit-log.jsonl`](artifacts/audit-lo
 │   @qvac/sdk (single API for everything below)            │
 │   ├─ MedPsy-4B (GPU)          — reasoning & answers       │
 │   ├─ Qwen3-1.7B (GPU)         — agent orchestrator+tools  │
-│   ├─ EmbeddingGemma 300M      — private RAG workspace     │
+│   ├─ GTE-large (FP16)         — private RAG workspace     │
 │   ├─ OCR · Gemma4 vision      — paper/photo → index       │
-│   ├─ Parakeet STT + Supertonic TTS — voice loop           │
+│   ├─ Whisper STT + Supertonic TTS — voice loop            │
 │   ├─ HTTPS :8787 / HTTP :8788 — phone web UI + PWA (SSE)  │
 │   └─ startQVACProvider()      — P2P provider (DHT)        │
 └───────────▲──────────────────────────────▲───────────────┘
