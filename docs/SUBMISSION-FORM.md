@@ -13,29 +13,16 @@ Sehat — On-Device Family Health AI
 ### BUIDL logo
 Upload `assets/logo-480.png` (480×480 PNG, on-brand). ✅ ready
 
-### Vision — "Describe the problem which this project solves"
+### Vision — "Describe the problem which this project solves"  (MAX 256 chars)
+Paste (248 chars):
 ```
-Health records are the most private data a family owns, yet today's health apps
-push lab results, prescriptions and notes into someone else's cloud — behind
-accounts, subscriptions, and a network connection.
-
-Sehat solves this by running an entire family health assistant on one ordinary
-home PC, 100% on-device via the QVAC SDK — no cloud, no accounts, nothing ever
-leaving the house. You add records by typing, photographing (OCR), voice, or CSV;
-Sehat indexes them into a private RAG store and answers questions in any language,
-by text or voice, with citations to the exact document — powered by QVAC's own
-MedPsy-4B medical model. It is proactive: it scans the records and warns you when
-a vital is trending the wrong way, with a plain-language briefing it can speak
-aloud. It ships as a one-double-click desktop app.
-
-It proves edge AI is production-ready: nine on-device models (medical reasoning,
-RAG embeddings, speech-to-text, text-to-speech, OCR, vision, translation, agent
-orchestration, plus a LoRA fine-tune on QVAC's Genesis medical dataset) all run on
-a 4-year-old 6 GB GTX 1660 Super — with first token in ~120 ms, ~16× faster than
-Google's MedGemma-4B on the same prompt.
-
-Educational / personal-organization tool — not a medical device, not for diagnosis.
+Sehat runs a family health assistant 100% on one home PC via the QVAC SDK — no cloud, no accounts. Add labs by text, photo or voice; MedPsy-4B answers with citations in any language and flags bad trends. 9 on-device models on a 6 GB GPU. #teamSehat
 ```
+Shorter alt (230 chars):
+```
+Sehat puts a whole family health assistant on one home PC — 100% on-device via the QVAC SDK. No cloud, no accounts. Ask in any language by text or voice; MedPsy-4B answers from your own labs with citations. 9 models, 6 GB GPU. #teamSehat
+```
+(The longer narrative — for the video description / README — is in the repo README.)
 
 ### Is this BUIDL an AI Agent?  →  **No**
 (Sehat is an on-device health *assistant/app*. It does include an optional
