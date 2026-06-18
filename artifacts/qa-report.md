@@ -26,3 +26,21 @@ Server: https://localhost:8787 | **22 passed / 0 failed**
 | 20 | Add self record -> member with relation=self + vitals | ✅ PASS | relation=self glucose=92 |
 | 21 | Multi-record append extends trend series | ✅ PASS | glucose points 1 -> 2 |
 | 22 | Agent mode: tool trace returned | ✅ PASS | tools: 🔧 search_records, 🔧 search_records, 🔧 search_records, 🔧 search_records, 🔧 search_records, 🔧 search_records, 🔧 search_records, 🔧 search_records |
+
+## OCR robustness sweep
+
+| Image | Blocks | Avg conf | Time | Key strings | OK |
+|---|---|---|---|---|---|
+| cgm-log-budi.png | 31 | 0.96 | 6917 ms | 3/3 | ✅ |
+| discharge-summary-budi.png | 13 | 0.80 | 6689 ms | 2/2 | ✅ |
+| eye-exam-dewi.png | 35 | 0.94 | 6422 ms | 2/2 | ✅ |
+| lab-indonesia-budi-2026-06.png | 48 | 0.94 | 6414 ms | 3/3 | ✅ |
+| lab-results-budi-2026-06-photo.png | 54 | 0.93 | 6734 ms | 3/3 | ✅ |
+| note-handwritten-agus.png | 16 | 0.82 | 5659 ms | 2/2 | ✅ |
+| pharmacy-label-sari.png | 14 | 0.89 | 5279 ms | 2/2 | ✅ |
+| prescription-budi-2026-06.png | 48 | 0.97 | 6688 ms | 2/2 | ✅ |
+| prescription-rina-2026-06.png | 59 | 0.95 | 6857 ms | 3/3 | ✅ |
+| test-rotated.png | 16 | 0.66 | 5277 ms | 2/2 | ✅ |
+| test-smallfont.png | 10 | 0.86 | 5312 ms | 3/3 | ✅ |
+| vaccine-card-rina-2026.png | 36 | 0.97 | 6033 ms | 3/3 | ✅ |
+| wearable-weekly-budi.png | 15 | 0.88 | 5863 ms | 3/3 | ✅ |

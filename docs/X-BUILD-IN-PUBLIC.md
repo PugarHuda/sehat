@@ -72,6 +72,20 @@ QVAC Hackathon I rewards the most social team (**USDT 1500**). Rules:
 
 ---
 
+**P9 — reliability / constrained devices (today's win)**  [media: 4-alerts.png]
+> Edge AI reality check 🧩 on a 6 GB GPU you can't keep every model resident.
+> Loading Whisper on top of MedPsy + RAG + the Qwen agent was OOM-crashing the
+> worker. Fix: a VRAM guard that keeps only ONE optional model loaded at a time and
+> unloads the previous when you switch features. voice → agent → OCR now run
+> rock-solid on 6 GB. Constrained-device engineering is the whole point. @QVAC #teamSehat
+
+**P10 — all green (test sweep)**  [media: 2-family.png]
+> Sehat status today ✅ 22/22 end-to-end tests, 13/13 OCR docs (print, handwriting,
+> rotated, Indonesian), and a prompt-injection attack resisted — all on-device on a
+> GTX 1660 Super. Reliability is a feature, not an afterthought. @QVAC #teamSehat
+
+---
+
 ## ▸ LEVEL 3 — VIDEO  [media: sehat-demo.mp4]
 > 60 seconds of Sehat, 100% on-device 🎥 ask about a family member's blood sugar →
 > cited answer streams from MedPsy-4B → open the dashboard → trends, alerts &
