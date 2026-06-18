@@ -9,7 +9,7 @@
 ![Architecture](assets/architecture.png)
 
 Built for **QVAC Hackathon I – Unleash Edge AI** (June 2026).
-Tracks: **General Purpose** + **Psy Models** · Build in Public: `#teamSehat`
+Track: **General Purpose** (BYOH desktop) · creative **Psy-model** use (MedPsy-4B) · Build in Public: `#teamSehat`
 Repo: https://github.com/PugarHuda/sehat
 
 > **Powered by QVAC MedPsy-4B** — Tether's own edge medical model. We independently
@@ -93,9 +93,10 @@ streaming over RAG — all offline.
 | **QVAC MedPsy-4B Q4_K_M, GPU** | **TTFT 343 ms · 59.7 tok/s** (vs MedGemma-4B: TTFT 5,626 ms · 44.4 tok/s, same prompt/GPU) |
 | Llama 3.2 1B Q4, GPU (`gpu_layers: 99`) | 127.6 tok/s · TTFT 116 ms (CPU baseline 31.6 tok/s) |
 | RAG vector search (GTE-large FP16) | `ragReindex` (IVF) cuts 200-doc search 125 ms → 11 ms |
-| OCR of a photographed lab report | 54 blocks · 0.94 avg confidence (rotated 90° & 11 pt also pass) |
+| OCR sweep (13 photographed docs) | **13/13 pass** · print, handwriting, rotated, small-font & Indonesian (conf 0.66–0.97) |
 | STT (Whisper large-v3-turbo) | multilingual, auto-detects language; transcribes on-device |
 | Multi-agent run (tool calls incl. MedPsy consult) | completes within the 8 k ctx window |
+| Reliability on 6 GB VRAM | a VRAM guard keeps one optional model (STT/OCR/TTS/agent) resident at a time → voice→agent→OCR run without OOM |
 | Vision: photo → structured analysis (no OCR) | all values read correctly; 43.7 tok/s (SDK stats) |
 | **LoRA fine-tune (QVAC Fabric), Qwen3-600M** | hand-written set: loss 3.00→1.77 in 238 s; **real QVAC Genesis-I medical data: loss 4.39→1.51, val acc 68.8%** |
 | ID↔EN translation (Bergamot, CPU) | sub-second per message |
@@ -103,7 +104,7 @@ streaming over RAG — all offline.
 
 Numbers come from the committed [`artifacts/audit-log.jsonl`](artifacts/audit-log.jsonl)
 (prompt, tokens, TTFT, tok/s per call) and [`artifacts/qa-report.md`](artifacts/qa-report.md)
-(22/22 server cases + 4/4 OCR). SDK-native telemetry: [`artifacts/profiler-export.json`](artifacts/profiler-export.json).
+(22/22 server cases + 13/13 OCR). SDK-native telemetry: [`artifacts/profiler-export.json`](artifacts/profiler-export.json).
 
 ## Models used (all via @qvac/sdk, all on-device)
 
@@ -146,8 +147,8 @@ Numbers come from the committed [`artifacts/audit-log.jsonl`](artifacts/audit-lo
 
 | Device | Specs |
 |---|---|
-| Desktop (main, General Purpose track) | Intel Core i3-12100F (4C/8T) · 16 GB DDR4 · NVIDIA GTX 1660 Super 6 GB · Windows 11 |
-| Phone (web-UI client) | Xiaomi Redmi Note 10 Pro · Snapdragon 732G · Android |
+| Desktop (main, General Purpose track) | Intel Core i3-12100F (4C/8T) · 16 GB DDR4 · NVIDIA GTX 1660 Super 6 GB · 500 GB NVMe SSD · Windows 11 |
+| Phone (web-UI client) | Xiaomi Redmi Note 10 Pro (M2101K6G) · Snapdragon 732G · 8 GB RAM · 128 GB · Android 13 |
 
 Evidence: [`artifacts/hardware/`](artifacts/hardware/) — `msinfo32-report.txt`, `dxdiag-report.txt`,
 `nvidia-smi.txt`, CPU/GPU/OS, and a Task Manager screenshot.
@@ -174,8 +175,10 @@ npm run demo:finetune:genesis    # LoRA fine-tune on real Genesis data (Fabric)
 npm run demo:finetune            # LoRA fine-tune on the hand-written "Sehat style" set
 npm run profile                  # evidence run with the SDK's own profiler
 node src/qa-suite.js             # 22 end-to-end server tests (server must be up)
+node src/qa-ocr.js               # 13-image OCR sweep (print/handwriting/rotated/Indonesian)
 
 npm start                        # the app: phone UI on https://<ip>:8787 + http://<ip>:8788
+npm run desktop                  # native desktop app (Electron) — same engine, a window
 SEHAT_P2P=1 npm start            # also start the P2P "remote family node"
 npm run delegate <publicKey>     # from another device: delegated inference, no local model
 ```
@@ -203,7 +206,7 @@ fake a demo; on a home LAN / direct DHT (our setup) relays aren't needed.
 - [`remote-apis.yaml`](remote-apis.yaml) — every remote call disclosed (no cloud AI)
 - [`NOTICE-genesis.md`](NOTICE-genesis.md) — QVAC Genesis dataset license (CC-BY-NC) disclosure
 - [`artifacts/audit-log.jsonl`](artifacts/audit-log.jsonl) — model loads + per-call prompt/tokens/TTFT/tok-s
-- [`artifacts/qa-report.md`](artifacts/qa-report.md) — 22/22 server cases + OCR sweep
+- [`artifacts/qa-report.md`](artifacts/qa-report.md) — 22/22 server cases + 13/13 OCR sweep
 - [`artifacts/medpsy-vs-medgemma.md`](artifacts/medpsy-vs-medgemma.md) — MedPsy vs MedGemma benchmark
 - [`artifacts/qvac-stack-coverage.md`](artifacts/qvac-stack-coverage.md) — which QVAC stack legs we use
 - [`artifacts/hardware/`](artifacts/hardware/) — system profiler reports + screenshot
